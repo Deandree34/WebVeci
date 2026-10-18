@@ -1,0 +1,181 @@
+<script setup lang="ts">
+import type { Story } from '~/api/types'
+import { businessPath } from '~/features/navigation/nav'
+import { useStoriesStore } from '~/stores/stories'
+
+/**
+ * Visor de historias a pantalla completa.
+ *
+ * - Avanza solo cuando termina la barra (animación CSS `animate-story-progress`, 6 s).
+ * - Toque/clic en la mitad izquierda o derecha, flechas ← → y Escape para cerrar.
+ * - Mantener presionado pausa; también se pausa si la pestaña queda oculta.
+ * - Con "reducir movimiento" no hay avance automático: se navega a mano.
+ *
+ * `index` es la historia abierta (`null` = cerrado).
+ */
+const props = defineProps<{ stories: Story[] }>()
+const index = defineModel<number | null>('index', { default: null })
+
+const store = useStoriesStore()
+const dialog = ref<HTMLDialogElement>()
+
+const story = computed(() => (index.value === null ? undefined : props.stories[index.value]))
+
+/* ---------- Abrir / cerrar ---------- */
+watch(index, (value) => {
+  const el = dialog.value
+  if (!el) return
+  if (value !== null && !el.open) el.showModal()
+  if (value === null && el.open) el.close()
+  document.documentElement.style.overflow = value === null ? '' : 'hidden'
+})
+onBeforeUnmount(() => (document.documentElement.style.overflow = ''))
+
+watch(story, (value) => value && store.markSeen(value.id), { immediate: true })
+
+function close() {
+  index.value = null
+}
+function next() {
+  if (index.value === null) return
+  if (index.value < props.stories.length - 1) index.value += 1
+  else close()
+}
+function prev() {
+  if (index.value !== null && index.value > 0) index.value -= 1
+}
+
+/* ---------- Pausa: mantener presionado o pestaña oculta ---------- */
+const holding = ref(false)
+const hidden = ref(false)
+const paused = computed(() => holding.value || hidden.value)
+
+const onVisibility = () => (hidden.value = document.hidden)
+onMounted(() => document.addEventListener('visibilitychange', onVisibility))
+onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibility))
+
+let pressedAt = 0
+function onPress() {
+  pressedAt = Date.now()
+  holding.value = true
+}
+/** Un toque corto navega; uno largo solo reanuda. */
+function onRelease(direction: 'prev' | 'next') {
+  holding.value = false
+  if (Date.now() - pressedAt > 250) return
+  if (direction === 'next') next()
+  else prev()
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'ArrowRight') next()
+  if (event.key === 'ArrowLeft') prev()
+}
+
+/* ---------- Acción ---------- */
+const actionTo = computed(() => {
+  if (!story.value) return '/'
+  const path = businessPath(story.value.business.slug)
+  return story.value.action.target === 'booking' ? { path, query: { cita: '1' } } : path
+})
+</script>
+
+<template>
+  <dialog
+    ref="dialog"
+    class="m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-canvas/90 backdrop:backdrop-blur"
+    aria-label="Historias"
+    @close="close"
+    @keydown="onKeydown"
+  >
+    <div v-if="story" class="flex h-full items-center justify-center gap-md" @click.self="close">
+      <BIconButton class="hidden sm:inline-flex" label="Historia anterior" :disabled="index === 0" @click="prev">
+        <Icon name="material-symbols:chevron-left" size="28" />
+      </BIconButton>
+
+      <article
+        class="relative flex h-full w-full flex-col overflow-hidden bg-surface-card sm:aspect-[9/16] sm:h-[min(90dvh,760px)] sm:w-auto sm:rounded-3xl"
+        :aria-label="`${story.business.name}: ${story.kind}`"
+      >
+        <span class="pointer-events-none absolute inset-0 bg-veci-gradient opacity-40" aria-hidden="true" />
+        <span class="pointer-events-none absolute inset-0 bg-story-veil" aria-hidden="true" />
+
+        <!-- Barras de progreso -->
+        <div class="relative z-10 flex gap-xxs px-sm pt-sm" aria-hidden="true">
+          <span v-for="(item, j) in stories" :key="item.id" class="h-[3px] flex-1 overflow-hidden rounded-pill bg-on-dark/30">
+            <span v-if="j < index!" class="block h-full w-full bg-on-dark" />
+            <span
+              v-else-if="j === index"
+              :key="`progress-${index}`"
+              class="block h-full animate-story-progress bg-on-dark motion-reduce:w-full motion-reduce:animate-none"
+              :style="{ animationPlayState: paused ? 'paused' : 'running' }"
+              @animationend="next"
+            />
+          </span>
+        </div>
+
+        <!-- Cabecera -->
+        <header class="relative z-10 flex items-center gap-xs px-sm py-sm">
+          <StoryAvatar :icon="story.business.icon" size="sm" class="ring-2 ring-on-dark/60" />
+          <span class="truncate text-body-sm font-medium text-on-dark">{{ story.business.name }}</span>
+          <BusinessVerified v-if="story.business.verified" />
+          <span class="text-body-xs text-on-dark/70">hoy</span>
+          <BIconButton class="ml-auto" label="Cerrar historias" @click="close">
+            <Icon name="material-symbols:close" size="24" />
+          </BIconButton>
+        </header>
+
+        <!-- Zonas de toque: izquierda = anterior, derecha = siguiente; mantener = pausa -->
+        <button
+          type="button"
+          class="absolute inset-y-0 left-0 w-1/3"
+          aria-label="Historia anterior"
+          tabindex="-1"
+          @pointerdown="onPress"
+          @pointerup="onRelease('prev')"
+          @pointerleave="holding = false"
+        />
+        <button
+          type="button"
+          class="absolute inset-y-0 right-0 w-2/3"
+          aria-label="Historia siguiente"
+          tabindex="-1"
+          @pointerdown="onPress"
+          @pointerup="onRelease('next')"
+          @pointerleave="holding = false"
+        />
+
+        <!-- Contenido -->
+        <div class="pointer-events-none relative z-10 flex flex-1 flex-col items-center justify-center px-lg text-center">
+          <Icon
+            :name="story.business.icon"
+            size="104"
+            class="mb-md text-on-dark drop-shadow-[0_14px_30px_rgba(0,0,0,0.45)]"
+            aria-hidden="true"
+          />
+          <p class="type-caption font-bold text-on-dark/85">{{ story.kind }}</p>
+          <p class="mt-xxs text-display-md font-bold normal-case tracking-normal text-on-dark">{{ story.headline }}</p>
+          <p class="mt-xs text-body-md text-on-dark/90">{{ story.text }}</p>
+          <div v-if="story.promo" class="mt-md rounded-pill bg-canvas/35 px-md py-xs">
+            <BusinessPromoCountdown :promo="story.promo" :bar="false" />
+          </div>
+        </div>
+
+        <!-- Acción -->
+        <footer class="relative z-10 p-md">
+          <NuxtLink
+            :to="actionTo"
+            class="flex h-11 w-full items-center justify-center rounded-card bg-on-dark text-body-md font-medium text-canvas transition-opacity hover:opacity-90"
+            @click="close"
+          >
+            {{ story.action.label }}
+          </NuxtLink>
+        </footer>
+      </article>
+
+      <BIconButton class="hidden sm:inline-flex" label="Historia siguiente" @click="next">
+        <Icon name="material-symbols:chevron-right" size="28" />
+      </BIconButton>
+    </div>
+  </dialog>
+</template>

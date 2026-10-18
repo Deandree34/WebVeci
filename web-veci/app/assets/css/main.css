@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@import "./bugatti-theme.css";
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-canvas text-body font-text text-body-md antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display font-normal text-ink uppercase;
+  }
+
+  ::selection {
+    @apply bg-primary text-on-primary;
+  }
+
+  :focus-visible {
+    @apply outline outline-1 outline-offset-4 outline-primary;
+  }
+
+  /* Tailwind v4 ya no pone cursor de manita en los botones: lo restauramos
+     para todos los controles clicables (los `disabled` conservan la flecha). */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+/* Contenedor centrado a 1200px con gutter */
+@utility container-content {
+  @apply mx-auto w-full max-w-content px-md md:px-lg;
+}
+
+/* Degradado del logo (rosa → violeta → azul): solo momentos especiales */
+@utility bg-veci-gradient {
+  background-image: linear-gradient(135deg, var(--color-veci-pink) 0%, var(--color-veci-purple) 50%, var(--color-veci-blue) 100%);
+}
+
+@utility text-veci-gradient {
+  background-image: linear-gradient(135deg, var(--color-veci-pink) 0%, var(--color-veci-purple) 50%, var(--color-veci-blue-text) 100%);
+  background-clip: text;
+  color: transparent;
+}
+
+/* Velo del visor de historias: brillo arriba y oscurecido abajo, para que el
+   texto blanco se lea sobre el degradado (estilo del prototipo veci-feed). */
+@utility bg-story-veil {
+  background-image:
+    radial-gradient(ellipse at 50% 30%, rgb(255 255 255 / 0.16), transparent 60%),
+    linear-gradient(rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.75));
+}
+
+@utility type-caption {
+  @apply font-mono text-caption-uppercase uppercase;
+}
+
+@utility type-nav {
+  @apply font-mono text-nav-link uppercase;
+}
+
+@utility type-button {
+  @apply font-mono text-button uppercase;
+}
+
+/* Barra de progreso de historias: el visor avanza al terminar la animación (`animationend`) */
+@theme {
+  --animate-story-progress: story-progress 6s linear forwards;
+
+  @keyframes story-progress {
+    from { width: 0%; }
+    to { width: 100%; }
+  }
+}
