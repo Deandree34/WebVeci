@@ -1,11 +1,15 @@
 <script setup lang="ts">
-const props = defineProps<{
+/** Ítem del menú lateral: activo = ícono relleno y negritas; inactivo = contorno y gris. */
+// `active: undefined` explícito: si no, Vue convierte la prop booleana ausente en `false`
+// y el `??` de abajo nunca consulta la ruta (ningún ítem se marcaba activo).
+const props = withDefaults(defineProps<{
   icon: string
+  activeIcon?: string
   label: string
   to: string
   active?: boolean
   badge?: string | number
-}>()
+}>(), { active: undefined })
 
 const route = useRoute()
 const isActive = computed(() =>
@@ -17,12 +21,12 @@ const isActive = computed(() =>
   <NuxtLink
     :to="to"
     class="flex items-center justify-center gap-md rounded-control px-sm py-sm transition-colors hover:bg-surface-soft lg:justify-start"
-    :class="isActive ? 'bg-surface-card text-on-dark' : 'text-body'"
+    :class="isActive ? 'text-on-dark' : 'text-muted hover:text-on-dark'"
     :aria-current="isActive ? 'page' : undefined"
     :title="label"
   >
-    <Icon :name="icon" size="24" class="shrink-0" aria-hidden="true" />
-    <span class="hidden truncate text-body-sm font-medium lg:inline">{{ label }}</span>
+    <Icon :name="isActive && activeIcon ? activeIcon : icon" size="24" class="shrink-0" aria-hidden="true" />
+    <span class="hidden truncate text-body-sm lg:inline" :class="isActive ? 'font-bold' : 'font-medium'">{{ label }}</span>
     <span
       v-if="badge"
       class="ml-auto hidden min-w-5 rounded-pill bg-veci-pink px-xxs text-center text-body-xs font-medium text-on-accent lg:inline"

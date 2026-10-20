@@ -33,6 +33,45 @@ export function colonyHour(now: number): number {
   return hour + minute / 60
 }
 
+/* ---------- Fechas de calendario ("YYYY-MM-DD") en la zona de la colonia ---------- */
+
+/** Fecha de hoy en la colonia, p. ej. "2026-10-18". */
+export function colonyToday(now: number): string {
+  // en-CA da el formato ISO (año-mes-día)
+  return new Intl.DateTimeFormat('en-CA', { timeZone: COLONY_TIME_ZONE }).format(new Date(now))
+}
+
+/** "YYYY-MM-DD" → milisegundos a medianoche UTC (aritmética de días sin zonas ni horario de verano). */
+const dateUtc = (date: string) => {
+  const [y, m, d] = date.split('-').map(Number)
+  return Date.UTC(y!, m! - 1, d!)
+}
+
+/** Fecha + `days` días, en el mismo formato. */
+export function addDays(date: string, days: number): string {
+  return new Date(dateUtc(date) + days * DAY_MS).toISOString().slice(0, 10)
+}
+
+/** Días que faltan para `date` desde hoy en la colonia (0 = hoy, negativo = ya pasó). */
+export function daysUntil(date: string, now: number): number {
+  return Math.round((dateUtc(date) - dateUtc(colonyToday(now))) / DAY_MS)
+}
+
+/** Día de la semana (0 = domingo) de una fecha de calendario. */
+export function weekdayOf(date: string): number {
+  return new Date(dateUtc(date)).getUTCDay()
+}
+
+/** Día de la semana corto en mayúsculas, p. ej. "SÁB". */
+export function weekdayShort(date: string): string {
+  return ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][weekdayOf(date)]!
+}
+
+/** Mes corto en mayúsculas, p. ej. "OCT". */
+export function monthShort(date: string): string {
+  return ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'][new Date(dateUtc(date)).getUTCMonth()]!
+}
+
 /** Hora decimal → texto corto, p. ej. `21` → "9 pm", `25` → "1 am". */
 export function formatHour(hour: number): string {
   const h = Math.floor(hour % 24)
@@ -124,4 +163,61 @@ export function dayPart(hour: number): DayPart {
   if (hour >= 5 && hour < 12) return 'morning'
   if (hour >= 12 && hour < 19) return 'afternoon'
   return 'night'
+}
+
+/* ---------- Horario semanal (`Business.weekHours`) ---------- */
+
+/** Lo que hace falta de un negocio para saber su horario de cada día. */
+export interface WeekSchedule {
+  hours: HourRange[]
+  weekHours?: HourRange[][]
+}
+
+/** Día de la semana actual en la colonia (0 = domingo). */
+export function colonyWeekday(now: number): number {
+  return colonyParts(now).weekday
+}
+
+/** Nombre del día, p. ej. `1` → "Lunes". */
+export function weekdayLong(weekday: number): string {
+  return ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][((weekday % 7) + 7) % 7]!
+}
+
+/** Horario de un día de la semana; sin `weekHours`, el general aplica todos los días. */
+export function hoursForDay(schedule: WeekSchedule, weekday: number): HourRange[] {
+  return schedule.weekHours ? (schedule.weekHours[((weekday % 7) + 7) % 7] ?? []) : schedule.hours
+}
+
+/**
+ * Estado con el horario de la semana, p. ej. "Abierto · hasta 9 pm", "Cerrado · abre 10 am",
+ * "Cerrado · abre mañana 10 am" o "Cerrado · abre el martes 10 am".
+ * Considera los rangos de ayer que cruzan la medianoche (`> 24`).
+ */
+export function scheduleStatus(schedule: WeekSchedule, now: number): { open: boolean, label: string } {
+  const hour = colonyHour(now)
+  const weekday = colonyWeekday(now)
+  const today = hoursForDay(schedule, weekday)
+
+  const current = today.find(([open, close]) => hour >= open && hour < close)
+  if (current) {
+    return { open: true, label: isOpen24h(today) ? 'Abierto 24 h' : `Abierto · hasta ${formatHour(current[1])}` }
+  }
+  const overnight = hoursForDay(schedule, weekday - 1).find(([, close]) => close > 24 && hour + 24 < close)
+  if (overnight) return { open: true, label: `Abierto · hasta ${formatHour(overnight[1])}` }
+
+  const laterToday = today.find(([open]) => open > hour)
+  if (laterToday) return { open: false, label: `Cerrado · abre ${formatHour(laterToday[0])}` }
+
+  for (let days = 1; days <= 7; days++) {
+    const next = hoursForDay(schedule, weekday + days)[0]
+    if (!next) continue
+    const when = days === 1 ? 'mañana' : `el ${weekdayLong(weekday + days).toLowerCase()}`
+    return { open: false, label: `Cerrado · abre ${when} ${formatHour(next[0])}` }
+  }
+  return { open: false, label: 'Cerrado' }
+}
+
+/** Horario de un día en texto: "10 am – 9 pm" o "Cerrado". */
+export function dayHoursText(hours: HourRange[]): string {
+  return hours.length ? hoursText(hours) : 'Cerrado'
 }

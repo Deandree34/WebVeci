@@ -64,7 +64,7 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'es' },
       title: 'VECI',
-      meta: [{ name: 'theme-color', content: '#000000' }],
+      meta: [{ name: 'theme-color', content: '#121212' }],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', sizes: '16x16 32x32 48x48 64x64' },
         { rel: 'preload', as: 'image', href: '/veci_logo_claro.webp', type: 'image/webp' }

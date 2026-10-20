@@ -22,10 +22,9 @@ useHead({ title: () => `${category.value?.label ?? 'Categoría'} — VECI` })
 
 const onlyOpen = ref(false)
 const now = useNow()
-const visible = computed(() => {
-  const hour = colonyHour(now.value)
-  return (businesses.value ?? []).filter((business) => !onlyOpen.value || isOpenAt(business.hours, hour))
-})
+const visible = computed(() =>
+  (businesses.value ?? []).filter((business) => !onlyOpen.value || scheduleStatus(business, now.value).open)
+)
 </script>
 
 <template>

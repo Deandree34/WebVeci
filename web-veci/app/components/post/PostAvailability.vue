@@ -3,65 +3,59 @@ import type { Business } from '~/api/types'
 import { businessPath } from '~/features/navigation/nav'
 
 /**
- * Aviso de citas disponibles: franja del día y nivel de disponibilidad, calculados al
- * momento. Nunca horas exactas (se ocupan a cada rato): esas se ven al apartar.
- * Todo el bloque abre el negocio con la hoja de reserva (`?cita=1`).
+ * Cuerpo de la tarjeta de citas. La tarjeta entera es la **hoja de calendario de taco**
+ * (el zigzag de arriba lo pone `FeedPostCard` con `PostCalendarEdge`); aquí va la fecha con lugar
+ * a la izquierda (mes, día, día de la semana) y a la derecha el título, el nivel y "Ver horarios
+ * y apartar". Líneas punteadas arriba, abajo y entre fecha y mensaje. Solo grises + verde.
+ * Ni horas ni precios (cambian): se ven al apartar. Abre el negocio con la reserva (`?cita=1`).
+ *
+ * Forma por tipo: oferta = cupón con talón · reseña = testimonio · citas = hoja de calendario de taco.
  */
 const props = defineProps<{ business: Business }>()
 
-const now = useNow()
-const summary = computed(() =>
-  props.business.availability ? availabilitySummary(props.business.availability, colonyHour(now.value)) : undefined
-)
-const full = computed(() => summary.value?.level === 'full')
-
-const partText = { morning: 'en la mañana', afternoon: 'en la tarde', night: 'en la noche' } as const
-const title = computed(() => {
-  const s = summary.value
-  if (!s || full.value) return 'Por ahora sin lugar'
-  if (s.day === 'tomorrow') return 'Agenda abierta para mañana'
-  return `Hay lugar hoy ${s.parts.map((part) => partText[part]).join(' y ')}`
-})
-
-const levels = {
-  available: { filled: 3, label: 'Disponible' },
-  few: { filled: 2, label: 'Pocos lugares' },
-  last: { filled: 1, label: 'Último lugar' }
-} as const
-const level = computed(() => (summary.value && !full.value ? levels[summary.value.level as keyof typeof levels] : undefined))
-
-const services = computed(() =>
-  (props.business.services ?? []).slice(0, 2).map((service) => `${service.name} ${formatMoney(service.price)}`).join(' · ')
-)
+const { summary, full, title, day, level } = useAvailability(() => props.business)
 </script>
 
 <template>
-  <div v-if="summary" class="mx-md pt-md pb-sm">
-    <p class="inline-flex items-center gap-1.5 text-[12px] font-bold tracking-[0.06em] text-veci-purple-text uppercase">
-      <Icon name="material-symbols:calendar-month" size="14" aria-hidden="true" />
-      Citas disponibles
-    </p>
+  <div v-if="summary" class="mx-md">
+    <span class="sr-only">Citas disponibles</span>
 
+    <!-- Líneas punteadas arriba (bajo la cabecera) y abajo (sobre el pie); la vertical de la fecha
+         va de una a otra: el padding va en cada columna para que llegue de arriba a abajo -->
     <NuxtLink
       :to="{ path: businessPath(business.slug), query: { cita: '1' } }"
-      class="group block pt-xs transition-opacity"
+      class="group mt-sm grid grid-cols-[auto_1fr] border-y-2 border-dotted border-hairline-strong transition-opacity"
       :class="{ 'opacity-45': full }"
     >
-      <span class="block text-[24px] leading-[1.05] font-extrabold tracking-[-0.025em] text-ink group-hover:text-veci-gradient sm:text-[30px]">
-        {{ title }}
-      </span>
-      <span v-if="services" class="mt-xxs block text-body-sm text-muted">{{ services }}</span>
+      <!-- Fecha, como en una hoja de taco -->
+      <component
+        :is="day ? 'time' : 'span'"
+        :datetime="day?.date"
+        class="flex min-w-16 flex-col items-center justify-center gap-xxs border-r-2 border-dotted border-hairline-strong py-md pr-md leading-none"
+      >
+        <span class="text-[11px] font-bold tracking-[0.12em] text-muted">{{ day?.month ?? '' }}</span>
+        <span class="text-[40px] font-extrabold tracking-[-0.03em]" :class="day ? 'text-ink' : 'text-muted'">{{ day?.number ?? '—' }}</span>
+        <span class="text-[11px] font-bold tracking-[0.12em]" :class="day?.isToday ? 'text-success' : 'text-muted'">{{ day?.weekday ?? '' }}</span>
+      </component>
 
-      <span class="mt-sm flex items-center justify-between gap-sm">
-        <span v-if="level" class="inline-flex items-center gap-xs">
-          <span class="flex gap-1" aria-hidden="true">
-            <span v-for="n in 3" :key="n" class="h-1.5 w-5 rounded-full" :class="n <= level.filled ? 'bg-veci-gradient' : 'bg-ink/7'" />
-          </span>
-          <span class="inline-block text-[12px] font-semibold text-veci-gradient">{{ level.label }}</span>
+      <span class="flex min-w-0 flex-col justify-center gap-sm py-md pl-md">
+        <span class="text-[24px] leading-[1.05] font-extrabold tracking-[0.01em] text-ink transition-colors group-hover:text-success sm:text-[30px]">
+          {{ title }}
         </span>
-        <span class="ml-auto inline-flex items-center text-body-xs text-muted transition-colors group-hover:text-ink">
-          Ver horarios y apartar
-          <Icon name="material-symbols:chevron-right" size="16" aria-hidden="true" />
+
+        <span class="flex items-center justify-between gap-sm">
+          <span v-if="level" class="inline-flex items-center gap-xs">
+            <span class="flex gap-1" aria-hidden="true">
+              <span v-for="n in 3" :key="n" class="h-1.5 w-5 rounded-full" :class="n <= level.filled ? 'bg-success' : 'bg-ink/10'" />
+            </span>
+            <span class="text-[12px] font-semibold text-success">{{ level.label }}</span>
+          </span>
+          <span class="ml-auto inline-flex items-center text-body-xs whitespace-nowrap text-muted transition-colors group-hover:text-ink">
+            <!-- En celular no cabe completo: versión corta -->
+            <span class="sm:hidden">Apartar</span>
+            <span class="hidden sm:inline">Ver horarios y apartar</span>
+            <Icon name="material-symbols:chevron-right" size="16" aria-hidden="true" />
+          </span>
         </span>
       </span>
     </NuxtLink>

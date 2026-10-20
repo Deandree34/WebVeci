@@ -10,15 +10,15 @@ const openIndex = ref<number | null>(null)
 
 <template>
   <section class="mb-lg" aria-label="Historias de hoy">
-    <div class="flex snap-x gap-md overflow-x-auto pb-xs [scrollbar-width:none]">
+    <div class="flex snap-x gap-sm overflow-x-auto pb-xs [scrollbar-width:none]">
       <template v-if="isPending">
         <span
           v-for="n in 6"
           :key="n"
-          class="flex w-20 shrink-0 snap-start flex-col items-center gap-xs"
+          class="flex w-16 shrink-0 snap-start flex-col items-center gap-xxs"
           aria-hidden="true"
         >
-          <span class="size-[76px] animate-pulse rounded-full bg-surface-card" />
+          <span class="size-16 animate-pulse rounded-full bg-surface-card" />
           <span class="h-3 w-12 animate-pulse rounded-pill bg-surface-card" />
         </span>
       </template>

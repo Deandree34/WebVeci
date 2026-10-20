@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { HourRange } from '~/api/types'
+import type { WeekSchedule } from '~/utils/hours'
 
-const props = defineProps<{ hours: HourRange[] }>()
+/** Estado con el horario de la semana (`weekHours`), o el general si no hay. */
+const props = defineProps<{ schedule: WeekSchedule }>()
 
 const now = useNow()
-const status = computed(() => openStatus(props.hours, colonyHour(now.value)))
+const status = computed(() => scheduleStatus(props.schedule, now.value))
 </script>
 
 <template>

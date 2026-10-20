@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { useBusinesses } from '~/features/businesses/queries'
+import { useNotices } from '~/features/notices/queries'
 
+/** Columna derecha con el estilo del menú izquierdo: sin tarjetas, títulos de sección y filas. */
 const { data: businesses, isPending } = useBusinesses()
+const { data: notices } = useNotices()
 const now = useNow()
 
-const openNow = computed(() => {
-  const hour = colonyHour(now.value)
-  return (businesses.value ?? []).filter((business) => isOpenAt(business.hours, hour)).slice(0, 5)
-})
+const openNow = computed(() =>
+  (businesses.value ?? []).filter((business) => scheduleStatus(business, now.value).open).slice(0, 5)
+)
+/** Solo los que no han pasado. */
+const upcoming = computed(() => (notices.value ?? []).filter((notice) => daysUntil(notice.date, now.value) >= 0))
 </script>
 
 <template>
@@ -15,25 +19,29 @@ const openNow = computed(() => {
     class="sticky top-14 hidden h-[calc(100vh-3.5rem)] flex-col gap-lg overflow-y-auto py-lg xl:flex"
     aria-label="Lo esencial de la colonia"
   >
-    <section class="rounded-card bg-surface-card p-md">
-      <h2 class="mb-sm flex items-center gap-xs text-body-md font-medium normal-case text-on-dark">
-        <span class="size-2 rounded-full bg-success" aria-hidden="true" />
-        Abierto ahora
-      </h2>
-
-      <p v-if="isPending" class="text-body-sm text-muted">Cargando…</p>
-      <ul v-else-if="openNow.length" class="-mx-xs flex flex-col">
+    <section aria-labelledby="rail-open">
+      <h2 id="rail-open" class="mb-xxs px-sm text-[12px] font-bold tracking-[0.06em] text-muted uppercase">Abierto ahora</h2>
+      <p v-if="isPending" class="px-sm text-body-sm text-muted">Cargando…</p>
+      <ul v-else-if="openNow.length" class="flex flex-col">
         <li v-for="business in openNow" :key="business.id">
-          <BusinessRow :business="business" compact />
+          <BusinessRow :business="business" rail />
         </li>
       </ul>
-      <p v-else class="text-body-sm text-muted">
+      <p v-else class="px-sm text-body-sm text-muted">
         A esta hora casi todo está cerrado. Mira qué abre más tarde.
       </p>
     </section>
 
-    <p class="px-xs text-body-xs text-muted-soft">
-      Cómo funciona · Para negocios · Reglas de la colonia · Privacidad
-    </p>
+    <section v-if="upcoming.length" aria-labelledby="rail-notices">
+      <h2 id="rail-notices" class="mb-xxs px-sm text-[12px] font-bold tracking-[0.06em] text-muted uppercase">Próximos avisos</h2>
+      <ul class="flex flex-col">
+        <li v-for="notice in upcoming" :key="notice.id">
+          <SocialNoticeRow :notice="notice" />
+        </li>
+      </ul>
+    </section>
+
+    <!-- Pie legal al final de la columna (en pantallas sin columna derecha va al final del feed) -->
+    <SocialLegal class="mt-auto" />
   </aside>
 </template>

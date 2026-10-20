@@ -43,6 +43,21 @@ export interface Service {
   name: string
   /** Precio en MXN. */
   price: number
+  /** El precio es el mínimo ("Desde $450"): varía según el trabajo. */
+  fromPrice?: boolean
+  /** Duración aproximada en minutos. */
+  durationMinutes?: number
+  /** Aclaración corta, p. ej. "Incluye lavado". */
+  note?: string
+}
+
+export type PaymentMethod = 'efectivo' | 'tarjeta' | 'transferencia'
+
+/** Contacto del negocio (el del vecino nunca se expone). */
+export interface BusinessContact {
+  /** Número a 10 dígitos para WhatsApp. */
+  whatsapp?: string
+  phone?: string
 }
 
 /** Horarios libres (`"HH:MM"`) para hoy y mañana (capacidad `citas`). */
@@ -83,11 +98,15 @@ export interface BusinessSummary {
   categoryId: string
   subcategory: string
   icon: string
+  /** Logo del negocio; sin él se usa el ícono del giro. */
+  logoUrl?: string
   verified: boolean
 }
 
 export interface Business extends BusinessSummary {
   capabilities: Capability[]
+  /** Foto de portada del perfil; sin ella se usa el degradado de VECI. */
+  coverUrl?: string
   /** Calificación de 0 a 5. */
   rating: number
   /** Vecinos que lo recomiendan. */
@@ -98,7 +117,12 @@ export interface Business extends BusinessSummary {
   walkMinutes: number
   address: string
   description: string
+  /** Horario general (el que usan el feed y las listas). */
   hours: HourRange[]
+  /** Horario por día de la semana (0 = domingo); `[]` = cerrado. Sin él, `hours` aplica todos los días. */
+  weekHours?: HourRange[][]
+  payments?: PaymentMethod[]
+  contact?: BusinessContact
   services?: Service[]
   availability?: Availability
   promo?: Promo
@@ -179,4 +203,15 @@ export interface Person {
   handle: string
   name: string
   avatarUrl?: string
+}
+
+/** Aviso de la colonia (corte de agua, tianguis, feria…). */
+export interface Notice {
+  id: string
+  title: string
+  /** Horario y lugar, p. ej. "9 am a 2 pm · De Hidalgo a Juárez". */
+  detail: string
+  /** Fecha en la zona de la colonia, "YYYY-MM-DD". */
+  date: string
+  icon: string
 }

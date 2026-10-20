@@ -4,12 +4,14 @@ import { useCreateBooking } from '~/features/bookings/queries'
 
 /**
  * Apartar cita (capacidad `citas`): servicio → día y horario → nombre → confirmación.
- * `initialDay`/`initialTime` preseleccionan el horario elegido en el feed o en el detalle.
+ * `initialDay`/`initialTime` preseleccionan el horario elegido en el feed o en el detalle;
+ * `initialService`, el servicio elegido en la lista de precios del negocio.
  */
 const props = defineProps<{
   business: Business
   initialDay?: BookingRequest['day']
   initialTime?: string
+  initialService?: string
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -39,7 +41,8 @@ watch(open, (isOpen) => {
   if (!isOpen) return
   confirmed.value = undefined
   resetMutation()
-  service.value = props.business.services?.[0]?.name ?? ''
+  const services = props.business.services ?? []
+  service.value = services.find((item) => item.name === props.initialService)?.name ?? services[0]?.name ?? ''
   const preset = props.initialDay && slotsByDay.value[props.initialDay].includes(props.initialTime ?? '')
   day.value = preset ? props.initialDay! : (days.value[0] ?? 'today')
   time.value = preset ? props.initialTime! : ''

@@ -32,10 +32,14 @@ export const businesses: Business[] = [
     address: 'Calle Hidalgo 56',
     description: 'Cortes clásicos y modernos, barba',
     hours: [[10, 21]],
+    // Domingo medio día y lunes de descanso
+    weekHours: [[[10, 15]], [], [[10, 21]], [[10, 21]], [[10, 21]], [[10, 21]], [[9, 21]]],
+    payments: ['efectivo', 'transferencia'],
+    contact: { whatsapp: '5512345678' },
     services: [
-      { name: 'Corte', price: 120 },
-      { name: 'Corte + barba', price: 180 },
-      { name: 'Arreglo de barba', price: 80 }
+      { name: 'Corte', price: 120, durationMinutes: 30, note: 'Clásico o moderno, con lavado' },
+      { name: 'Corte + barba', price: 180, durationMinutes: 50 },
+      { name: 'Arreglo de barba', price: 80, durationMinutes: 20, note: 'Toalla caliente y navaja' }
     ],
     availability: {
       today: ['17:30', '18:15', '19:45'],
@@ -99,11 +103,15 @@ export const businesses: Business[] = [
     address: 'Av. Juárez 120',
     description: 'Uñas, tinte, peinados y pestañas',
     hours: [[10, 20]],
+    // Domingo cerrado; sábado corrido desde temprano
+    weekHours: [[], [[10, 20]], [[10, 20]], [[10, 20]], [[10, 20]], [[10, 20]], [[9, 18]]],
+    payments: ['efectivo', 'tarjeta', 'transferencia'],
+    contact: { whatsapp: '5587654321', phone: '5587654321' },
     services: [
-      { name: 'Manicure', price: 180 },
-      { name: 'Pedicure', price: 220 },
-      { name: 'Tinte (desde)', price: 450 },
-      { name: 'Peinado', price: 300 }
+      { name: 'Manicure', price: 180, durationMinutes: 45 },
+      { name: 'Pedicure', price: 220, durationMinutes: 60 },
+      { name: 'Tinte', price: 450, fromPrice: true, durationMinutes: 120, note: 'Según el largo del cabello' },
+      { name: 'Peinado', price: 300, durationMinutes: 60 }
     ],
     availability: {
       today: ['18:00'],

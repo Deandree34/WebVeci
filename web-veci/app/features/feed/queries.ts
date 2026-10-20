@@ -18,7 +18,7 @@ export const feedOptions = (tab?: FeedTab) => infiniteQueryOptions({
   getNextPageParam: (last) => last.nextCursor ?? undefined
 })
 
-/** Feed de la colonia, paginado ("Ver más" carga la siguiente página); sin `tab` = "Para ti". */
+/** Feed de la colonia, paginado (carga automática al llegar al final); sin `tab` = "Para ti". */
 export function useFeed(tab?: MaybeRefOrGetter<FeedTab | undefined>) {
   return useInfiniteQuery(computed(() => feedOptions(toValue(tab))))
 }

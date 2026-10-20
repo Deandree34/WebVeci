@@ -6,7 +6,7 @@
  */
 
 import type { Business, FeedItem } from '../types'
-import { availabilitySummary, colonyHour, isOpenAt, promoWindow } from '../../utils/hours'
+import { availabilitySummary, colonyHour, promoWindow, scheduleStatus } from '../../utils/hours'
 import { findBusiness } from './businesses'
 
 const MINUTE = 60_000
@@ -38,7 +38,7 @@ const veciSeeds: (Seed & { at: number })[] = [
 function score(item: FeedItem, now: number): number {
   const hour = colonyHour(now)
   let total = 0
-  if (isOpenAt(item.business.hours, hour)) total += 20
+  if (scheduleStatus(item.business, now).open) total += 20
   if (item.type === 'horarios' && item.business.availability) {
     // Sin lugar ni hoy ni mañana baja, igual que una oferta vencida
     total += availabilitySummary(item.business.availability, hour).level === 'full' ? -40 : 10

@@ -4,6 +4,9 @@ import { categoryPath, mainNav } from '~/features/navigation/nav'
 
 const counters = useNavCounters()
 const { data: categories } = useCategories()
+
+const available = computed(() => categories.value?.filter((category) => category.available) ?? [])
+const upcoming = computed(() => categories.value?.filter((category) => !category.available) ?? [])
 </script>
 
 <template>
@@ -15,35 +18,42 @@ const { data: categories } = useCategories()
       v-for="item in mainNav"
       :key="item.label"
       :icon="item.icon"
+      :active-icon="item.activeIcon"
       :label="item.label"
       :to="item.to"
       :badge="item.counter ? counters[item.counter] || undefined : undefined"
     />
 
-    <!-- Explorar por categoría: escritorio muestra todas; tablet solo iconos de las disponibles -->
-    <p class="mt-lg mb-xs hidden px-sm text-body-sm font-medium text-muted lg:block">Explorar por categoría</p>
+    <!-- Categorías: arriba las disponibles; las que vienen, agrupadas y plegadas (tablet: solo iconos de las disponibles) -->
+    <p class="mt-lg mb-xxs hidden px-sm text-[12px] font-bold tracking-[0.06em] text-muted uppercase lg:block">Categorías</p>
     <hr class="my-sm border-hairline lg:hidden">
 
-    <template v-for="category in categories" :key="category.id">
-      <SocialNavItem
-        v-if="category.available"
-        :icon="category.icon"
-        :label="category.label"
-        :to="categoryPath(category.slug)"
-      />
-      <span
-        v-else
-        class="hidden items-center gap-md px-sm py-xs text-muted-soft lg:flex"
-        :title="`${category.label} · Próximamente`"
-      >
-        <Icon :name="category.icon" size="22" class="shrink-0" aria-hidden="true" />
-        <span class="truncate text-body-sm">{{ category.label }}</span>
-        <span class="ml-auto shrink-0 text-body-xs">Pronto</span>
-      </span>
-    </template>
+    <SocialNavItem
+      v-for="category in available"
+      :key="category.id"
+      :icon="category.icon"
+      :label="category.label"
+      :to="categoryPath(category.slug)"
+    />
 
-    <p class="mt-auto hidden px-sm pt-lg text-body-xs text-muted-soft lg:block">
-      VECI · Hecho por y para la colonia
-    </p>
+    <details v-if="upcoming.length" class="group hidden lg:block">
+      <summary class="flex cursor-pointer list-none items-center gap-md rounded-control px-sm py-sm text-muted transition-colors hover:bg-surface-soft hover:text-on-dark [&::-webkit-details-marker]:hidden">
+        <Icon name="material-symbols:hourglass-empty" size="24" class="shrink-0" aria-hidden="true" />
+        <span class="text-body-sm font-medium">Próximamente</span>
+        <span class="text-body-xs text-muted-soft">· {{ upcoming.length }}</span>
+        <Icon name="material-symbols:expand-more" size="20" class="ml-auto shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <ul class="mt-xxs flex flex-col">
+        <li
+          v-for="category in upcoming"
+          :key="category.id"
+          class="flex items-center gap-md py-xs pr-sm pl-lg text-muted-soft"
+          :title="`${category.label} · Próximamente`"
+        >
+          <Icon :name="category.icon" size="20" class="shrink-0" aria-hidden="true" />
+          <span class="truncate text-body-sm">{{ category.label }}</span>
+        </li>
+      </ul>
+    </details>
   </nav>
 </template>

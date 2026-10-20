@@ -16,7 +16,7 @@ const social = computed(() => props.look === 'social')
  * cabecera es la del negocio reseñado y los autores van en cada reseña.
  */
 const byVeci = computed(() => props.item.type === 'resena' && !social.value)
-const status = computed(() => openStatus(business.value.hours, colonyHour(now.value)))
+const status = computed(() => scheduleStatus(business.value, now.value))
 
 const kinds = {
   oferta: { label: 'Oferta', icon: 'material-symbols:sell' },

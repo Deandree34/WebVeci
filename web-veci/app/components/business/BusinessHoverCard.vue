@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Business } from '~/api/types'
 import { businessPath } from '~/features/navigation/nav'
-import { useRecommendedStore } from '~/stores/recommended'
 
 /**
  * Tarjeta flotante con el resumen del negocio al pasar el cursor por el trigger (como Facebook).
@@ -13,11 +12,7 @@ import { useRecommendedStore } from '~/stores/recommended'
 const props = defineProps<{ business: Business }>()
 
 const now = useNow()
-const status = computed(() => openStatus(props.business.hours, colonyHour(now.value)))
-const recommended = useRecommendedStore()
-const recommendations = computed(() =>
-  props.business.recommendations + (recommended.isRecommended(props.business.id) ? 1 : 0)
-)
+const status = computed(() => scheduleStatus(props.business, now.value))
 
 const trigger = ref<HTMLElement>()
 const card = ref<HTMLElement>()
@@ -114,48 +109,7 @@ function onFocusOut(event: FocusEvent) {
       </div>
     </div>
 
-    <!-- Cifras de un vistazo (valor arriba con flex-col-reverse; el orden semántico sigue dt → dd) -->
-    <dl class="mt-md grid grid-cols-3 divide-x divide-hairline-strong rounded-control bg-surface-soft py-xs text-center">
-      <div class="flex flex-col-reverse px-xxs">
-        <dt class="text-[12px] text-muted">Calificación</dt>
-        <dd class="inline-flex items-center justify-center gap-xxs text-body-md font-bold text-ink tabular-nums">
-          <Icon name="material-symbols:star" size="16" class="text-warning" aria-hidden="true" />
-          {{ business.rating.toFixed(1) }}
-        </dd>
-      </div>
-      <div class="flex flex-col-reverse px-xxs">
-        <dt class="text-[12px] text-muted">Recomiendan</dt>
-        <dd class="inline-flex items-center justify-center gap-xxs text-body-md font-bold text-ink tabular-nums">
-          <Icon name="material-symbols:handshake-outline" size="16" class="text-veci-purple-text" aria-hidden="true" />
-          {{ recommendations }}
-        </dd>
-      </div>
-      <div class="flex flex-col-reverse px-xxs">
-        <dt class="text-[12px] text-muted">{{ business.walkMinutes }} min a pie</dt>
-        <dd class="text-body-md font-bold text-ink tabular-nums">{{ formatDistance(business.distanceMeters) }}</dd>
-      </div>
-    </dl>
-
-    <!-- Datos de texto: una fila por dato, con ícono y etiqueta -->
-    <dl class="mt-md flex flex-col gap-sm">
-      <div class="flex gap-sm">
-        <Icon name="material-symbols:schedule-outline" size="18" class="mt-0.5 shrink-0 text-muted" aria-hidden="true" />
-        <div>
-          <dt class="text-body-xs text-muted">Horario</dt>
-          <dd class="text-body-sm text-body">
-            <BusinessOpenStatus :hours="business.hours" />
-            <span class="block text-body-xs text-muted">{{ hoursText(business.hours) }}</span>
-          </dd>
-        </div>
-      </div>
-      <div class="flex gap-sm">
-        <Icon name="material-symbols:location-on-outline" size="18" class="mt-0.5 shrink-0 text-muted" aria-hidden="true" />
-        <div>
-          <dt class="text-body-xs text-muted">Dirección</dt>
-          <dd class="text-body-sm text-body">{{ business.address }}</dd>
-        </div>
-      </div>
-    </dl>
+    <BusinessFacts :business="business" class="mt-md" />
 
     <PostAction :to="businessPath(business.slug)" variant="primary" class="mt-md w-full">Ver negocio</PostAction>
   </div>

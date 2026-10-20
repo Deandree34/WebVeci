@@ -17,7 +17,6 @@ const tab = computed<FeedTab | undefined>({
 
 <template>
   <div>
-    <FeedGreeting />
     <StoryRail />
     <FeedTabs v-model="tab" />
     <FeedList :tab="tab" />

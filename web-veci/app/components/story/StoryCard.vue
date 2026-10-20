@@ -12,7 +12,7 @@ const seen = computed(() => props.story.seen || store.isSeen(props.story.id))
 <template>
   <button
     type="button"
-    class="group flex w-20 shrink-0 snap-start flex-col items-center gap-xs text-center"
+    class="group flex w-16 shrink-0 snap-start flex-col items-center gap-xxs text-center"
     :aria-label="`Ver historia de ${props.story.business.name}: ${props.story.kind}${seen ? ' (vista)' : ''}`"
     @click="$emit('open')"
   >
@@ -23,15 +23,16 @@ const seen = computed(() => props.story.seen || store.isSeen(props.story.id))
       aria-hidden="true"
     >
       <span class="rounded-full border-[3px] border-canvas">
-        <StoryAvatar :icon="props.story.business.icon" size="lg" />
+        <StoryAvatar :icon="props.story.business.icon" size="md" />
       </span>
     </span>
 
+    <!-- Nombre corto ("El Güero"): el completo va en el aria-label -->
     <span
-      class="block w-full truncate text-body-xs"
-      :class="seen ? 'text-muted' : 'font-semibold text-ink'"
+      class="block w-full truncate text-[12px]"
+      :class="seen ? 'text-muted' : 'font-medium text-ink'"
     >
-      {{ props.story.business.name }}
+      {{ shortName(props.story.business) }}
     </span>
   </button>
 </template>
