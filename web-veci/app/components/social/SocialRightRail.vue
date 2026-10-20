@@ -20,7 +20,8 @@ const upcoming = computed(() => (notices.value ?? []).filter((notice) => daysUnt
     aria-label="Lo esencial de la colonia"
   >
     <section aria-labelledby="rail-open">
-      <h2 id="rail-open" class="mb-xxs px-sm text-[12px] font-bold tracking-[0.06em] text-muted uppercase">Abierto ahora</h2>
+      <!-- Rótulos en Lora cursiva, igual que "Categorías" del menú izquierdo -->
+      <h2 id="rail-open" class="mb-xxs px-sm font-quote text-[16px] font-medium tracking-normal text-body normal-case italic">Abierto ahora</h2>
       <p v-if="isPending" class="px-sm text-body-sm text-muted">Cargando…</p>
       <ul v-else-if="openNow.length" class="flex flex-col divide-y divide-hairline">
         <li v-for="business in openNow" :key="business.id">
@@ -34,7 +35,7 @@ const upcoming = computed(() => (notices.value ?? []).filter((notice) => daysUnt
     </section>
 
     <section v-if="upcoming.length" aria-labelledby="rail-notices">
-      <h2 id="rail-notices" class="mb-xxs px-sm text-[12px] font-bold tracking-[0.06em] text-muted uppercase">Próximos avisos</h2>
+      <h2 id="rail-notices" class="mb-xxs px-sm font-quote text-[16px] font-medium tracking-normal text-body normal-case italic">Próximos avisos</h2>
       <ul class="flex flex-col divide-y divide-hairline">
         <li v-for="notice in upcoming" :key="notice.id">
           <SocialNoticeRow :notice="notice" />

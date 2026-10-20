@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Ítem del menú lateral: activo = ícono relleno y negritas; inactivo = contorno y gris. */
+/** Ítem del menú lateral (Plus Jakarta Sans): activo = ícono relleno y negritas; inactivo = contorno y gris. */
 // `active: undefined` explícito: si no, Vue convierte la prop booleana ausente en `false`
 // y el `??` de abajo nunca consulta la ruta (ningún ítem se marcaba activo).
 const props = withDefaults(defineProps<{
@@ -26,10 +26,11 @@ const isActive = computed(() =>
     :title="label"
   >
     <Icon :name="isActive && activeIcon ? activeIcon : icon" size="24" class="shrink-0" aria-hidden="true" />
-    <span class="hidden truncate text-body-sm lg:inline" :class="isActive ? 'font-bold' : 'font-medium'">{{ label }}</span>
+    <span class="hidden truncate font-headline text-[15px] lg:inline" :class="isActive ? 'font-bold' : 'font-medium'">{{ label }}</span>
+    <!-- Contador en blanco (solo neutros) -->
     <span
       v-if="badge"
-      class="ml-auto hidden min-w-5 rounded-pill bg-veci-pink px-xxs text-center text-body-xs font-medium text-on-accent lg:inline"
+      class="ml-auto hidden min-w-5 rounded-pill bg-ink px-xxs text-center font-headline text-[12px] leading-5 font-bold text-canvas lg:inline"
     >
       {{ badge }}
     </span>

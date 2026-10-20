@@ -58,6 +58,12 @@ onMounted(() => {
   }, { immediate: true })
 })
 
+/** Regresar: a la página anterior dentro de la app; si se entró directo al perfil (enlace compartido), al feed. */
+function goBack() {
+  if (window.history.state?.back) router.back()
+  else navigateTo('/')
+}
+
 // Al cerrar, se limpia la preselección de la URL para que "atrás" no reabra el panel
 watch(sheetOpen, (isOpen) => {
   if (!isOpen && (route.query.dia || route.query.hora || route.query.cita !== undefined)) {
@@ -70,7 +76,17 @@ watch(sheetOpen, (isOpen) => {
   <div>
     <template v-if="business">
       <!-- Cabecera: portada + quién es, si está abierto, cifras y acciones -->
-      <section class="bg-surface-card md:rounded-b-card" aria-labelledby="business-name">
+      <section class="relative bg-surface-card md:rounded-b-card" aria-labelledby="business-name">
+        <!-- Regresar, sobre la portada: solo la flecha en blanco, con sombra suave para leerse sobre foto o
+             degradado; el área de toque sigue siendo de 40px -->
+        <button
+          type="button"
+          aria-label="Regresar"
+          class="absolute top-sm left-sm z-10 inline-flex size-10 items-center justify-center text-ink drop-shadow-[0_1px_3px_rgb(0_0_0/0.55)] transition-opacity hover:opacity-75 md:top-md md:left-md"
+          @click="goBack"
+        >
+          <Icon name="material-symbols:arrow-back-rounded" size="28" aria-hidden="true" />
+        </button>
         <BusinessCover :src="business.coverUrl" :icon="business.icon" />
         <BusinessProfileHeader :business="business" :can-book="canBook" @book="openBooking(free?.day)" />
       </section>

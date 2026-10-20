@@ -58,7 +58,7 @@ onBeforeUnmount(() => {
         <button
           type="button"
           title="Ofrezco un servicio"
-          class="hidden h-10 items-center gap-xxs rounded-control px-sm text-body-sm font-medium whitespace-nowrap text-link transition-colors hover:bg-surface-elevated lg:inline-flex"
+          class="hidden h-9 items-center gap-xxs rounded-pill border border-hairline-strong px-md font-headline text-[14px] font-semibold whitespace-nowrap text-body-strong transition-colors hover:bg-surface-elevated lg:inline-flex"
         >
           <Icon name="material-symbols:add-business" size="20" aria-hidden="true" />
           Para negocios

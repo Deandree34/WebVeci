@@ -1,5 +1,8 @@
 <script setup lang="ts">
-/** Buscador; el slot `end` va al final, tras un separador (p. ej. la colonia). */
+/**
+ * Buscador; el slot `end` va al final, tras un separador (p. ej. la colonia).
+ * Lo que escribe el vecino va en Plus Jakarta Sans; la pregunta de la app (placeholder), en Lora cursiva.
+ */
 withDefaults(defineProps<{ placeholder?: string }>(), { placeholder: 'Buscar en VECI' })
 
 const model = defineModel<string>({ default: '' })
@@ -14,7 +17,7 @@ const model = defineModel<string>({ default: '' })
         v-model="model"
         type="search"
         :placeholder="placeholder"
-        class="h-full w-full min-w-0 bg-transparent text-body-sm text-on-dark placeholder:text-muted-soft focus:outline-none"
+        class="h-full w-full min-w-0 bg-transparent font-headline text-[15px] font-medium text-ink placeholder:font-quote placeholder:text-muted placeholder:italic focus:outline-none"
       >
     </label>
     <template v-if="$slots.end">

@@ -117,9 +117,9 @@ const actionTo = computed(() => {
         <!-- Cabecera -->
         <header class="relative z-10 flex items-center gap-xs px-sm py-sm">
           <StoryAvatar :icon="story.business.icon" size="sm" class="ring-2 ring-on-dark/60" />
-          <span class="truncate text-body-sm font-medium text-on-dark">{{ story.business.name }}</span>
+          <span class="truncate font-headline text-[14px] font-semibold text-on-dark">{{ story.business.name }}</span>
           <BusinessVerified v-if="story.business.verified" />
-          <span class="text-body-xs text-on-dark/70">hoy</span>
+          <span class="font-headline text-[13px] font-medium text-on-dark/70">hoy</span>
           <BIconButton class="ml-auto" label="Cerrar historias" @click="close">
             <Icon name="material-symbols:close" size="24" />
           </BIconButton>
@@ -153,9 +153,10 @@ const actionTo = computed(() => {
             class="mb-md text-on-dark drop-shadow-[0_14px_30px_rgba(0,0,0,0.45)]"
             aria-hidden="true"
           />
-          <p class="type-caption font-bold text-on-dark/85">{{ story.kind }}</p>
-          <p class="mt-xxs text-display-md font-bold normal-case tracking-normal text-on-dark">{{ story.headline }}</p>
-          <p class="mt-xs text-body-md text-on-dark/90">{{ story.text }}</p>
+          <!-- Tipo en Lora cursiva (la voz de la app); titular y apoyo en Plus Jakarta Sans, como en los posts -->
+          <p class="font-quote text-[18px] font-medium text-on-dark/85 italic">{{ story.kind }}</p>
+          <p class="mt-xxs font-headline text-[32px] leading-[1.15] font-bold tracking-[-0.01em] text-on-dark normal-case">{{ story.headline }}</p>
+          <p class="mt-xs font-headline text-[16px] leading-[1.45] font-medium text-on-dark/90">{{ story.text }}</p>
           <div v-if="story.promo" class="mt-md rounded-pill bg-canvas/35 px-md py-xs">
             <BusinessPromoCountdown :promo="story.promo" :bar="false" />
           </div>
@@ -165,7 +166,7 @@ const actionTo = computed(() => {
         <footer class="relative z-10 p-md">
           <NuxtLink
             :to="actionTo"
-            class="flex h-11 w-full items-center justify-center rounded-card bg-on-dark text-body-md font-medium text-canvas transition-opacity hover:opacity-90"
+            class="flex h-12 w-full items-center justify-center rounded-pill bg-on-dark font-headline text-[15px] font-bold text-canvas transition-opacity hover:opacity-90"
             @click="close"
           >
             {{ story.action.label }}

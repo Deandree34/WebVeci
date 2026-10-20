@@ -27,10 +27,10 @@ const seen = computed(() => props.story.seen || store.isSeen(props.story.id))
       </span>
     </span>
 
-    <!-- Nombre corto ("El Güero"): el completo va en el aria-label -->
+    <!-- Nombre corto ("El Güero") en Lora cursiva: el completo va en el aria-label -->
     <span
-      class="block w-full truncate text-[12px]"
-      :class="seen ? 'text-muted' : 'font-medium text-ink'"
+      class="block w-full truncate font-quote text-[14px] leading-[1.3] font-medium italic"
+      :class="seen ? 'text-muted' : 'text-ink'"
     >
       {{ shortName(props.story.business) }}
     </span>

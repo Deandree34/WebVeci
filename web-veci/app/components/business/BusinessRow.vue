@@ -44,17 +44,18 @@ const until = computed(() => {
     :class="compact ? 'px-xs py-xs' : 'p-sm'"
   >
     <BusinessAvatar :icon="business.icon" :size="compact ? 'sm' : 'md'" />
-    <span class="min-w-0 flex-1">
+    <!-- Mismo sistema que la variante `rail`: nombre + apoyo (estado · distancia · giro) en Plus Jakarta Sans -->
+    <span class="min-w-0 flex-1 font-headline">
       <span class="flex items-center gap-xxs">
-        <span class="truncate text-body-sm font-medium text-on-dark">{{ business.name }}</span>
-        <BusinessVerified v-if="business.verified" />
+        <span class="truncate text-[15px] leading-[1.3] font-semibold text-ink">{{ business.name }}</span>
+        <BusinessVerified v-if="business.verified" :size="14" />
       </span>
-      <span class="flex flex-wrap items-center gap-x-xs text-body-xs text-muted">
+      <span class="mt-0.5 flex flex-wrap items-center gap-x-xs text-[13px] leading-[1.4] font-medium text-body">
         <BusinessOpenStatus :schedule="business" />
-        <span aria-hidden="true">·</span>
+        <span class="text-muted" aria-hidden="true">·</span>
         <span>{{ formatDistance(business.distanceMeters) }}</span>
         <template v-if="!compact">
-          <span aria-hidden="true">·</span>
+          <span class="text-muted" aria-hidden="true">·</span>
           <span>{{ business.subcategory }}</span>
         </template>
       </span>

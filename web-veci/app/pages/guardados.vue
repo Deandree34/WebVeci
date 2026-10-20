@@ -22,7 +22,7 @@ const list = computed(() =>
       <li v-for="business in list" :key="business.id" class="flex items-center gap-xs">
         <BusinessRow :business="business" class="min-w-0 flex-1" />
         <BIconButton label="Quitar de guardados" @click="saved.toggle(business.id)">
-          <Icon name="material-symbols:bookmark" size="22" class="text-veci-purple-text" />
+          <Icon name="material-symbols:bookmark" size="22" class="text-ink" />
         </BIconButton>
       </li>
     </ul>
