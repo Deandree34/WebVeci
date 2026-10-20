@@ -120,15 +120,16 @@ export function freeSlots(availability: Availability, hour: number): { day: 'tod
 export type AvailabilityLevel = 'available' | 'few' | 'last' | 'full'
 
 /**
- * Resumen de disponibilidad para el feed: qué día y en qué franjas hay lugar, y qué tanto.
+ * Resumen de disponibilidad para el feed: qué día y en qué franjas hay lugar, y qué tanto
+ * (`level`, y `count` = cuántos lugares libres).
  * No expone horas exactas (cambian a cada rato); esas se ven al apartar en el negocio.
  */
 export function availabilitySummary(
   availability: Availability,
   hour: number
-): { day: 'today' | 'tomorrow' | null, parts: DayPart[], level: AvailabilityLevel } {
+): { day: 'today' | 'tomorrow' | null, parts: DayPart[], level: AvailabilityLevel, count: number } {
   const free = freeSlots(availability, hour)
-  if (!free.slots.length) return { day: null, parts: [], level: 'full' }
+  if (!free.slots.length) return { day: null, parts: [], level: 'full', count: 0 }
 
   const parts: DayPart[] = []
   for (const slot of free.slots) {
@@ -138,7 +139,7 @@ export function availabilitySummary(
   }
   const count = free.slots.length
   const level = count >= 4 ? 'available' : count >= 2 ? 'few' : 'last'
-  return { day: free.day, parts, level }
+  return { day: free.day, parts, level, count }
 }
 
 /**

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ to: string, variant?: 'primary' | 'neutral' }>(), { variant: 'neutral' })
+import type { RouteLocationRaw } from 'vue-router'
+
+withDefaults(defineProps<{ to: RouteLocationRaw, variant?: 'primary' | 'neutral' }>(), { variant: 'neutral' })
 
 const variants = {
   primary: 'bg-veci-gradient text-on-primary hover:brightness-110',

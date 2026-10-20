@@ -3,8 +3,8 @@ import type { FeedItem } from '~/api/types'
 import { businessPath } from '~/features/navigation/nav'
 
 /**
- * `look="social"` (card base): solo lo esencial (avatar, nombre, antigüedad); la etiqueta del
- * tipo va en el cuerpo y "Guardar" en el pie (`PostReactions`).
+ * `look="social"` (card base): solo identidad (avatar, nombre) y una línea de metadatos
+ * con la antigüedad y el tipo ("4 h · Oferta"), y "Guardar" a la derecha (lo de "···" en Facebook).
  */
 const props = withDefaults(defineProps<{ item: FeedItem, look?: 'default' | 'social' }>(), { look: 'default' })
 
@@ -27,7 +27,7 @@ const kind = computed(() => kinds[props.item.type])
 </script>
 
 <template>
-  <header class="flex items-center gap-sm px-md pt-sm">
+  <header class="flex items-center gap-sm px-md pt-sm" :class="{ 'pb-sm': social }">
     <template v-if="byVeci">
       <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-elevated" aria-hidden="true">
         <img src="/veci_logo_claro.webp" alt="" width="787" height="678" class="h-5 w-auto">
@@ -40,24 +40,29 @@ const kind = computed(() => kinds[props.item.type])
       </div>
     </template>
 
-    <!-- Social: solo lo esencial (punto verde = abierto, antigüedad); el resto en la tarjeta flotante -->
+    <!-- Social, como Facebook: identidad, metadatos en gris ("4 h · 🏷 Oferta", el ícono como el
+         globo de Facebook) y Guardar a la derecha; el estado (abierto, horario) va en la tarjeta flotante -->
     <template v-else-if="social">
       <NuxtLink :to="businessPath(business.slug)" class="shrink-0" tabindex="-1">
-        <BusinessAvatar :icon="business.icon" :open="status.open" />
+        <BusinessAvatar :icon="business.icon" />
       </NuxtLink>
       <div class="min-w-0 flex-1">
         <!-- div (no p): la tarjeta flotante es un bloque -->
-        <div class="flex items-center gap-xxs text-body-sm font-medium text-ink">
+        <div class="flex items-center gap-xxs text-post-body font-semibold text-ink">
           <BusinessHoverCard :business="business">
             <NuxtLink :to="businessPath(business.slug)" class="truncate hover:underline">{{ business.name }}</NuxtLink>
           </BusinessHoverCard>
-          <BusinessVerified v-if="business.verified" />
+          <BusinessVerified v-if="business.verified" :size="14" />
           <span class="sr-only">· {{ status.label }}</span>
         </div>
-        <p class="text-body-xs text-muted">
+        <p class="flex items-center gap-xxs text-body-xs text-muted">
           <time :datetime="item.publishedAt">{{ formatAge(item.publishedAt, now) }}</time>
+          <span aria-hidden="true">·</span>
+          <Icon :name="kind.icon" size="12" aria-hidden="true" />
+          <span>{{ kind.label }}</span>
         </p>
       </div>
+      <BusinessSaveButton :business-id="business.id" :business-name="business.name" neutral :size="20" class="-mr-xs" />
     </template>
 
     <template v-else>

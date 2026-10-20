@@ -1,4 +1,4 @@
-<script setup lang="ts">
+C:\GithubProjects\Veci\WebVeci\web-veci\post.png<script setup lang="ts">
 import type { FeedTab } from '~/api/types'
 
 /**

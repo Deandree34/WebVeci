@@ -28,12 +28,16 @@ export default defineNuxtConfig({
     optimizeDeps: { include: ['@tanstack/vue-query'] }
   },
 
-  // Tipografía: ecosistema Google / Material Design.
-  //   Display + Texto -> Roboto    ·    Mono -> Roboto Mono
+  // Tipografía:
+  //   Display + Texto -> fuente del sistema, como Facebook (ver --font-text en bugatti-theme.css)
+  //   Titular y línea de apoyo de los posts -> Plus Jakarta Sans 700 / 500 (--font-headline)
+  //   Cita de las reseñas -> Lora cursiva (--font-quote)
+  //   Mono -> Roboto Mono
   // @nuxt/fonts las descarga al compilar y las sirve desde /_nuxt/fonts (self-hosted)
   fonts: {
     families: [
-      { name: 'Roboto', weights: [400, 500, 700, 800], styles: ['normal'], global: true },
+      { name: 'Plus Jakarta Sans', weights: [500, 700], styles: ['normal'], global: true },
+      { name: 'Lora', weights: [500], styles: ['italic'], global: true },
       { name: 'Roboto Mono', weights: [400], styles: ['normal'], global: true }
     ]
   },

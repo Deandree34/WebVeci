@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useSavedStore } from '~/stores/saved'
 
-const props = defineProps<{ businessId: string, businessName: string }>()
+/** `neutral`: guardado en blanco en lugar de violeta (posts del feed, que van solo en neutros). */
+const props = withDefaults(
+  defineProps<{ businessId: string, businessName: string, neutral?: boolean, size?: number | string }>(),
+  { neutral: false, size: 22 }
+)
 
 const saved = useSavedStore()
 const isSaved = computed(() => saved.isSaved(props.businessId))
@@ -15,8 +19,8 @@ const isSaved = computed(() => saved.isSaved(props.businessId))
   >
     <Icon
       :name="isSaved ? 'material-symbols:bookmark' : 'material-symbols:bookmark-outline'"
-      size="22"
-      :class="isSaved ? 'text-veci-purple-text' : 'text-muted'"
+      :size="size"
+      :class="isSaved ? (neutral ? 'text-ink' : 'text-veci-purple-text') : 'text-muted'"
     />
   </BIconButton>
 </template>

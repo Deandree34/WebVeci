@@ -1,45 +1,39 @@
 <script setup lang="ts">
 import type { FeedItem } from '~/api/types'
+import { businessPath } from '~/features/navigation/nav'
 
 /**
- * Publicación del feed. Misma tarjeta gris para todos; cada tipo se reconoce por su forma:
- *   oferta   = la tarjeta es un cupón con talón (línea punteada vertical, perforación con muescas y tijeras)
- *   resena   = testimonio      (cita centrada bajo la comilla)
- *   horarios = la tarjeta es una hoja de calendario de taco (borde de arriba en zigzag; mes, día y "HOY"/"MAÑANA")
- * Comparten la cabecera del negocio y el pie social.
+ * Publicación del feed con la anatomía de un post de Facebook, solo en neutros:
+ *   cabecera (negocio + "4 h · Oferta") → texto (reseña) → adjunto a todo lo ancho con su botón
+ *   → conteo de recomendaciones → Recomendar · Compartir · Guardar.
+ * En celular va de borde a borde, sin esquinas; desde tablet, tarjeta redondeada.
  */
 const props = defineProps<{ item: FeedItem }>()
 
-/** La hoja de calendario lleva el zigzag arriba en lugar de esquinas redondeadas. */
-const isSheet = computed(() => props.item.type === 'horarios')
+const path = computed(() => businessPath(props.item.business.slug))
+
+/** Sin contenido para su adjunto, el post no se muestra. */
+const visible = computed(() => {
+  const { type, business } = props.item
+  if (type === 'oferta') return !!business.promo
+  if (type === 'resena') return !!business.reviews?.length
+  return true
+})
 </script>
 
 <template>
-  <article
-    class="overflow-hidden text-on-dark"
-    :class="isSheet ? 'rounded-b-card' : 'rounded-card bg-surface-card'"
-  >
-    <template v-if="item.type === 'oferta' && item.business.promo">
-      <PostHeader :item="item" look="social" />
-      <PostOffer :promo="item.business.promo" :slug="item.business.slug" />
-      <PostCouponDivider />
-      <PostReactions :business="item.business" />
-    </template>
+  <article v-if="visible" class="-mx-md overflow-hidden bg-surface-card text-on-dark sm:mx-0 sm:rounded-control">
+    <PostHeader :item="item" look="social" />
 
-    <template v-else-if="item.type === 'horarios'">
-      <PostCalendarEdge />
-      <div class="rounded-b-card bg-surface-card">
-        <PostCalendarBinding />
-        <PostHeader :item="item" look="social" />
-        <PostAvailability :business="item.business" />
-        <PostReactions :business="item.business" />
-      </div>
-    </template>
+    <PostOffer v-if="item.type === 'oferta' && item.business.promo" :promo="item.business.promo" :to="`${path}#oferta`" />
+    <PostAvailability v-else-if="item.type === 'horarios'" :business="item.business" :to="{ path, query: { cita: '1' } }" />
+    <PostReview
+      v-else-if="item.type === 'resena' && item.business.reviews?.length"
+      :business="item.business"
+      :reviews="item.business.reviews"
+      :to="`${path}#resenas`"
+    />
 
-    <template v-else-if="item.type === 'resena' && item.business.reviews?.length">
-      <PostHeader :item="item" look="social" />
-      <PostReview :business="item.business" :reviews="item.business.reviews" />
-      <PostReactions :business="item.business" />
-    </template>
+    <PostReactions :business="item.business" />
   </article>
 </template>

@@ -38,10 +38,13 @@
   --color-warning: #d4a017;
   --color-success: #5fa657;
 
-  /* Tipografía: ecosistema Google / Material Design (familia Roboto) */
-  --font-display: Roboto, system-ui, sans-serif;
-  --font-text: Roboto, system-ui, sans-serif;
-  --font-mono: "Roboto Mono", ui-monospace, monospace;
+  /* Tipografía: fuente del sistema, como Facebook (Segoe UI en Windows, San Francisco en
+     iOS/Mac, Roboto en Android). Mono: Roboto Mono (self-hosted con @nuxt/fonts). */
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-text: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-headline: "Plus Jakarta Sans", system-ui, sans-serif; /* mensaje principal de los posts */
+  --font-quote: Lora, Georgia, serif; /* cita de los vecinos en los posts de reseña */
+  --font-mono:"Roboto Mono", ui-monospace, monospace;
   --font-sans: var(--font-text);
   --font-primary: var(--font-display);
   --font-family-2: var(--font-display);
@@ -73,6 +76,13 @@
   --text-caption-uppercase: 11px;
   --text-caption-uppercase--line-height: 1.4;
   --text-caption-uppercase--letter-spacing: 2px;
+  /* Posts del feed (escala de Facebook): cuerpo/nombre/botones 15px, titular del adjunto 17px */
+  --text-post-body: 15px;
+  --text-post-body--line-height: 1.34;
+  --text-post-body--letter-spacing: 0;
+  --text-post-headline: 17px;
+  --text-post-headline--line-height: 1.18;
+  --text-post-headline--letter-spacing: 0;
   --text-body-md: 16px;
   --text-body-md--line-height: 1.5;
   --text-body-md--letter-spacing: 0;

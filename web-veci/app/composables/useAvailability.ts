@@ -39,5 +39,8 @@ export function useAvailability(business: () => Business) {
 
   const level = computed(() => (summary.value && !full.value ? levels[summary.value.level as keyof typeof levels] : undefined))
 
-  return { summary, full, title, day, level }
+  /** Lugares libres ese día (0 si está lleno). */
+  const count = computed(() => summary.value?.count ?? 0)
+
+  return { summary, full, title, day, level, count }
 }

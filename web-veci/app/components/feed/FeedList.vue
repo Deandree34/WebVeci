@@ -44,20 +44,20 @@ const comeBackText = computed(() => comeBack[dayPart(colonyHour(now.value))])
 <template>
   <div>
     <!-- Cargando la primera página -->
-    <div v-if="isPending" class="flex flex-col gap-md" aria-busy="true">
-      <div v-for="n in 2" :key="n" class="h-48 animate-pulse rounded-card bg-surface-card" />
+    <div v-if="isPending" class="flex flex-col gap-xs sm:gap-md" aria-busy="true">
+      <div v-for="n in 2" :key="n" class="-mx-md h-48 animate-pulse bg-surface-card sm:mx-0 sm:rounded-control" />
     </div>
 
     <p v-else-if="isError" class="text-body-sm text-muted">No se pudo cargar el feed.</p>
 
     <template v-else>
-      <div class="flex flex-col gap-md">
+      <div class="flex flex-col gap-xs sm:gap-md">
         <FeedPostCard v-for="item in items" :key="item.id" :item="item" />
       </div>
 
       <template v-if="hasNextPage">
         <!-- Siguiente página en camino -->
-        <div v-if="isFetchingNextPage" class="mt-md h-48 animate-pulse rounded-card bg-surface-card" aria-busy="true" />
+        <div v-if="isFetchingNextPage" class="-mx-md mt-xs h-48 animate-pulse bg-surface-card sm:mx-0 sm:mt-md sm:rounded-control" aria-busy="true" />
         <p v-else-if="isFetchNextPageError" class="mt-lg text-center text-body-sm text-muted">
           No se pudo cargar más ·
           <button type="button" class="font-medium text-link hover:underline" @click="fetchNextPage()">Reintentar</button>

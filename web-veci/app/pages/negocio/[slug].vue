@@ -89,10 +89,9 @@ watch(sheetOpen, (isOpen) => {
         <div class="flex flex-col gap-md">
           <BusinessSlotsCard v-if="canBook" :availability="business.availability!" @pick="(day, time) => openBooking(day, time)" />
 
-          <!-- Oferta: el mismo cupón con talón del feed -->
-          <section v-if="business.promo" id="oferta" class="scroll-mt-[120px] overflow-hidden rounded-card bg-surface-card pb-md" aria-label="Oferta">
+          <!-- Oferta: el mismo foco que en el feed -->
+          <section v-if="business.promo" id="oferta" class="scroll-mt-[120px] overflow-hidden rounded-card bg-surface-card pt-sm" aria-label="Oferta">
             <PostOffer :promo="business.promo" />
-            <PostCouponDivider />
           </section>
 
           <BusinessServicesCard
