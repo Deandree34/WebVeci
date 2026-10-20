@@ -4,8 +4,9 @@
  *
  * Usa `<dialog>` nativo con `showModal()`: el navegador atrapa el foco, cierra con
  * Escape, lo pinta por encima de todo y devuelve el foco al cerrar.
+ * `quote`: título en Lora cursiva (la voz con la que la app le habla al vecino, p. ej. "Apartar cita").
  */
-defineProps<{ title: string }>()
+defineProps<{ title: string, subtitle?: string, quote?: boolean }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
@@ -40,7 +41,16 @@ function onClick(event: MouseEvent) {
   >
     <div class="flex max-h-[90dvh] flex-col">
       <header class="flex shrink-0 items-center gap-sm border-b border-hairline-strong px-md py-sm">
-        <h2 class="min-w-0 flex-1 truncate text-title-sm font-medium normal-case tracking-normal text-ink">{{ title }}</h2>
+        <!-- Título y subtítulo con el sistema tipográfico de los posts (Plus Jakarta Sans) -->
+        <div class="min-w-0 flex-1 font-headline">
+          <h2
+            class="truncate tracking-normal text-ink normal-case"
+            :class="quote ? 'font-quote text-[20px] leading-[1.3] font-medium italic' : 'text-[18px] leading-[1.3] font-bold'"
+          >
+            {{ title }}
+          </h2>
+          <p v-if="subtitle" class="truncate text-[13px] leading-[1.4] font-medium text-body">{{ subtitle }}</p>
+        </div>
         <BIconButton label="Cerrar" @click="open = false">
           <Icon name="material-symbols:close" size="22" />
         </BIconButton>

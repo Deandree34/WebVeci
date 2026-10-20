@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { Availability, BookingRequest } from '~/api/types'
-import type { DayPart } from '~/utils/hours'
+import type { DayPart, WeekSchedule } from '~/utils/hours'
 
 /**
  * "¿Cuándo me pueden atender?": Hoy / Mañana con cuántos lugares hay, y los horarios
  * agrupados por franja (mañana, tarde, noche). Tocar un horario abre "Apartar cita" con él.
+ * `schedule`: horario del negocio; si aún no abre hoy, se aclara a qué hora (los horarios de
+ * hoy siguen siendo apartables aunque la cabecera diga "Cerrado").
  */
-const props = defineProps<{ availability: Availability }>()
+const props = defineProps<{ availability: Availability, schedule?: WeekSchedule }>()
 defineEmits<{ pick: [day: BookingRequest['day'], time: string] }>()
 
 const now = useNow()
@@ -36,38 +38,55 @@ const groups = computed(() => {
 })
 
 const days = [{ id: 'today', label: 'Hoy' }, { id: 'tomorrow', label: 'Mañana' }] as const
+
+/** Hora a la que abre hoy, si todavía no abre y hay horarios libres hoy ("10 am"). */
+const opensToday = computed(() => {
+  const schedule = props.schedule
+  if (!schedule || day.value !== 'today' || !byDay.value.today.length) return undefined
+  if (scheduleStatus(schedule, now.value).open) return undefined
+  const hour = colonyHour(now.value)
+  const next = hoursForDay(schedule, colonyWeekday(now.value)).find(([open]) => open > hour)
+  return next ? formatHour(next[0]) : undefined
+})
 </script>
 
 <template>
-  <BusinessProfileCard id="horarios" title="Horarios libres" icon="material-symbols:event-available-outline" subtitle="Toca un horario para apartar tu cita">
-    <!-- Selector Hoy / Mañana con cuántos lugares quedan -->
-    <div class="grid grid-cols-2 gap-xxs rounded-control bg-surface-soft p-xxs" role="tablist" aria-label="Día">
+  <BusinessProfileCard id="horarios" title="Horarios libres" subtitle="Toca un horario para apartar tu cita">
+    <!-- Selector Hoy / Mañana con cuántos lugares quedan (el elegido en blanco) -->
+    <div class="grid grid-cols-2 gap-xxs rounded-pill border border-hairline p-xxs font-headline" role="tablist" aria-label="Día">
       <button
         v-for="option in days"
         :key="option.id"
         type="button"
         role="tab"
         :aria-selected="day === option.id"
-        class="rounded-sm py-xs text-body-sm font-medium transition-colors"
-        :class="day === option.id ? 'bg-surface-elevated text-ink' : 'text-muted hover:text-body'"
+        class="h-9 rounded-pill text-[14px] font-semibold transition-colors"
+        :class="day === option.id ? 'bg-ink text-canvas' : 'text-body hover:text-ink'"
         @click="day = option.id"
       >
         {{ option.label }}
-        <span class="ml-xxs text-body-xs tabular-nums" :class="byDay[option.id].length ? 'text-veci-purple-text' : 'text-muted-soft'">
+        <span class="ml-xxs text-[13px] font-medium tabular-nums" :class="day === option.id ? 'text-canvas/70' : 'text-muted'">
           {{ byDay[option.id].length ? `${byDay[option.id].length} libres` : 'lleno' }}
         </span>
       </button>
     </div>
 
+    <!-- Aún cerrado pero con lugares hoy: se aclara para que no choque con el "Cerrado" de arriba -->
+    <p v-if="opensToday && groups.length" class="mt-sm flex items-center gap-xs font-headline text-[13px] leading-[1.4] font-medium text-body">
+      <Icon name="material-symbols:schedule-outline" size="16" class="shrink-0 text-muted" aria-hidden="true" />
+      <span>Abre hoy a las {{ opensToday }}<span class="mx-1 text-muted" aria-hidden="true">·</span>ya puedes apartar tu lugar</span>
+    </p>
+
     <div v-if="groups.length" class="mt-md flex flex-col gap-md">
       <div v-for="group in groups" :key="group.part">
-        <p class="mb-xs text-body-xs font-medium text-muted">{{ partLabels[group.part] }}</p>
+        <!-- Franja en Lora cursiva, como los rótulos de la ventana de apartar -->
+        <p class="mb-xs font-quote text-[15px] font-medium text-body italic">{{ partLabels[group.part] }}</p>
         <div class="grid grid-cols-3 gap-xs sm:grid-cols-4">
           <button
             v-for="slot in group.slots"
             :key="slot"
             type="button"
-            class="rounded-control border border-hairline-strong py-xs text-body-sm font-medium tabular-nums text-ink transition-colors hover:border-veci-purple hover:bg-surface-elevated"
+            class="h-10 rounded-control border border-hairline-strong font-headline text-[14px] font-semibold text-ink tabular-nums transition-colors hover:bg-surface-soft"
             @click="$emit('pick', day, slot)"
           >
             {{ slot }}
@@ -76,10 +95,15 @@ const days = [{ id: 'today', label: 'Hoy' }, { id: 'tomorrow', label: 'Mañana' 
       </div>
     </div>
 
-    <div v-else class="mt-md flex flex-col items-center gap-xs py-md text-center">
+    <div v-else class="mt-md flex flex-col items-center gap-sm py-md text-center font-headline">
       <Icon name="material-symbols:event-busy-outline" size="28" class="text-muted" aria-hidden="true" />
-      <p class="text-body-sm text-body">{{ day === 'today' ? 'Hoy ya no hay lugares' : 'Mañana aún no hay horarios' }}</p>
-      <button v-if="day === 'today' && byDay.tomorrow.length" type="button" class="text-body-sm font-medium text-link" @click="day = 'tomorrow'">
+      <p class="text-[14px] font-medium text-body">{{ day === 'today' ? 'Hoy ya no hay lugares' : 'Mañana aún no hay horarios' }}</p>
+      <button
+        v-if="day === 'today' && byDay.tomorrow.length"
+        type="button"
+        class="h-9 rounded-pill border border-hairline-strong px-md text-[14px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
+        @click="day = 'tomorrow'"
+      >
         Ver mañana
       </button>
     </div>

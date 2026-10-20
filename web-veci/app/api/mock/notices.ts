@@ -19,21 +19,21 @@ export function makeMockNotices(now: number): Notice[] {
     {
       id: 'agua',
       title: 'Corte de agua programado',
-      detail: '9 am a 2 pm · De Hidalgo a Juárez',
+      detail: '9 am – 2 pm · De Hidalgo a Juárez',
       date: next(today, 6),
       icon: 'material-symbols:water-drop-outline'
     },
     {
       id: 'tianguis',
       title: 'Tianguis del jueves',
-      detail: 'Calle Morelos · 8 am a 4 pm',
+      detail: '8 am – 4 pm · Calle Morelos',
       date: next(today, 4),
       icon: 'material-symbols:storefront-outline'
     },
     {
       id: 'feria',
       title: 'Feria de emprendedores',
-      detail: 'Parque central · entrada libre',
+      detail: 'Parque central · Entrada libre',
       date: next(today, 0, 1),
       icon: 'material-symbols:celebration-outline'
     }

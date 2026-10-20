@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import type { Booking, BookingRequest, Business } from '~/api/types'
+import type { Booking, BookingRequest, Business, Service } from '~/api/types'
 import { useCreateBooking } from '~/features/bookings/queries'
 
 /**
  * Apartar cita (capacidad `citas`): servicio → día y horario → nombre → confirmación.
  * `initialDay`/`initialTime` preseleccionan el horario elegido en el feed o en el detalle;
  * `initialService`, el servicio elegido en la lista de precios del negocio.
+ *
+ * Sistema tipográfico de los posts: rótulos de sección en Lora cursiva (la voz con la que la app
+ * le habla al vecino), datos y botones en Plus Jakarta Sans. Solo neutros: lo elegido va en blanco.
  */
 const props = defineProps<{
   business: Business
@@ -56,6 +59,19 @@ function selectDay(value: BookingRequest['day']) {
 const selectedService = computed(() => props.business.services?.find((item) => item.name === service.value))
 const canSubmit = computed(() => !!service.value && !!time.value && customerName.value.trim().length > 1 && !isPending.value)
 
+/** Precio y duración del servicio: "$180 · 45 min", "Desde $450 · 2 h". */
+function serviceDetail(item: Service) {
+  const price = `${item.fromPrice ? 'Desde ' : ''}${formatMoney(item.price)}`
+  return item.durationMinutes ? `${price} · ${formatDuration(item.durationMinutes)}` : price
+}
+
+/** Resumen sobre el botón, una vez elegido el horario: "Manicure · Mañana 10:30 · $180". */
+const summary = computed(() => {
+  if (!time.value) return []
+  const price = selectedService.value ? formatMoney(selectedService.value.price) : ''
+  return [service.value, `${dayLabel[day.value]} ${time.value}`, price].filter(Boolean)
+})
+
 function submit() {
   if (!canSubmit.value) return
   createBooking(
@@ -64,73 +80,86 @@ function submit() {
   )
 }
 
-const chip = (selected: boolean) => [
-  'rounded-control border px-sm py-xs text-body-sm font-medium transition-colors',
-  selected ? 'border-primary bg-primary text-on-primary' : 'border-hairline-strong text-on-dark hover:border-primary'
+/** Opción elegible (servicio u horario): lo elegido con borde blanco; `solid`, además relleno blanco. */
+const option = (selected: boolean, solid = false) => [
+  'rounded-control border font-headline transition-colors',
+  selected
+    ? (solid ? 'border-ink bg-ink text-canvas' : 'border-ink bg-surface-elevated text-ink')
+    : 'border-hairline-strong text-ink hover:bg-surface-soft'
 ]
+const label = 'mb-sm block font-quote text-[18px] leading-[1.3] font-medium text-ink italic'
+const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font-headline text-[15px] font-bold text-canvas transition-colors hover:bg-body-strong'
 </script>
 
 <template>
-  <BSheet v-model:open="open" :title="confirmed ? 'Cita apartada' : `Apartar cita · ${business.name}`">
+  <BSheet
+    v-model:open="open"
+    :title="confirmed ? 'Cita apartada' : 'Apartar cita'"
+    :subtitle="confirmed ? undefined : business.name"
+    quote
+  >
     <!-- Confirmación -->
-    <div v-if="confirmed" class="flex flex-col items-center text-center">
-      <Icon name="material-symbols:check-circle" size="48" class="mb-sm text-success" aria-hidden="true" />
-      <p class="text-body-md font-medium text-on-dark">{{ confirmed.service }} en {{ business.name }}</p>
-      <p class="text-body-sm text-muted">
-        {{ dayLabel[confirmed.day] }} a las {{ confirmed.time }} · a nombre de {{ confirmed.customerName }}
+    <div v-if="confirmed" class="flex flex-col items-center py-sm text-center">
+      <span class="mb-sm inline-flex size-12 items-center justify-center rounded-full bg-surface-elevated text-ink" aria-hidden="true">
+        <Icon name="material-symbols:check-rounded" size="28" />
+      </span>
+      <p class="font-quote text-[18px] leading-[1.35] font-medium text-ink italic">“{{ confirmed.service }} en {{ business.name }}”</p>
+      <p class="mt-xxs font-headline text-[13px] leading-[1.4] font-medium text-body">
+        {{ dayLabel[confirmed.day] }} a las {{ confirmed.time }}<span class="mx-1 text-muted" aria-hidden="true">·</span>a nombre de {{ confirmed.customerName }}
       </p>
-      <p class="mt-md text-body-xs text-muted">Lo encuentras en Mis cosas. (Datos de prueba: no se envía nada.)</p>
-      <div class="mt-md flex gap-xs">
-        <PostAction to="/mis-cosas" variant="primary" @click="open = false">Ver en Mis cosas</PostAction>
+      <div class="mt-lg flex gap-xs">
+        <NuxtLink to="/mis-cosas" :class="[primaryButton, 'h-10 px-md']" @click="open = false">Ver en Mis cosas</NuxtLink>
         <button
           type="button"
-          class="rounded-control bg-surface-elevated px-md py-xs text-body-sm font-medium text-on-dark hover:bg-hairline-strong"
+          class="h-10 rounded-pill border border-hairline-strong px-md font-headline text-[14px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
           @click="open = false"
         >
           Listo
         </button>
       </div>
+      <p class="mt-md font-headline text-[13px] font-medium text-muted">Lo encuentras en Mis cosas. (Datos de prueba: no se envía nada.)</p>
     </div>
 
     <!-- Formulario -->
-    <form v-else class="flex flex-col gap-md" @submit.prevent="submit">
+    <form v-else class="flex flex-col gap-lg" @submit.prevent="submit">
       <fieldset v-if="business.services?.length">
-        <legend class="mb-xs text-body-sm font-medium text-muted">Servicio</legend>
-        <div class="flex flex-wrap gap-xs">
+        <legend :class="label">Servicio</legend>
+        <div class="grid grid-cols-2 gap-xs">
           <button
             v-for="item in business.services"
             :key="item.name"
             type="button"
-            :class="chip(service === item.name)"
+            :class="[option(service === item.name), 'p-sm text-left']"
             :aria-pressed="service === item.name"
             @click="service = item.name"
           >
-            {{ item.name }} · {{ formatMoney(item.price) }}
+            <span class="block truncate text-[14px] leading-[1.3] font-semibold">{{ item.name }}</span>
+            <span class="mt-0.5 block truncate text-[13px] leading-[1.4] font-medium text-body">{{ serviceDetail(item) }}</span>
           </button>
         </div>
       </fieldset>
 
       <fieldset v-if="days.length">
-        <legend class="mb-xs text-body-sm font-medium text-muted">Horario</legend>
+        <legend :class="label">Horario</legend>
         <div class="mb-sm flex gap-xs" role="group" aria-label="Día">
           <button
-            v-for="option in days"
-            :key="option"
+            v-for="d in days"
+            :key="d"
             type="button"
-            class="rounded-pill px-md py-xxs text-body-sm font-medium transition-colors"
-            :class="day === option ? 'bg-on-dark text-canvas' : 'bg-surface-elevated text-muted hover:text-on-dark'"
-            :aria-pressed="day === option"
-            @click="selectDay(option)"
+            class="h-9 rounded-pill px-md font-headline text-[14px] font-semibold transition-colors"
+            :class="day === d ? 'bg-ink text-canvas' : 'bg-surface-elevated text-body hover:text-ink'"
+            :aria-pressed="day === d"
+            @click="selectDay(d)"
           >
-            {{ dayLabel[option] }}
+            {{ dayLabel[d] }}
           </button>
         </div>
-        <div class="flex flex-wrap gap-xs">
+        <div class="grid grid-cols-4 gap-xs">
           <button
             v-for="slot in slotsByDay[day]"
             :key="slot"
             type="button"
-            :class="[chip(time === slot), 'tabular-nums']"
+            :class="[option(time === slot, true), 'h-10 text-[14px] font-semibold tabular-nums']"
             :aria-pressed="time === slot"
             @click="time = slot"
           >
@@ -138,36 +167,41 @@ const chip = (selected: boolean) => [
           </button>
         </div>
       </fieldset>
-      <p v-else class="text-body-sm text-muted">No quedan horarios libres por ahora.</p>
+      <p v-else class="font-headline text-[14px] font-medium text-body">No quedan horarios libres por ahora.</p>
 
-      <label class="flex flex-col gap-xs">
-        <span class="text-body-sm font-medium text-muted">Tu nombre</span>
+      <label class="block">
+        <span :class="label">¿A nombre de quién?</span>
         <input
           v-model="customerName"
           type="text"
           autocomplete="given-name"
-          placeholder="¿A nombre de quién?"
-          class="h-11 rounded-control border border-hairline-strong bg-surface-soft px-sm text-body-md text-on-dark placeholder:text-muted-soft focus:border-primary focus:outline-none"
+          placeholder="Tu nombre"
+          class="h-11 w-full rounded-control border border-hairline-strong bg-surface-soft px-sm font-headline text-[15px] font-medium text-ink placeholder:text-muted-soft focus:border-ink focus:outline-none"
         >
       </label>
 
-      <p v-if="isError" class="text-body-sm text-veci-pink">No se pudo apartar la cita. Intenta de nuevo.</p>
+      <div class="flex flex-col gap-sm border-t border-hairline pt-md">
+        <p v-if="summary.length" class="font-headline text-[13px] leading-[1.4] font-medium text-body" aria-live="polite">
+          <template v-for="(part, i) in summary" :key="part">
+            <span v-if="i" class="mx-1 text-muted" aria-hidden="true">·</span>{{ part }}
+          </template>
+        </p>
 
-      <button
-        type="submit"
-        class="h-11 rounded-control bg-veci-gradient text-body-md font-medium text-on-primary transition hover:brightness-110 disabled:opacity-40 disabled:hover:brightness-100"
-        :disabled="!canSubmit"
-      >
-        <template v-if="isPending">Apartando…</template>
-        <template v-else>
-          Apartar cita<template v-if="time"> · {{ dayLabel[day] }} {{ time }}</template><template v-if="selectedService"> · {{ formatMoney(selectedService.price) }}</template>
-        </template>
-      </button>
+        <p v-if="isError" class="font-headline text-[13px] font-medium text-veci-pink">No se pudo apartar la cita. Intenta de nuevo.</p>
 
-      <p class="flex gap-xs text-body-xs text-muted">
-        <Icon name="material-symbols:payments-outline" size="16" class="shrink-0" aria-hidden="true" />
-        El pago se hace directo en {{ business.name }}. Si no puedes ir, avísales para liberar el lugar a otro vecino.
-      </p>
+        <button
+          type="submit"
+          :class="[primaryButton, 'h-12 w-full disabled:opacity-40 disabled:hover:bg-ink']"
+          :disabled="!canSubmit"
+        >
+          {{ isPending ? 'Apartando…' : 'Apartar cita' }}
+        </button>
+
+        <p class="flex gap-xs font-headline text-[13px] leading-[1.4] font-medium text-muted">
+          <Icon name="material-symbols:payments-outline" size="16" class="mt-px shrink-0" aria-hidden="true" />
+          El pago se hace directo en {{ business.name }}. Si no puedes ir, avísales para liberar el lugar a otro vecino.
+        </p>
+      </div>
     </form>
   </BSheet>
 </template>

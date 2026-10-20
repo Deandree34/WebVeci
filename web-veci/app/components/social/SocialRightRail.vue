@@ -22,19 +22,20 @@ const upcoming = computed(() => (notices.value ?? []).filter((notice) => daysUnt
     <section aria-labelledby="rail-open">
       <h2 id="rail-open" class="mb-xxs px-sm text-[12px] font-bold tracking-[0.06em] text-muted uppercase">Abierto ahora</h2>
       <p v-if="isPending" class="px-sm text-body-sm text-muted">Cargando…</p>
-      <ul v-else-if="openNow.length" class="flex flex-col">
+      <ul v-else-if="openNow.length" class="flex flex-col divide-y divide-hairline">
         <li v-for="business in openNow" :key="business.id">
           <BusinessRow :business="business" rail />
         </li>
       </ul>
-      <p v-else class="px-sm text-body-sm text-muted">
+      <!-- Mismo estilo que la línea de apoyo de los avisos -->
+      <p v-else class="px-sm font-headline text-[13px] leading-[1.4] font-medium text-body">
         A esta hora casi todo está cerrado. Mira qué abre más tarde.
       </p>
     </section>
 
     <section v-if="upcoming.length" aria-labelledby="rail-notices">
       <h2 id="rail-notices" class="mb-xxs px-sm text-[12px] font-bold tracking-[0.06em] text-muted uppercase">Próximos avisos</h2>
-      <ul class="flex flex-col">
+      <ul class="flex flex-col divide-y divide-hairline">
         <li v-for="notice in upcoming" :key="notice.id">
           <SocialNoticeRow :notice="notice" />
         </li>

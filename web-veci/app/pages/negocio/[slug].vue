@@ -87,7 +87,12 @@ watch(sheetOpen, (isOpen) => {
            Lateral: datos de consulta (horario, ubicación, pago); en móvil va al final. -->
       <div class="mt-md grid grid-cols-1 items-start gap-md px-md md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:px-0">
         <div class="flex flex-col gap-md">
-          <BusinessSlotsCard v-if="canBook" :availability="business.availability!" @pick="(day, time) => openBooking(day, time)" />
+          <BusinessSlotsCard
+            v-if="canBook"
+            :availability="business.availability!"
+            :schedule="business"
+            @pick="(day, time) => openBooking(day, time)"
+          />
 
           <!-- Oferta: el mismo foco que en el feed -->
           <section v-if="business.promo" id="oferta" class="scroll-mt-[120px] overflow-hidden rounded-card bg-surface-card pt-sm" aria-label="Oferta">

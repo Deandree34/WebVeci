@@ -3,7 +3,8 @@ import type { Business } from '~/api/types'
 
 /**
  * "¿Qué dicen los vecinos?": resumen (calificación grande + reparto de estrellas) y la lista
- * de reseñas en tamaño de lectura. El carrusel de cita grande (`PostReview`) es para el feed.
+ * de reseñas. Cada reseña es la voz de un vecino: va en Lora cursiva, como la cita del feed.
+ * Solo neutros: estrellas y barras en blanco sobre gris.
  */
 const props = defineProps<{ business: Business }>()
 
@@ -22,62 +23,46 @@ const distribution = computed(() =>
 </script>
 
 <template>
-  <BusinessProfileCard id="resenas" title="Reseñas de vecinos" icon="material-symbols:reviews-outline" subtitle="Solo vecinos que ya usaron el servicio">
+  <BusinessProfileCard id="resenas" title="Reseñas de vecinos" subtitle="Solo vecinos que ya usaron el servicio">
     <!-- Resumen: el número grande a la izquierda, cómo se reparte a la derecha -->
-    <div class="flex items-center gap-lg rounded-control bg-surface-soft p-md">
+    <div class="flex items-center gap-lg rounded-control border border-hairline p-md font-headline">
       <div class="shrink-0 text-center">
         <p class="text-[40px] leading-none font-bold text-ink tabular-nums">{{ business.rating.toFixed(1) }}</p>
-        <span class="mt-xs flex justify-center gap-0.5" role="img" :aria-label="`${business.rating.toFixed(1)} de 5 estrellas`">
-          <Icon
-            v-for="n in 5"
-            :key="n"
-            :name="n <= Math.round(business.rating) ? 'material-symbols:star' : 'material-symbols:star-outline'"
-            size="14"
-            :class="n <= Math.round(business.rating) ? 'text-warning' : 'text-muted-soft'"
-            aria-hidden="true"
-          />
-        </span>
-        <p class="mt-xxs text-body-xs text-muted">{{ reviews.length }} reseñas</p>
+        <PostStars :value="business.rating" :size="16" class="mt-xs" />
+        <p class="mt-xxs text-[13px] font-medium text-body">{{ reviews.length }} reseñas</p>
       </div>
 
       <ul class="flex min-w-0 flex-1 flex-col gap-xxs" aria-label="Reparto de calificaciones">
-        <li v-for="row in distribution" :key="row.stars" class="flex items-center gap-xs text-body-xs text-muted">
+        <li v-for="row in distribution" :key="row.stars" class="flex items-center gap-xs text-[12px] font-medium text-muted">
           <span class="w-2 text-right tabular-nums">{{ row.stars }}</span>
-          <span class="h-1.5 flex-1 overflow-hidden rounded-full bg-hairline-strong">
-            <span class="block h-full rounded-full bg-warning" :style="{ width: `${row.share * 100}%` }" />
+          <span class="h-1.5 flex-1 overflow-hidden rounded-full bg-hairline">
+            <span class="block h-full rounded-full bg-ink" :style="{ width: `${row.share * 100}%` }" />
           </span>
           <span class="w-4 tabular-nums">{{ row.count }}</span>
         </li>
       </ul>
     </div>
 
-    <ul class="mt-sm divide-y divide-hairline-strong">
-      <li v-for="review in visible" :key="review.author" class="py-sm">
-        <div class="flex items-center gap-sm">
+    <ul class="mt-sm divide-y divide-hairline">
+      <li v-for="review in visible" :key="review.author" class="py-md">
+        <div class="flex items-center gap-sm font-headline">
           <SocialAvatar :name="review.author" size="sm" />
           <div class="min-w-0 flex-1">
-            <p class="text-body-sm font-medium text-ink">{{ review.author }}</p>
-            <p class="text-body-xs text-muted">{{ review.street }}</p>
+            <p class="text-[14px] leading-[1.3] font-semibold text-ink">{{ review.author }}</p>
+            <p class="text-[13px] leading-[1.4] font-medium text-body">{{ review.street }}</p>
           </div>
-          <span class="flex shrink-0 gap-0.5" role="img" :aria-label="`Calificó con ${review.rating} de 5 estrellas`">
-            <Icon
-              v-for="n in 5"
-              :key="n"
-              :name="n <= review.rating ? 'material-symbols:star' : 'material-symbols:star-outline'"
-              size="14"
-              :class="n <= review.rating ? 'text-warning' : 'text-muted-soft'"
-              aria-hidden="true"
-            />
-          </span>
+          <!-- Calificación que dio ese vecino -->
+          <PostStars :value="review.rating" :size="14" />
         </div>
-        <p class="mt-xs text-body-sm leading-relaxed text-body">{{ review.text }}</p>
+        <!-- Serif cursiva: es lo que dijo un vecino, no texto del negocio -->
+        <blockquote class="mt-sm font-quote text-[17px] leading-[1.5] font-medium text-ink italic">“{{ review.text }}”</blockquote>
       </li>
     </ul>
 
     <button
       v-if="reviews.length > PREVIEW"
       type="button"
-      class="mt-xs w-full rounded-control bg-surface-elevated py-xs text-body-sm font-medium text-ink transition-colors hover:bg-hairline-strong"
+      class="mt-xs h-10 w-full rounded-pill border border-hairline-strong font-headline text-[14px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
       @click="expanded = !expanded"
     >
       {{ expanded ? 'Ver menos' : `Ver todas (${reviews.length})` }}

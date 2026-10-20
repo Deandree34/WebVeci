@@ -8,6 +8,7 @@ import type { Business } from '~/api/types'
  *  3. ¿Es confiable y está cerca?: tres cifras (valor grande, etiqueta abajo).
  *  4. Qué puedo hacer: Apartar cita · Mensaje · Cómo llegar, y lo social (recomendar, compartir, guardar).
  * La dirección y el horario completo viven en sus tarjetas, no aquí.
+ * Sistema tipográfico de los posts (Plus Jakarta Sans) y solo neutros: lo activo va en blanco.
  */
 const props = defineProps<{ business: Business, canBook?: boolean }>()
 defineEmits<{ book: [] }>()
@@ -27,35 +28,39 @@ const othersCount = computed(() => total.value - names.value.length)
 
 const reviewsCount = computed(() => props.business.reviews?.length ?? 0)
 
-const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-control bg-surface-elevated px-md text-body-sm font-medium text-ink transition-colors hover:bg-hairline-strong'
+const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-pill border border-hairline-strong px-md text-[14px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated'
+const stat = 'flex flex-col-reverse gap-0.5 px-xs'
+const statValue = 'inline-flex items-center justify-center gap-xxs text-[20px] leading-tight font-bold text-ink tabular-nums'
+const statLabel = 'text-[12px] font-medium text-muted'
 </script>
 
 <template>
-  <div class="px-md pb-md md:px-lg">
+  <div class="px-md pb-md font-headline md:px-lg">
     <!-- 1 · Identidad -->
     <div class="flex flex-col items-center gap-sm text-center md:flex-row md:items-end md:gap-md md:text-left">
       <div class="-mt-16 shrink-0 rounded-full bg-surface-card p-1 md:-mt-20">
-        <BusinessAvatar :icon="business.icon" :src="business.logoUrl" size="xl" :open="status.open" />
+        <BusinessAvatar :icon="business.icon" :src="business.logoUrl" size="xl" />
       </div>
 
       <div class="min-w-0 flex-1 md:pb-xs">
-        <h1 id="business-name" class="inline-flex max-w-full items-center gap-xs text-[28px] leading-tight font-bold normal-case tracking-normal text-ink md:text-[32px]">
+        <!-- Nombre en Lora cursiva, como los títulos de sección del perfil -->
+        <h1 id="business-name" class="inline-flex max-w-full items-center gap-xs font-quote text-[30px] leading-tight font-medium tracking-normal text-ink normal-case italic md:text-[36px]">
           <span class="truncate">{{ business.name }}</span>
           <BusinessVerified v-if="business.verified" size="24" />
         </h1>
-        <p class="mt-xxs text-body-md text-body">{{ business.description }}</p>
+        <p class="mt-xxs text-[15px] leading-[1.45] font-medium text-body">{{ business.description }}</p>
 
-        <!-- 2 · Giro y estado como chips, cada uno con su propio significado -->
+        <!-- 2 · Giro y estado como chips neutros: abierto en blanco, cerrado en gris -->
         <div class="mt-sm flex flex-wrap items-center justify-center gap-xs md:justify-start">
-          <span class="inline-flex items-center gap-xxs rounded-pill bg-surface-elevated px-sm py-xxs text-body-xs font-medium text-body">
+          <span class="inline-flex items-center gap-xxs rounded-pill border border-hairline-strong px-sm py-xxs text-[13px] font-medium text-body">
             <Icon :name="business.icon" size="14" aria-hidden="true" />
             {{ business.subcategory }}
           </span>
           <span
-            class="inline-flex items-center gap-xs rounded-pill px-sm py-xxs text-body-xs font-medium"
-            :class="status.open ? 'bg-success/15 text-success' : 'bg-surface-elevated text-body'"
+            class="inline-flex items-center gap-xs rounded-pill border border-hairline-strong px-sm py-xxs text-[13px] font-semibold"
+            :class="status.open ? 'text-ink' : 'text-body'"
           >
-            <span class="size-2 rounded-full" :class="status.open ? 'bg-success' : 'bg-muted-soft'" aria-hidden="true" />
+            <span class="size-2 rounded-full" :class="status.open ? 'bg-ink' : 'bg-muted-soft'" aria-hidden="true" />
             {{ status.label }}
           </span>
         </div>
@@ -63,36 +68,36 @@ const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-c
     </div>
 
     <!-- 3 · Cifras de un vistazo: valor arriba, qué significa abajo -->
-    <div class="mt-md grid grid-cols-3 divide-x divide-hairline-strong rounded-card bg-surface-soft py-sm text-center md:max-w-[520px]">
-      <a href="#resenas" class="flex flex-col-reverse px-xs transition-opacity hover:opacity-80">
-        <span class="text-body-xs text-muted">{{ reviewsCount ? `${reviewsCount} reseñas` : 'Calificación' }}</span>
-        <span class="inline-flex items-center justify-center gap-xxs text-[20px] leading-tight font-bold text-ink tabular-nums">
-          <Icon name="material-symbols:star" size="20" class="text-warning" aria-hidden="true" />
+    <div class="mt-md grid grid-cols-3 divide-x divide-hairline rounded-control border border-hairline py-sm text-center md:max-w-[520px]">
+      <a href="#resenas" :class="[stat, 'transition-opacity hover:opacity-80']">
+        <span :class="statLabel">{{ reviewsCount ? `${reviewsCount} reseñas` : 'Calificación' }}</span>
+        <span :class="statValue">
+          <Icon name="material-symbols:star-rounded" size="20" aria-hidden="true" />
           {{ business.rating.toFixed(1) }}
         </span>
       </a>
-      <button type="button" class="flex flex-col-reverse px-xs transition-opacity hover:opacity-80" @click="recommendersOpen = true">
-        <span class="text-body-xs text-muted">vecinos lo recomiendan</span>
-        <span class="inline-flex items-center justify-center gap-xxs text-[20px] leading-tight font-bold text-ink tabular-nums">
-          <Icon name="material-symbols:handshake-outline" size="20" class="text-veci-purple-text" aria-hidden="true" />
+      <button type="button" :class="[stat, 'transition-opacity hover:opacity-80']" @click="recommendersOpen = true">
+        <span :class="statLabel">vecinos lo recomiendan</span>
+        <span :class="statValue">
+          <Icon name="material-symbols:handshake-outline" size="20" aria-hidden="true" />
           {{ total }}
         </span>
       </button>
-      <div class="flex flex-col-reverse px-xs">
-        <span class="text-body-xs text-muted">{{ business.walkMinutes }} min a pie</span>
-        <span class="inline-flex items-center justify-center gap-xxs text-[20px] leading-tight font-bold text-ink tabular-nums">
-          <Icon name="material-symbols:directions-walk" size="20" class="text-muted" aria-hidden="true" />
+      <div :class="stat">
+        <span :class="statLabel">{{ business.walkMinutes }} min a pie</span>
+        <span :class="statValue">
+          <Icon name="material-symbols:directions-walk" size="20" aria-hidden="true" />
           {{ formatDistance(business.distanceMeters) }}
         </span>
       </div>
     </div>
 
-    <!-- 4 · Acciones: la principal destaca; lo social, a la derecha y discreto -->
+    <!-- 4 · Acciones: la principal en blanco; lo social, a la derecha y discreto -->
     <div class="mt-md flex flex-wrap items-center gap-xs">
       <button
         v-if="canBook"
         type="button"
-        class="inline-flex h-10 flex-1 items-center justify-center gap-xs rounded-control bg-veci-gradient px-md text-body-sm font-medium text-on-primary transition hover:brightness-110 sm:flex-none"
+        class="inline-flex h-10 flex-1 items-center justify-center gap-xs rounded-pill bg-ink px-md text-[14px] font-bold text-canvas transition-colors hover:bg-body-strong sm:flex-none"
         @click="$emit('book')"
       >
         <Icon name="material-symbols:event-available" size="20" aria-hidden="true" />
@@ -118,8 +123,8 @@ const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-c
         <button
           type="button"
           :aria-pressed="isRecommended"
-          class="inline-flex h-10 items-center gap-xs rounded-control px-sm text-body-sm font-medium transition-colors hover:bg-surface-elevated"
-          :class="isRecommended ? 'text-veci-purple-text' : 'text-body'"
+          class="inline-flex h-10 items-center gap-xs rounded-pill px-sm text-[14px] font-semibold transition-colors hover:bg-surface-elevated"
+          :class="isRecommended ? 'text-ink' : 'text-body'"
           @click="toggleRecommend"
         >
           <Icon :name="isRecommended ? 'material-symbols:handshake' : 'material-symbols:handshake-outline'" size="20" aria-hidden="true" />
@@ -127,9 +132,9 @@ const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-c
         </button>
         <div class="flex items-center">
           <BIconButton :label="copied ? 'Enlace copiado' : `Compartir ${business.name}`" @click="share">
-            <Icon :name="copied ? 'material-symbols:check' : 'material-symbols:share-outline'" size="22" :class="copied ? 'text-success' : 'text-muted'" />
+            <Icon :name="copied ? 'material-symbols:check' : 'material-symbols:forward-outline'" size="22" :class="copied ? 'text-ink' : 'text-muted'" />
           </BIconButton>
-          <BusinessSaveButton :business-id="business.id" :business-name="business.name" />
+          <BusinessSaveButton :business-id="business.id" :business-name="business.name" neutral />
         </div>
       </div>
     </div>
@@ -138,14 +143,14 @@ const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-c
     <button
       v-if="names.length"
       type="button"
-      class="mt-sm flex items-center gap-sm rounded-control py-xxs text-left text-body-sm text-muted transition-colors hover:text-body"
+      class="mt-sm flex items-center gap-sm rounded-control py-xxs text-left text-[13px] font-medium text-body transition-colors hover:text-ink"
       @click="recommendersOpen = true"
     >
       <span class="flex shrink-0 -space-x-1.5">
         <SocialAvatar v-for="person in (business.recommendedBy ?? []).slice(0, 3)" :key="person.name" :name="person.name" size="xs" class="ring-2 ring-surface-card" />
       </span>
       <span>
-        Lo recomiendan <b class="font-medium text-body">{{ names.join(', ') }}</b>
+        Lo recomiendan <b class="font-semibold text-ink">{{ names.join(', ') }}</b>
         <template v-if="othersCount > 0"> y {{ othersCount }} vecinos más</template>
       </span>
       <Icon name="material-symbols:chevron-right" size="18" aria-hidden="true" />

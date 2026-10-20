@@ -21,26 +21,26 @@ const week = computed(() =>
 </script>
 
 <template>
-  <BusinessProfileCard id="horario" title="Horario" icon="material-symbols:schedule-outline">
-    <!-- Estado de ahora: lo primero que se busca -->
+  <BusinessProfileCard id="horario" title="Horario">
+    <!-- Estado de ahora: lo primero que se busca (abierto en blanco, cerrado en gris; sin verde) -->
     <p
-      class="flex items-center gap-xs rounded-control px-sm py-xs text-body-sm font-medium"
-      :class="status.open ? 'bg-success/15 text-success' : 'bg-surface-elevated text-body'"
+      class="flex items-center gap-xs rounded-control border border-hairline px-sm py-xs font-headline text-[14px] font-semibold"
+      :class="status.open ? 'text-ink' : 'text-body'"
     >
-      <span class="size-2 shrink-0 rounded-full" :class="status.open ? 'bg-success' : 'bg-muted-soft'" aria-hidden="true" />
+      <span class="size-2 shrink-0 rounded-full" :class="status.open ? 'bg-ink' : 'bg-muted-soft'" aria-hidden="true" />
       {{ status.label }}
     </p>
 
-    <dl class="mt-sm flex flex-col">
+    <dl class="mt-sm flex flex-col font-headline">
       <div
         v-for="day in week"
         :key="day.weekday"
-        class="flex items-center justify-between rounded-sm px-sm py-xs text-body-sm"
-        :class="day.weekday === today ? 'bg-surface-soft font-medium text-ink' : 'text-body'"
+        class="flex items-center justify-between rounded-sm px-sm py-xs text-[14px]"
+        :class="day.weekday === today ? 'bg-surface-soft font-semibold text-ink' : 'font-medium text-body'"
       >
         <dt class="flex items-center gap-xs">
           {{ day.name }}
-          <span v-if="day.weekday === today" class="rounded-pill bg-veci-purple/20 px-xs text-[11px] font-medium text-veci-purple-text">Hoy</span>
+          <span v-if="day.weekday === today" class="rounded-pill border border-hairline-strong px-xs text-[11px] leading-[1.6] font-semibold text-ink">Hoy</span>
         </dt>
         <dd class="tabular-nums" :class="{ 'text-muted-soft': day.closed }">{{ day.text }}</dd>
       </div>

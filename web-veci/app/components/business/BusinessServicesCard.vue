@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Business } from '~/api/types'
+import type { Business, Service } from '~/api/types'
 
 /**
  * "¿Qué hacen y cuánto cuesta?": una fila por servicio con el nombre (y su nota) a la izquierda
@@ -20,39 +20,42 @@ const promoService = computed(() => {
     .sort((a, b) => b.name.length - a.name.length)[0]?.name
 })
 const inPromo = (name: string) => name === promoService.value
+
+/** Apoyo de la fila: nota · duración ("Incluye lavado · 45 min"). */
+const detail = (service: Service) =>
+  [service.note, service.durationMinutes ? formatDuration(service.durationMinutes) : ''].filter(Boolean)
 </script>
 
 <template>
   <BusinessProfileCard
     id="servicios"
     title="Servicios y precios"
-    icon="material-symbols:sell-outline"
     :subtitle="`${business.services!.length} servicios · precios en el negocio`"
   >
-    <ul class="-mx-xs divide-y divide-hairline-strong">
+    <ul class="-mx-xs divide-y divide-hairline font-headline">
       <li v-for="service in business.services" :key="service.name" class="flex items-center gap-sm px-xs py-sm">
         <div class="min-w-0 flex-1">
-          <p class="flex flex-wrap items-center gap-xs text-body-md font-medium text-ink">
+          <p class="flex flex-wrap items-center gap-xs text-[15px] leading-[1.3] font-semibold text-ink">
             {{ service.name }}
-            <span v-if="inPromo(service.name)" class="rounded-pill bg-veci-pink/15 px-xs text-[11px] font-medium text-veci-pink">En oferta</span>
+            <span v-if="inPromo(service.name)" class="rounded-pill border border-hairline-strong px-xs text-[11px] leading-[1.6] font-semibold text-ink">En oferta</span>
           </p>
-          <p v-if="service.note" class="text-body-xs text-muted">{{ service.note }}</p>
-          <p v-if="service.durationMinutes" class="mt-0.5 inline-flex items-center gap-xxs text-body-xs text-muted">
-            <Icon name="material-symbols:timer-outline" size="14" aria-hidden="true" />
-            {{ formatDuration(service.durationMinutes) }}
+          <p v-if="detail(service).length" class="mt-0.5 text-[13px] leading-[1.4] font-medium text-body [word-spacing:0.08em]">
+            <template v-for="(part, i) in detail(service)" :key="part">
+              <span v-if="i" class="mx-1 text-muted" aria-hidden="true">·</span>{{ part }}
+            </template>
           </p>
         </div>
 
         <p class="shrink-0 text-right">
-          <span v-if="service.fromPrice" class="block text-[11px] text-muted">Desde</span>
-          <span class="text-body-md font-bold text-ink tabular-nums">{{ formatMoney(service.price) }}</span>
+          <span v-if="service.fromPrice" class="block text-[11px] font-medium text-muted">Desde</span>
+          <span class="text-[15px] font-bold text-ink tabular-nums">{{ formatMoney(service.price) }}</span>
         </p>
 
         <button
           v-if="canBook"
           type="button"
           :aria-label="`Apartar ${service.name}`"
-          class="shrink-0 rounded-control border border-hairline-strong px-sm py-xs text-body-xs font-medium text-ink transition-colors hover:border-veci-purple hover:bg-surface-elevated"
+          class="h-8 shrink-0 rounded-pill border border-hairline-strong px-sm text-[13px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
           @click="$emit('book', service.name)"
         >
           Apartar

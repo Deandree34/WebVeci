@@ -209,7 +209,7 @@ export interface Person {
 export interface Notice {
   id: string
   title: string
-  /** Horario y lugar, p. ej. "9 am a 2 pm · De Hidalgo a Juárez". */
+  /** Hora · lugar (o lugar · nota), p. ej. "9 am – 2 pm · De Hidalgo a Juárez". */
   detail: string
   /** Fecha en la zona de la colonia, "YYYY-MM-DD". */
   date: string

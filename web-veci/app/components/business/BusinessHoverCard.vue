@@ -9,10 +9,7 @@ import { businessPath } from '~/features/navigation/nav'
  * Usa la Popover API: vive en la capa superior, así que no la recorta el
  * `overflow-hidden` de la tarjeta del post.
  */
-const props = defineProps<{ business: Business }>()
-
-const now = useNow()
-const status = computed(() => scheduleStatus(props.business, now.value))
+defineProps<{ business: Business }>()
 
 const trigger = ref<HTMLElement>()
 const card = ref<HTMLElement>()
@@ -98,19 +95,26 @@ function onFocusOut(event: FocusEvent) {
     @focusout="onFocusOut"
     @keydown.esc="close"
   >
-    <div class="flex items-center gap-sm">
-      <BusinessAvatar :icon="business.icon" size="lg" :open="status.open" />
+    <!-- Identidad con el sistema de los posts: nombre en Plus Jakarta Sans y giro como apoyo -->
+    <div class="flex items-center gap-sm font-headline">
+      <BusinessAvatar :icon="business.icon" size="lg" />
       <div class="min-w-0">
-        <p class="flex items-center gap-xxs text-body-md font-medium text-ink">
-          <span class="truncate">{{ business.name }}</span>
+        <p class="flex items-center gap-xxs">
+          <span class="truncate text-[17px] leading-[1.25] font-bold text-ink">{{ business.name }}</span>
           <BusinessVerified v-if="business.verified" />
         </p>
-        <p class="text-body-xs text-muted">{{ business.subcategory }}</p>
+        <p class="mt-0.5 truncate text-[13px] leading-[1.4] font-medium text-body">{{ business.subcategory }}</p>
       </div>
     </div>
 
     <BusinessFacts :business="business" class="mt-md" />
 
-    <PostAction :to="businessPath(business.slug)" variant="primary" class="mt-md w-full">Ver negocio</PostAction>
+    <!-- Mismo botón de contorno que los adjuntos de los posts -->
+    <NuxtLink
+      :to="businessPath(business.slug)"
+      class="mt-md flex h-9 w-full items-center justify-center rounded-pill border border-hairline-strong text-body-sm font-medium text-body-strong transition-colors hover:bg-surface-elevated"
+    >
+      Ver negocio
+    </NuxtLink>
   </div>
 </template>
