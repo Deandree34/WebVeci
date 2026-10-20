@@ -14,10 +14,10 @@ defineProps<{ title: string, support?: string[], rating?: number, to?: RouteLoca
   <div class="mx-md mb-sm flex items-center gap-md rounded-control border border-hairline p-md">
     <div class="min-w-0 flex-1">
       <p class="flex items-center gap-xs">
-        <span class="line-clamp-2 font-headline text-[20px] leading-[1.2] font-bold tracking-[-0.01em] text-ink">{{ title }}</span>
+        <span class="line-clamp-2 font-headline text-heading leading-[1.2] font-bold tracking-[-0.01em] text-ink">{{ title }}</span>
         <PostStars v-if="rating !== undefined" :value="rating" :size="18" />
       </p>
-      <p v-if="support?.length" class="mt-xxs truncate font-headline text-[14px] leading-[1.4] font-medium text-body [word-spacing:0.08em]">
+      <p v-if="support?.length" class="mt-xxs truncate font-headline text-label leading-[1.4] font-medium text-body [word-spacing:0.08em]">
         <template v-for="(part, i) in support" :key="part">
           <span v-if="i" class="mx-1 text-muted" aria-hidden="true">·</span>{{ part }}
         </template>

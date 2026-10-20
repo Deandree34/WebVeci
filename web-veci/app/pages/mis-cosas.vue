@@ -22,13 +22,13 @@ const dayLabel = { today: 'Hoy', tomorrow: 'Mañana' } as const
         :key="booking.id"
         class="flex items-center gap-sm rounded-card bg-surface-card p-md"
       >
-        <!-- Ícono en círculo neutro; dato principal + apoyo en Plus Jakarta Sans, como las filas del perfil -->
+        <!-- Ícono en círculo neutro; dato principal + apoyo en la fuente del sistema, como las filas del perfil -->
         <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-elevated text-ink" aria-hidden="true">
           <Icon name="material-symbols:event-available" size="22" />
         </span>
-        <div class="min-w-0 flex-1 font-headline">
-          <p class="truncate text-[15px] leading-[1.3] font-semibold text-ink">{{ booking.service }} en {{ businessName(booking.businessId) }}</p>
-          <p class="mt-0.5 text-[13px] leading-[1.4] font-medium text-body">
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-copy leading-[1.3] font-semibold text-ink">{{ booking.service }} en {{ businessName(booking.businessId) }}</p>
+          <p class="mt-0.5 text-support leading-[1.4] text-body">
             {{ dayLabel[booking.day] }} a las {{ booking.time }}<span class="mx-1 text-muted" aria-hidden="true">·</span>a nombre de {{ booking.customerName }}
           </p>
         </div>

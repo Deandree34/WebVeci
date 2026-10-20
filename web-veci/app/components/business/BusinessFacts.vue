@@ -19,19 +19,19 @@ const status = computed(() => scheduleStatus(props.business, now.value))
 </script>
 
 <template>
-  <div class="font-headline">
+  <div>
     <!-- Cifras de un vistazo (valor arriba con flex-col-reverse; el orden semántico sigue dt → dd) -->
     <dl class="grid grid-cols-2 divide-x divide-hairline rounded-control border border-hairline py-sm text-center">
       <div class="flex flex-col-reverse gap-0.5 px-xxs">
-        <dt class="text-[12px] font-medium text-muted">Calificación</dt>
-        <dd class="inline-flex items-center justify-center gap-xxs text-[16px] font-bold text-ink tabular-nums">
+        <dt class="text-meta font-medium text-muted">Calificación</dt>
+        <dd class="inline-flex items-center justify-center gap-xxs font-headline text-lead font-bold text-ink tabular-nums">
           <Icon name="material-symbols:star-rounded" size="16" aria-hidden="true" />
           {{ business.rating.toFixed(1) }}
         </dd>
       </div>
       <div class="flex flex-col-reverse gap-0.5 px-xxs">
-        <dt class="text-[12px] font-medium text-muted">Recomiendan</dt>
-        <dd class="inline-flex items-center justify-center gap-xxs text-[16px] font-bold text-ink tabular-nums">
+        <dt class="text-meta font-medium text-muted">Recomiendan</dt>
+        <dd class="inline-flex items-center justify-center gap-xxs font-headline text-lead font-bold text-ink tabular-nums">
           <Icon name="material-symbols:handshake-outline" size="16" aria-hidden="true" />
           {{ recommendations }}
         </dd>
@@ -45,8 +45,8 @@ const status = computed(() => scheduleStatus(props.business, now.value))
         <div>
           <dt class="sr-only">Horario</dt>
           <dd>
-            <span class="block text-[14px] leading-[1.3] font-semibold text-ink">{{ status.label }}</span>
-            <span class="mt-0.5 block text-[13px] leading-[1.4] font-medium text-body [word-spacing:0.08em]">{{ hoursText(business.hours) }}</span>
+            <span class="block text-label leading-[1.3] font-semibold text-ink">{{ status.label }}</span>
+            <span class="mt-0.5 block text-support leading-[1.4] text-body [word-spacing:0.08em]">{{ hoursText(business.hours) }}</span>
           </dd>
         </div>
       </div>
@@ -55,8 +55,8 @@ const status = computed(() => scheduleStatus(props.business, now.value))
         <div>
           <dt class="sr-only">Dirección</dt>
           <dd>
-            <span class="block text-[14px] leading-[1.3] font-semibold text-ink">{{ business.address }}</span>
-            <span class="mt-0.5 block text-[13px] leading-[1.4] font-medium text-body [word-spacing:0.08em]">{{ business.walkMinutes }} min a pie<span class="mx-1 text-muted" aria-hidden="true">·</span>{{ formatDistance(business.distanceMeters) }}</span>
+            <span class="block text-label leading-[1.3] font-semibold text-ink">{{ business.address }}</span>
+            <span class="mt-0.5 block text-support leading-[1.4] text-body [word-spacing:0.08em]">{{ business.walkMinutes }} min a pie<span class="mx-1 text-muted" aria-hidden="true">·</span>{{ formatDistance(business.distanceMeters) }}</span>
           </dd>
         </div>
       </div>

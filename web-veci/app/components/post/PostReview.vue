@@ -22,7 +22,7 @@ const support = computed(() => {
 <template>
   <figure class="px-md pt-xs pb-md">
     <!-- Serif cursiva: es lo que dijo un vecino, no texto del negocio -->
-    <blockquote class="font-quote text-[20px] leading-[1.45] font-medium text-ink italic" :class="{ 'line-clamp-5': long && !expanded }">“{{ review.text }}”</blockquote>
+    <blockquote class="font-quote text-heading leading-[1.45] font-medium text-ink italic" :class="{ 'line-clamp-5': long && !expanded }">“{{ review.text }}”</blockquote>
     <button
       v-if="long && !expanded"
       type="button"

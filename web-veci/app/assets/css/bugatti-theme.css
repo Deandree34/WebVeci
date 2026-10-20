@@ -83,6 +83,26 @@
   --text-post-headline: 17px;
   --text-post-headline--line-height: 1.18;
   --text-post-headline--letter-spacing: 0;
+  /* Escala por rol de la app (text-<rol>). En rem para respetar el tamaño de letra del vecino.
+     Interfaz y lectura (≤ 18px) son fijas, como en Facebook: achicarlas en móvil las vuelve
+     ilegibles. Los títulos y cifras grandes son fluidos: clamp(mín, rem + vw, máx) crece en
+     línea recta de 360px a 1024px de ventana y desde ahí se queda en el tamaño de escritorio.
+     El interlineado lo pone cada componente con leading-*. */
+  --text-tiny: 0.625rem;     /* 10px: insignias sobre avatares, iniciales del avatar xs */
+  --text-caption: 0.6875rem; /* 11px: etiquetas en pastilla ("Hoy", "En oferta"), "Desde" */
+  --text-meta: 0.75rem;      /* 12px: rótulos de cifras, contador del menú, legal */
+  --text-support: 0.8125rem; /* 13px: línea de apoyo bajo un nombre, hora, distancia */
+  --text-label: 0.875rem;    /* 14px: botones, colonia, apoyo de los adjuntos, nombres de historias */
+  --text-copy: 0.9375rem;    /* 15px: menú, nombre en filas, descripciones (cuerpo de Facebook) */
+  --text-lead: 1rem;         /* 16px: rótulos de columna ("Abierto ahora"), cifras del recuadro */
+  --text-emphasis: 1.0625rem; /* 17px: nombre en la ventana flotante, reseñas del perfil */
+  --text-section: 1.125rem;  /* 18px: rótulos en cursiva ("Servicio", "Horario"), "Estás al día" */
+  --text-heading: clamp(1.125rem, 1.057rem + 0.301vw, 1.25rem);   /* 18 → 20px: títulos de tarjeta, titular del adjunto, cita */
+  --text-figure: clamp(1.25rem, 1.182rem + 0.301vw, 1.375rem);    /* 20 → 22px: día de los avisos */
+  --text-page-title: clamp(1.5rem, 1.364rem + 0.602vw, 1.75rem);  /* 24 → 28px: Explorar, Mis cosas, Guardados */
+  --text-story: clamp(1.625rem, 1.422rem + 0.904vw, 2rem);        /* 26 → 32px: titular de la historia */
+  --text-hero: clamp(1.75rem, 1.479rem + 1.205vw, 2.25rem);       /* 28 → 36px: nombre del negocio en su página */
+  --text-score: clamp(2rem, 1.729rem + 1.205vw, 2.5rem);          /* 32 → 40px: calificación grande de reseñas */
   --text-body-md: 16px;
   --text-body-md--line-height: 1.5;
   --text-body-md--letter-spacing: 0;

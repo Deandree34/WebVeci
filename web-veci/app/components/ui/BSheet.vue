@@ -41,15 +41,15 @@ function onClick(event: MouseEvent) {
   >
     <div class="flex max-h-[90dvh] flex-col">
       <header class="flex shrink-0 items-center gap-sm border-b border-hairline-strong px-md py-sm">
-        <!-- Título y subtítulo con el sistema tipográfico de los posts (Plus Jakarta Sans) -->
-        <div class="min-w-0 flex-1 font-headline">
+        <!-- Título y subtítulo en la fuente del sistema (o el título en Lora cursiva con `quote`) -->
+        <div class="min-w-0 flex-1">
           <h2
             class="truncate tracking-normal text-ink normal-case"
-            :class="quote ? 'font-quote text-[20px] leading-[1.3] font-medium italic' : 'text-[18px] leading-[1.3] font-bold'"
+            :class="quote ? 'font-quote text-heading leading-[1.3] font-medium italic' : 'text-section leading-[1.3] font-semibold'"
           >
             {{ title }}
           </h2>
-          <p v-if="subtitle" class="truncate text-[13px] leading-[1.4] font-medium text-body">{{ subtitle }}</p>
+          <p v-if="subtitle" class="truncate text-support leading-[1.4] text-body">{{ subtitle }}</p>
         </div>
         <BIconButton label="Cerrar" @click="open = false">
           <Icon name="material-symbols:close" size="22" />

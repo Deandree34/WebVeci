@@ -53,26 +53,26 @@ const opensToday = computed(() => {
 <template>
   <BusinessProfileCard id="horarios" title="Horarios libres" subtitle="Toca un horario para apartar tu cita">
     <!-- Selector Hoy / Mañana con cuántos lugares quedan (el elegido en blanco) -->
-    <div class="grid grid-cols-2 gap-xxs rounded-pill border border-hairline p-xxs font-headline" role="tablist" aria-label="Día">
+    <div class="grid grid-cols-2 gap-xxs rounded-pill border border-hairline p-xxs" role="tablist" aria-label="Día">
       <button
         v-for="option in days"
         :key="option.id"
         type="button"
         role="tab"
         :aria-selected="day === option.id"
-        class="h-9 rounded-pill text-[14px] font-semibold transition-colors"
+        class="h-9 rounded-pill text-label font-semibold transition-colors"
         :class="day === option.id ? 'bg-ink text-canvas' : 'text-body hover:text-ink'"
         @click="day = option.id"
       >
         {{ option.label }}
-        <span class="ml-xxs text-[13px] font-medium tabular-nums" :class="day === option.id ? 'text-canvas/70' : 'text-muted'">
+        <span class="ml-xxs text-support font-medium tabular-nums" :class="day === option.id ? 'text-canvas/70' : 'text-muted'">
           {{ byDay[option.id].length ? `${byDay[option.id].length} libres` : 'lleno' }}
         </span>
       </button>
     </div>
 
     <!-- Aún cerrado pero con lugares hoy: se aclara para que no choque con el "Cerrado" de arriba -->
-    <p v-if="opensToday && groups.length" class="mt-sm flex items-center gap-xs font-headline text-[13px] leading-[1.4] font-medium text-body">
+    <p v-if="opensToday && groups.length" class="mt-sm flex items-center gap-xs text-support leading-[1.4] text-body">
       <Icon name="material-symbols:schedule-outline" size="16" class="shrink-0 text-muted" aria-hidden="true" />
       <span>Abre hoy a las {{ opensToday }}<span class="mx-1 text-muted" aria-hidden="true">·</span>ya puedes apartar tu lugar</span>
     </p>
@@ -80,13 +80,13 @@ const opensToday = computed(() => {
     <div v-if="groups.length" class="mt-md flex flex-col gap-md">
       <div v-for="group in groups" :key="group.part">
         <!-- Franja en Lora cursiva, como los rótulos de la ventana de apartar -->
-        <p class="mb-xs font-quote text-[15px] font-medium text-body italic">{{ partLabels[group.part] }}</p>
+        <p class="mb-xs font-quote text-copy font-medium text-body italic">{{ partLabels[group.part] }}</p>
         <div class="grid grid-cols-3 gap-xs sm:grid-cols-4">
           <button
             v-for="slot in group.slots"
             :key="slot"
             type="button"
-            class="h-10 rounded-control border border-hairline-strong font-headline text-[14px] font-semibold text-ink tabular-nums transition-colors hover:bg-surface-soft"
+            class="h-10 rounded-control border border-hairline-strong font-headline text-label font-semibold text-ink tabular-nums transition-colors hover:bg-surface-soft"
             @click="$emit('pick', day, slot)"
           >
             {{ slot }}
@@ -95,13 +95,13 @@ const opensToday = computed(() => {
       </div>
     </div>
 
-    <div v-else class="mt-md flex flex-col items-center gap-sm py-md text-center font-headline">
+    <div v-else class="mt-md flex flex-col items-center gap-sm py-md text-center">
       <Icon name="material-symbols:event-busy-outline" size="28" class="text-muted" aria-hidden="true" />
-      <p class="text-[14px] font-medium text-body">{{ day === 'today' ? 'Hoy ya no hay lugares' : 'Mañana aún no hay horarios' }}</p>
+      <p class="text-label font-medium text-body">{{ day === 'today' ? 'Hoy ya no hay lugares' : 'Mañana aún no hay horarios' }}</p>
       <button
         v-if="day === 'today' && byDay.tomorrow.length"
         type="button"
-        class="h-9 rounded-pill border border-hairline-strong px-md text-[14px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
+        class="h-9 rounded-pill border border-hairline-strong px-md text-label font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
         @click="day = 'tomorrow'"
       >
         Ver mañana

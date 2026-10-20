@@ -43,7 +43,7 @@ onBeforeUnmount(() => observer?.disconnect())
       :key="tab.id"
       :href="`#${tab.id}`"
       :aria-current="active === tab.id ? 'location' : undefined"
-      class="relative shrink-0 px-md py-sm font-headline text-[14px] font-semibold whitespace-nowrap transition-colors"
+      class="relative shrink-0 px-md py-sm text-label font-semibold whitespace-nowrap transition-colors"
       :class="[
         active === tab.id ? 'text-ink' : 'text-muted hover:text-ink',
         { 'md:hidden': 'mobileOnly' in tab && tab.mobileOnly }

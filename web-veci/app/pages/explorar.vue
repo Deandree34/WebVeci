@@ -21,12 +21,12 @@ const { data: categories } = useCategories()
           class="flex h-full flex-col gap-sm rounded-card bg-surface-card p-md transition-colors hover:bg-surface-elevated"
         >
           <Icon :name="category.icon" size="28" class="text-ink" aria-hidden="true" />
-          <span class="font-headline text-[15px] leading-[1.3] font-semibold text-ink">{{ category.label }}</span>
+          <span class="text-copy leading-[1.3] font-semibold text-ink">{{ category.label }}</span>
         </NuxtLink>
         <div v-else class="flex h-full flex-col gap-sm rounded-card border border-hairline p-md text-muted-soft">
           <Icon :name="category.icon" size="28" aria-hidden="true" />
-          <span class="font-headline text-[15px] leading-[1.3] font-medium">{{ category.label }}</span>
-          <span class="font-quote text-[14px] font-medium italic">Próximamente</span>
+          <span class="text-copy leading-[1.3]">{{ category.label }}</span>
+          <span class="font-quote text-label font-medium italic">Próximamente</span>
         </div>
       </li>
     </ul>

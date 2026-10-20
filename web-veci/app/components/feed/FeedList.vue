@@ -48,7 +48,7 @@ const comeBackText = computed(() => comeBack[dayPart(colonyHour(now.value))])
       <div v-for="n in 2" :key="n" class="-mx-md h-48 animate-pulse bg-surface-card sm:mx-0 sm:rounded-control" />
     </div>
 
-    <p v-else-if="isError" class="font-headline text-[14px] font-medium text-body">No se pudo cargar el feed.</p>
+    <p v-else-if="isError" class="text-label text-body">No se pudo cargar el feed.</p>
 
     <template v-else>
       <div class="flex flex-col gap-xs sm:gap-md">
@@ -58,7 +58,7 @@ const comeBackText = computed(() => comeBack[dayPart(colonyHour(now.value))])
       <template v-if="hasNextPage">
         <!-- Siguiente página en camino -->
         <div v-if="isFetchingNextPage" class="-mx-md mt-xs h-48 animate-pulse bg-surface-card sm:mx-0 sm:mt-md sm:rounded-control" aria-busy="true" />
-        <p v-else-if="isFetchNextPageError" class="mt-lg text-center font-headline text-[14px] font-medium text-body">
+        <p v-else-if="isFetchNextPageError" class="mt-lg text-center text-label text-body">
           No se pudo cargar más ·
           <button type="button" class="font-semibold text-ink underline-offset-2 hover:underline" @click="fetchNextPage()">Reintentar</button>
         </p>
@@ -70,8 +70,8 @@ const comeBackText = computed(() => comeBack[dayPart(colonyHour(now.value))])
         <span class="mb-xs inline-flex size-9 items-center justify-center rounded-full bg-surface-elevated text-ink" aria-hidden="true">
           <Icon name="material-symbols:check-rounded" size="20" />
         </span>
-        <p class="font-quote text-[18px] font-medium text-ink italic">Estás al día con tu colonia</p>
-        <p class="mt-0.5 font-headline text-[13px] font-medium text-body">{{ comeBackText }}</p>
+        <p class="font-quote text-section font-medium text-ink italic">Estás al día con tu colonia</p>
+        <p class="mt-0.5 text-support text-body">{{ comeBackText }}</p>
         <!-- Sin columna derecha (< xl), el pie legal va aquí, al final del feed -->
         <SocialLegal class="mt-lg xl:hidden" />
       </div>

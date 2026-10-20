@@ -4,7 +4,7 @@ const props = withDefaults(defineProps<{ name: string, size?: 'xs' | 'sm' | 'md'
 })
 
 const sizes = {
-  xs: 'size-6 text-[10px]',
+  xs: 'size-6 text-tiny',
   sm: 'size-8 text-body-xs',
   md: 'size-10 text-body-sm',
   lg: 'size-12 text-body-md'

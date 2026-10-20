@@ -95,15 +95,15 @@ function onFocusOut(event: FocusEvent) {
     @focusout="onFocusOut"
     @keydown.esc="close"
   >
-    <!-- Identidad con el sistema de los posts: nombre en Plus Jakarta Sans y giro como apoyo -->
-    <div class="flex items-center gap-sm font-headline">
+    <!-- Identidad con el sistema de los posts: nombre y giro en la fuente del sistema -->
+    <div class="flex items-center gap-sm">
       <BusinessAvatar :icon="business.icon" size="lg" />
       <div class="min-w-0">
         <p class="flex items-center gap-xxs">
-          <span class="truncate text-[17px] leading-[1.25] font-bold text-ink">{{ business.name }}</span>
+          <span class="truncate text-emphasis leading-[1.25] font-semibold text-ink">{{ business.name }}</span>
           <BusinessVerified v-if="business.verified" />
         </p>
-        <p class="mt-0.5 truncate text-[13px] leading-[1.4] font-medium text-body">{{ business.subcategory }}</p>
+        <p class="mt-0.5 truncate text-support leading-[1.4] text-body">{{ business.subcategory }}</p>
       </div>
     </div>
 

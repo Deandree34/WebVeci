@@ -8,7 +8,7 @@ import { useCreateBooking } from '~/features/bookings/queries'
  * `initialService`, el servicio elegido en la lista de precios del negocio.
  *
  * Sistema tipográfico de los posts: rótulos de sección en Lora cursiva (la voz con la que la app
- * le habla al vecino), datos y botones en Plus Jakarta Sans. Solo neutros: lo elegido va en blanco.
+ * le habla al vecino), interfaz en la fuente del sistema y los horarios (cifras) en Plus Jakarta Sans. Solo neutros: lo elegido va en blanco.
  */
 const props = defineProps<{
   business: Business
@@ -82,13 +82,13 @@ function submit() {
 
 /** Opción elegible (servicio u horario): lo elegido con borde blanco; `solid`, además relleno blanco. */
 const option = (selected: boolean, solid = false) => [
-  'rounded-control border font-headline transition-colors',
+  'rounded-control border transition-colors',
   selected
     ? (solid ? 'border-ink bg-ink text-canvas' : 'border-ink bg-surface-elevated text-ink')
     : 'border-hairline-strong text-ink hover:bg-surface-soft'
 ]
-const label = 'mb-sm block font-quote text-[18px] leading-[1.3] font-medium text-ink italic'
-const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font-headline text-[15px] font-bold text-canvas transition-colors hover:bg-body-strong'
+const label = 'mb-sm block font-quote text-section leading-[1.3] font-medium text-ink italic'
+const primaryButton = 'flex items-center justify-center rounded-pill bg-ink text-copy font-semibold text-canvas transition-colors hover:bg-body-strong'
 </script>
 
 <template>
@@ -103,21 +103,21 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font
       <span class="mb-sm inline-flex size-12 items-center justify-center rounded-full bg-surface-elevated text-ink" aria-hidden="true">
         <Icon name="material-symbols:check-rounded" size="28" />
       </span>
-      <p class="font-quote text-[18px] leading-[1.35] font-medium text-ink italic">“{{ confirmed.service }} en {{ business.name }}”</p>
-      <p class="mt-xxs font-headline text-[13px] leading-[1.4] font-medium text-body">
+      <p class="font-quote text-section leading-[1.35] font-medium text-ink italic">“{{ confirmed.service }} en {{ business.name }}”</p>
+      <p class="mt-xxs text-support leading-[1.4] text-body">
         {{ dayLabel[confirmed.day] }} a las {{ confirmed.time }}<span class="mx-1 text-muted" aria-hidden="true">·</span>a nombre de {{ confirmed.customerName }}
       </p>
       <div class="mt-lg flex gap-xs">
         <NuxtLink to="/mis-cosas" :class="[primaryButton, 'h-10 px-md']" @click="open = false">Ver en Mis cosas</NuxtLink>
         <button
           type="button"
-          class="h-10 rounded-pill border border-hairline-strong px-md font-headline text-[14px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
+          class="h-10 rounded-pill border border-hairline-strong px-md text-label font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
           @click="open = false"
         >
           Listo
         </button>
       </div>
-      <p class="mt-md font-headline text-[13px] font-medium text-muted">Lo encuentras en Mis cosas. (Datos de prueba: no se envía nada.)</p>
+      <p class="mt-md text-support text-muted">Lo encuentras en Mis cosas. (Datos de prueba: no se envía nada.)</p>
     </div>
 
     <!-- Formulario -->
@@ -133,8 +133,8 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font
             :aria-pressed="service === item.name"
             @click="service = item.name"
           >
-            <span class="block truncate text-[14px] leading-[1.3] font-semibold">{{ item.name }}</span>
-            <span class="mt-0.5 block truncate text-[13px] leading-[1.4] font-medium text-body">{{ serviceDetail(item) }}</span>
+            <span class="block truncate text-label leading-[1.3] font-semibold">{{ item.name }}</span>
+            <span class="mt-0.5 block truncate text-support leading-[1.4] font-medium text-body">{{ serviceDetail(item) }}</span>
           </button>
         </div>
       </fieldset>
@@ -146,7 +146,7 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font
             v-for="d in days"
             :key="d"
             type="button"
-            class="h-9 rounded-pill px-md font-headline text-[14px] font-semibold transition-colors"
+            class="h-9 rounded-pill px-md text-label font-semibold transition-colors"
             :class="day === d ? 'bg-ink text-canvas' : 'bg-surface-elevated text-body hover:text-ink'"
             :aria-pressed="day === d"
             @click="selectDay(d)"
@@ -159,7 +159,7 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font
             v-for="slot in slotsByDay[day]"
             :key="slot"
             type="button"
-            :class="[option(time === slot, true), 'h-10 text-[14px] font-semibold tabular-nums']"
+            :class="[option(time === slot, true), 'h-10 font-headline text-label font-semibold tabular-nums']"
             :aria-pressed="time === slot"
             @click="time = slot"
           >
@@ -167,7 +167,7 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font
           </button>
         </div>
       </fieldset>
-      <p v-else class="font-headline text-[14px] font-medium text-body">No quedan horarios libres por ahora.</p>
+      <p v-else class="text-label text-body">No quedan horarios libres por ahora.</p>
 
       <label class="block">
         <span :class="label">¿A nombre de quién?</span>
@@ -176,18 +176,18 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font
           type="text"
           autocomplete="given-name"
           placeholder="Tu nombre"
-          class="h-11 w-full rounded-control border border-hairline-strong bg-surface-soft px-sm font-headline text-[15px] font-medium text-ink placeholder:text-muted-soft focus:border-ink focus:outline-none"
+          class="h-11 w-full rounded-control border border-hairline-strong bg-surface-soft px-sm text-copy text-ink placeholder:text-muted-soft focus:border-ink focus:outline-none"
         >
       </label>
 
       <div class="flex flex-col gap-sm border-t border-hairline pt-md">
-        <p v-if="summary.length" class="font-headline text-[13px] leading-[1.4] font-medium text-body" aria-live="polite">
+        <p v-if="summary.length" class="text-support leading-[1.4] font-medium text-body" aria-live="polite">
           <template v-for="(part, i) in summary" :key="part">
             <span v-if="i" class="mx-1 text-muted" aria-hidden="true">·</span>{{ part }}
           </template>
         </p>
 
-        <p v-if="isError" class="font-headline text-[13px] font-medium text-veci-pink">No se pudo apartar la cita. Intenta de nuevo.</p>
+        <p v-if="isError" class="text-support font-medium text-veci-pink">No se pudo apartar la cita. Intenta de nuevo.</p>
 
         <button
           type="submit"
@@ -197,7 +197,7 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink font
           {{ isPending ? 'Apartando…' : 'Apartar cita' }}
         </button>
 
-        <p class="flex gap-xs font-headline text-[13px] leading-[1.4] font-medium text-muted">
+        <p class="flex gap-xs text-support leading-[1.4] text-muted">
           <Icon name="material-symbols:payments-outline" size="16" class="mt-px shrink-0" aria-hidden="true" />
           El pago se hace directo en {{ business.name }}. Si no puedes ir, avísales para liberar el lugar a otro vecino.
         </p>

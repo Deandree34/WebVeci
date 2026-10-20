@@ -23,7 +23,7 @@ export const mainNav: SocialNavLink[] = [
 
 /**
  * Barra inferior (móvil): las vistas del feed, para no tener otra barra de pestañas arriba.
- * Explorar va en la lupa de la barra superior y Mis cosas / Guardados en "Tú" (`youNav`).
+ * Explorar, Mis cosas y Guardados van en el menú ⋮ del encabezado (`youNav`).
  */
 export const bottomNav: SocialNavLink[] = [
   { icon: 'material-symbols:home-outline', activeIcon: 'material-symbols:home', label: 'Inicio', to: '/' },
@@ -32,11 +32,12 @@ export const bottomNav: SocialNavLink[] = [
 ]
 
 const youHints: Record<string, string> = {
+  '/explorar': 'Los negocios de tu colonia, por giro',
   '/mis-cosas': 'Tus citas apartadas',
   '/guardados': 'Negocios que guardaste'
 }
 
-/** Panel "Tú" de la barra inferior: lo del vecino (Mis cosas y Guardados), con su descripción. */
+/** Panel del menú ⋮ del encabezado (celular): Explorar y lo del vecino (Mis cosas y Guardados), con su descripción. */
 export const youNav = mainNav
   .filter((item) => item.to in youHints)
   .map((item) => ({ ...item, hint: youHints[item.to]! }))

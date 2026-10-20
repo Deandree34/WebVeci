@@ -3,7 +3,7 @@ import type { Business, PaymentMethod } from '~/api/types'
 
 /**
  * "¿Dónde está y cómo pago?": dirección con distancia, contacto y formas de pago, una fila por dato
- * (dato principal + apoyo en Plus Jakarta Sans). Acciones como botones de contorno; solo neutros.
+ * (dato principal + apoyo en la fuente del sistema). Acciones como botones de contorno; solo neutros.
  */
 defineProps<{ business: Business }>()
 
@@ -15,14 +15,14 @@ const paymentInfo: Record<PaymentMethod, { label: string, icon: string }> = {
 
 const row = 'flex items-start gap-sm py-sm'
 const rowIcon = 'mt-0.5 shrink-0 text-muted'
-const main = 'text-[14px] leading-[1.3] font-semibold text-ink'
-const support = 'mt-0.5 text-[13px] leading-[1.4] font-medium text-body'
-const link = 'inline-flex h-8 shrink-0 items-center rounded-pill border border-hairline-strong px-sm text-[13px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated'
+const main = 'text-label leading-[1.3] font-semibold text-ink'
+const support = 'mt-0.5 text-support leading-[1.4] text-body'
+const link = 'inline-flex h-8 shrink-0 items-center rounded-pill border border-hairline-strong px-sm text-support font-semibold text-body-strong transition-colors hover:bg-surface-elevated'
 </script>
 
 <template>
   <BusinessProfileCard id="info" title="Ubicación y pago">
-    <div class="divide-y divide-hairline font-headline">
+    <div class="divide-y divide-hairline">
       <!-- Dirección: el dato arriba, qué tan lejos debajo -->
       <div :class="row">
         <Icon name="material-symbols:location-on-outline" size="20" :class="rowIcon" aria-hidden="true" />
@@ -58,7 +58,7 @@ const link = 'inline-flex h-8 shrink-0 items-center rounded-pill border border-h
             <li
               v-for="method in business.payments"
               :key="method"
-              class="inline-flex items-center gap-xxs rounded-pill border border-hairline-strong px-sm py-xxs text-[13px] font-medium text-body"
+              class="inline-flex items-center gap-xxs rounded-pill border border-hairline-strong px-sm py-xxs text-support text-body"
             >
               <Icon :name="paymentInfo[method].icon" size="14" aria-hidden="true" />
               {{ paymentInfo[method].label }}

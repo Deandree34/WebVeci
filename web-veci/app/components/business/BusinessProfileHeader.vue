@@ -8,7 +8,7 @@ import type { Business } from '~/api/types'
  *  3. ¿Es confiable y está cerca?: tres cifras (valor grande, etiqueta abajo).
  *  4. Qué puedo hacer: Apartar cita · Mensaje · Cómo llegar, y lo social (recomendar, compartir, guardar).
  * La dirección y el horario completo viven en sus tarjetas, no aquí.
- * Sistema tipográfico de los posts (Plus Jakarta Sans) y solo neutros: lo activo va en blanco.
+ * Interfaz en la fuente del sistema, cifras en Plus Jakarta Sans y solo neutros: lo activo va en blanco.
  */
 const props = defineProps<{ business: Business, canBook?: boolean }>()
 defineEmits<{ book: [] }>()
@@ -28,14 +28,14 @@ const othersCount = computed(() => total.value - names.value.length)
 
 const reviewsCount = computed(() => props.business.reviews?.length ?? 0)
 
-const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-pill border border-hairline-strong px-md text-[14px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated'
+const secondary = 'inline-flex h-10 items-center justify-center gap-xs rounded-pill border border-hairline-strong px-md text-label font-semibold text-body-strong transition-colors hover:bg-surface-elevated'
 const stat = 'flex flex-col-reverse gap-0.5 px-xs'
-const statValue = 'inline-flex items-center justify-center gap-xxs text-[20px] leading-tight font-bold text-ink tabular-nums'
-const statLabel = 'text-[12px] font-medium text-muted'
+const statValue = 'inline-flex items-center justify-center gap-xxs font-headline text-heading leading-tight font-bold text-ink tabular-nums'
+const statLabel = 'text-meta font-medium text-muted'
 </script>
 
 <template>
-  <div class="px-md pb-md font-headline md:px-lg">
+  <div class="px-md pb-md md:px-lg">
     <!-- 1 · Identidad -->
     <div class="flex flex-col items-center gap-sm text-center md:flex-row md:items-end md:gap-md md:text-left">
       <div class="-mt-16 shrink-0 rounded-full bg-surface-card p-1 md:-mt-20">
@@ -44,20 +44,20 @@ const statLabel = 'text-[12px] font-medium text-muted'
 
       <div class="min-w-0 flex-1 md:pb-xs">
         <!-- Nombre en Lora cursiva, como los títulos de sección del perfil -->
-        <h1 id="business-name" class="inline-flex max-w-full items-center gap-xs font-quote text-[30px] leading-tight font-medium tracking-normal text-ink normal-case italic md:text-[36px]">
+        <h1 id="business-name" class="inline-flex max-w-full items-center gap-xs font-quote text-hero leading-tight font-medium tracking-normal text-ink normal-case italic">
           <span class="truncate">{{ business.name }}</span>
           <BusinessVerified v-if="business.verified" size="24" />
         </h1>
-        <p class="mt-xxs text-[15px] leading-[1.45] font-medium text-body">{{ business.description }}</p>
+        <p class="mt-xxs text-copy leading-[1.45] text-body">{{ business.description }}</p>
 
         <!-- 2 · Giro y estado como chips neutros: abierto en blanco, cerrado en gris -->
         <div class="mt-sm flex flex-wrap items-center justify-center gap-xs md:justify-start">
-          <span class="inline-flex items-center gap-xxs rounded-pill border border-hairline-strong px-sm py-xxs text-[13px] font-medium text-body">
+          <span class="inline-flex items-center gap-xxs rounded-pill border border-hairline-strong px-sm py-xxs text-support font-medium text-body">
             <Icon :name="business.icon" size="14" aria-hidden="true" />
             {{ business.subcategory }}
           </span>
           <span
-            class="inline-flex items-center gap-xs rounded-pill border border-hairline-strong px-sm py-xxs text-[13px] font-semibold"
+            class="inline-flex items-center gap-xs rounded-pill border border-hairline-strong px-sm py-xxs text-support font-semibold"
             :class="status.open ? 'text-ink' : 'text-body'"
           >
             <span class="size-2 rounded-full" :class="status.open ? 'bg-ink' : 'bg-muted-soft'" aria-hidden="true" />
@@ -97,7 +97,7 @@ const statLabel = 'text-[12px] font-medium text-muted'
       <button
         v-if="canBook"
         type="button"
-        class="inline-flex h-10 flex-1 items-center justify-center gap-xs rounded-pill bg-ink px-md text-[14px] font-bold text-canvas transition-colors hover:bg-body-strong sm:flex-none"
+        class="inline-flex h-10 flex-1 items-center justify-center gap-xs rounded-pill bg-ink px-md text-label font-bold text-canvas transition-colors hover:bg-body-strong sm:flex-none"
         @click="$emit('book')"
       >
         <Icon name="material-symbols:event-available" size="20" aria-hidden="true" />
@@ -123,7 +123,7 @@ const statLabel = 'text-[12px] font-medium text-muted'
         <button
           type="button"
           :aria-pressed="isRecommended"
-          class="inline-flex h-10 items-center gap-xs rounded-pill px-sm text-[14px] font-semibold transition-colors hover:bg-surface-elevated"
+          class="inline-flex h-10 items-center gap-xs rounded-pill px-sm text-label font-semibold transition-colors hover:bg-surface-elevated"
           :class="isRecommended ? 'text-ink' : 'text-body'"
           @click="toggleRecommend"
         >
@@ -143,7 +143,7 @@ const statLabel = 'text-[12px] font-medium text-muted'
     <button
       v-if="names.length"
       type="button"
-      class="mt-sm flex items-center gap-sm rounded-control py-xxs text-left text-[13px] font-medium text-body transition-colors hover:text-ink"
+      class="mt-sm flex items-center gap-sm rounded-control py-xxs text-left text-support text-body transition-colors hover:text-ink"
       @click="recommendersOpen = true"
     >
       <span class="flex shrink-0 -space-x-1.5">

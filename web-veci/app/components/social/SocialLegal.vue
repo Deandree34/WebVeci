@@ -5,7 +5,7 @@ const year = computed(() => colonyToday(now.value).slice(0, 4))
 </script>
 
 <template>
-  <p class="px-sm font-headline text-[12px] font-medium text-muted-soft">
+  <p class="px-sm text-meta text-muted-soft">
     <!-- TODO: la página /terminos aún no existe -->
     <NuxtLink to="/terminos" class="transition-colors hover:text-muted hover:underline">Términos y condiciones</NuxtLink>
     <span class="mx-1" aria-hidden="true">·</span>

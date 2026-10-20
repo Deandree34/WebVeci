@@ -32,14 +32,14 @@ const detail = (service: Service) =>
     title="Servicios y precios"
     :subtitle="`${business.services!.length} servicios · precios en el negocio`"
   >
-    <ul class="-mx-xs divide-y divide-hairline font-headline">
+    <ul class="-mx-xs divide-y divide-hairline">
       <li v-for="service in business.services" :key="service.name" class="flex items-center gap-sm px-xs py-sm">
         <div class="min-w-0 flex-1">
-          <p class="flex flex-wrap items-center gap-xs text-[15px] leading-[1.3] font-semibold text-ink">
+          <p class="flex flex-wrap items-center gap-xs text-copy leading-[1.3] font-semibold text-ink">
             {{ service.name }}
-            <span v-if="inPromo(service.name)" class="rounded-pill border border-hairline-strong px-xs text-[11px] leading-[1.6] font-semibold text-ink">En oferta</span>
+            <span v-if="inPromo(service.name)" class="rounded-pill border border-hairline-strong px-xs text-caption leading-[1.6] font-semibold text-ink">En oferta</span>
           </p>
-          <p v-if="detail(service).length" class="mt-0.5 text-[13px] leading-[1.4] font-medium text-body [word-spacing:0.08em]">
+          <p v-if="detail(service).length" class="mt-0.5 text-support leading-[1.4] text-body">
             <template v-for="(part, i) in detail(service)" :key="part">
               <span v-if="i" class="mx-1 text-muted" aria-hidden="true">·</span>{{ part }}
             </template>
@@ -47,15 +47,15 @@ const detail = (service: Service) =>
         </div>
 
         <p class="shrink-0 text-right">
-          <span v-if="service.fromPrice" class="block text-[11px] font-medium text-muted">Desde</span>
-          <span class="text-[15px] font-bold text-ink tabular-nums">{{ formatMoney(service.price) }}</span>
+          <span v-if="service.fromPrice" class="block text-caption font-medium text-muted">Desde</span>
+          <span class="font-headline text-copy font-bold text-ink tabular-nums">{{ formatMoney(service.price) }}</span>
         </p>
 
         <button
           v-if="canBook"
           type="button"
           :aria-label="`Apartar ${service.name}`"
-          class="h-8 shrink-0 rounded-pill border border-hairline-strong px-sm text-[13px] font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
+          class="h-8 shrink-0 rounded-pill border border-hairline-strong px-sm text-support font-semibold text-body-strong transition-colors hover:bg-surface-elevated"
           @click="$emit('book', service.name)"
         >
           Apartar
