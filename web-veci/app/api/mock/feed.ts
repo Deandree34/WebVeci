@@ -5,7 +5,7 @@
  * El orden por relevancia (`score`) simula lo que calculará el backend.
  */
 
-import type { Business, FeedItem } from '../types'
+import type { Business, FeedItem, PostPhoto } from '../types'
 import { availabilitySummary, colonyHour, promoWindow, scheduleStatus } from '../../utils/hours'
 import { findBusiness } from './businesses'
 
@@ -18,6 +18,8 @@ interface Seed {
   businessId: string
   ago: number
   tab?: FeedItem['tab']
+  /** Solo en `publicacion`: lo que escribió el negocio y sus fotos. */
+  post?: { text: string, photos: PostPhoto[] }
 }
 
 // `horarios` = aviso de citas disponibles: el post no guarda horas (se ocupan a cada rato);
@@ -26,7 +28,34 @@ const seeds: Seed[] = [
   { id: 'f1', type: 'oferta', businessId: 'guero', ago: 60, tab: 'ofertas' },
   { id: 'f2', type: 'horarios', businessId: 'bellaluz', ago: 120, tab: 'citas' },
   { id: 'f3', type: 'horarios', businessId: 'guero', ago: 25, tab: 'citas' },
-  { id: 'f4', type: 'oferta', businessId: 'bellaluz', ago: 240, tab: 'ofertas' }
+  { id: 'f4', type: 'oferta', businessId: 'bellaluz', ago: 240, tab: 'ofertas' },
+  // Publicaciones normales: solo en "Para ti" (sin pestaña)
+  {
+    id: 'p1',
+    type: 'publicacion',
+    businessId: 'guero',
+    ago: 120,
+    post: {
+      text: 'Estrenamos local en Calle Hidalgo 56: más sillones, más luz y menos espera.\n\nEste sábado los esperamos con café de olla para todos los que vengan a cortarse. Gracias, vecinos, por estos años con nosotros.',
+      photos: [
+        { src: '/posts/barberia4.jpg', alt: 'Barbero afeitando a un cliente en el nuevo local, con espejo y repisas de madera' },
+        { src: '/posts/barberia3.jpg', alt: 'Barbero perfilando la ceja de un cliente junto a la fila de sillones' },
+        { src: '/posts/barberia2.jpg', alt: 'Corte con máquina en la nuca de un cliente de cabello rizado' },
+        // Foto de prueba con una marca ajena visible: va 4.ª para quedar tras el "+1"; reemplazar por una propia
+        { src: '/posts/barberia1.jpg', alt: 'Barbero aplicando mascarilla negra en el rostro de un cliente' }
+      ]
+    }
+  },
+  {
+    id: 'p2',
+    type: 'publicacion',
+    businessId: 'bellaluz',
+    ago: 300,
+    post: {
+      text: 'Ya está listo nuestro nuevo espacio de pedicure, con sillones reclinables y tinas de piedra. ¡Pasen a conocerlo!',
+      photos: [{ src: '/posts/estetica2.jpg', alt: 'Área de pedicure con muro de flores y letrero de neón' }]
+    }
+  }
 ]
 
 /** Publicaciones de VECI en posiciones fijas del feed. */
@@ -46,18 +75,16 @@ function score(item: FeedItem, now: number): number {
   if (item.type === 'oferta' && item.business.promo) {
     total += promoWindow(item.business.promo, now).endsAt > now ? 15 : -40
   }
+  // Las novedades se mezclan con ofertas y citas sin taparlas
+  if (item.type === 'publicacion') total += 5
   return total
 }
 
 function toItem(seed: Seed, now: number): FeedItem {
   const business: Business = findBusiness(seed.businessId)!
-  return {
-    id: seed.id,
-    type: seed.type,
-    tab: seed.tab,
-    business,
-    publishedAt: new Date(now - seed.ago * MINUTE).toISOString()
-  }
+  const base = { id: seed.id, tab: seed.tab, business, publishedAt: new Date(now - seed.ago * MINUTE).toISOString() }
+  if (seed.type === 'publicacion') return { ...base, type: 'publicacion', text: seed.post?.text ?? '', photos: seed.post?.photos ?? [] }
+  return { ...base, type: seed.type }
 }
 
 /** Feed completo ordenado para el instante `now`. */

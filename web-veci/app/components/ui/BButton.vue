@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
   to?: string
-  variant?: 'outline' | 'solid' | 'gradient'
+  variant?: 'outline' | 'solid'
   type?: 'button' | 'submit' | 'reset'
 }>(), {
   variant: 'outline',
@@ -10,9 +10,7 @@ const props = withDefaults(defineProps<{
 
 const variants = {
   outline: 'border-hairline-strong bg-transparent text-on-dark hover:border-primary',
-  solid: 'border-primary bg-primary text-on-primary hover:border-primary-hover hover:bg-primary-hover',
-  // Reservado para el CTA principal de la portada
-  gradient: 'border-transparent bg-veci-gradient text-on-primary hover:brightness-110'
+  solid: 'border-primary bg-primary text-on-primary hover:border-primary-hover hover:bg-primary-hover'
 }
 
 const classes = computed(() => [

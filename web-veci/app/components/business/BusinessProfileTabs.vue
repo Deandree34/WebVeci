@@ -1,58 +1,43 @@
 <script setup lang="ts">
 /**
- * Pestañas del perfil como anclas a las secciones de la misma página (no son rutas):
- * se quedan fijas bajo la barra superior y resaltan la sección que se está leyendo.
+ * Pestañas del perfil, como las de una página de Facebook: cada una muestra solo su vista.
+ * Viven en la URL (`?tab=`) para poder compartirse, y cambian con `replace` para que "atrás"
+ * regrese a la página anterior y no a la pestaña anterior. Sin `tab` = la primera.
  */
-/** `mobileOnly`: la sección ya está siempre a la vista en escritorio (columna lateral fija). */
-const props = defineProps<{ tabs: { id: string, label: string, mobileOnly?: boolean }[] }>()
+const props = defineProps<{ tabs: { id: string, label: string }[] }>()
 
-/** `''` = "Inicio" (arriba del perfil). */
-const active = ref('')
-
-function go(id: string) {
-  active.value = id
-  if (!id) window.scrollTo({ top: 0, behavior: 'smooth' })
-  else document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
-
-// La sección activa es la última cuyo inicio ya pasó bajo las pestañas
-let observer: IntersectionObserver | undefined
-onMounted(() => {
-  const desktop = window.matchMedia('(min-width: 768px)')
-  const visible = new Set<string>()
-  observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) visible.add(entry.target.id)
-      else visible.delete(entry.target.id)
-    }
-    active.value = window.scrollY < 80 ? '' : (props.tabs.find((tab) => visible.has(tab.id) && !(tab.mobileOnly && desktop.matches))?.id ?? active.value)
-  }, { rootMargin: '-120px 0px -55% 0px' })
-
-  for (const tab of props.tabs) {
-    const el = document.getElementById(tab.id)
-    if (el) observer.observe(el)
-  }
+const route = useRoute()
+const active = computed(() => {
+  const tab = route.query.tab
+  return props.tabs.find((item) => item.id === tab)?.id ?? props.tabs[0]?.id
 })
-onBeforeUnmount(() => observer?.disconnect())
+
+const nav = ref<HTMLElement>()
+// Al cambiar de pestaña con la página ya bajada, se sube hasta la barra: se ve el inicio de la vista
+// (la barra es `sticky`: su lugar natural se mide desde lo que tiene arriba, la cabecera)
+watch(active, () => {
+  const bar = nav.value?.parentElement
+  const above = bar?.previousElementSibling
+  if (!bar || !above) return
+  const top = above.getBoundingClientRect().bottom + window.scrollY - (Number.parseFloat(getComputedStyle(bar).top) || 0)
+  if (window.scrollY > top) window.scrollTo({ top })
+})
 </script>
 
 <template>
-  <nav aria-label="Secciones del negocio" class="flex overflow-x-auto [scrollbar-width:none]">
-    <a
-      v-for="tab in [{ id: '', label: 'Inicio' }, ...tabs]"
+  <nav ref="nav" aria-label="Secciones del negocio" class="flex overflow-x-auto [scrollbar-width:none]">
+    <NuxtLink
+      v-for="tab in tabs"
       :key="tab.id"
-      :href="`#${tab.id}`"
-      :aria-current="active === tab.id ? 'location' : undefined"
+      :to="{ query: { ...route.query, tab: tab.id === tabs[0]?.id ? undefined : tab.id } }"
+      replace
+      :aria-current="active === tab.id ? 'page' : undefined"
       class="relative shrink-0 px-md py-sm text-label font-semibold whitespace-nowrap transition-colors"
-      :class="[
-        active === tab.id ? 'text-ink' : 'text-muted hover:text-ink',
-        { 'md:hidden': 'mobileOnly' in tab && tab.mobileOnly }
-      ]"
-      @click.prevent="go(tab.id)"
+      :class="active === tab.id ? 'text-ink' : 'text-muted hover:text-ink'"
     >
       {{ tab.label }}
       <!-- Activa en blanco, como el resto del sistema (solo neutros) -->
       <span v-if="active === tab.id" class="absolute inset-x-sm bottom-0 h-[2px] rounded-t-full bg-ink" aria-hidden="true" />
-    </a>
+    </NuxtLink>
   </nav>
 </template>

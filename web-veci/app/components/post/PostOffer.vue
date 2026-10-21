@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from 'vue-router'
 import type { Promo } from '~/api/types'
 
 /**
  * Oferta como adjunto del post: la promoción es el mensaje principal; el apoyo, su nota y hasta
  * cuándo vale, dicho corto ("hoy hasta 9 pm", "hasta el domingo", "últimos 25 min").
- * Sin `to` (perfil del propio negocio) no lleva botón.
+ * `@action` abre algo en una ventana ("Ver oferta" en el feed, "Apartar" en la ventana de ofertas);
+ * sin él (perfil del negocio) no hay botón.
  */
-const props = defineProps<{ promo: Promo, to?: RouteLocationRaw }>()
+const props = withDefaults(defineProps<{ promo: Promo, action?: string, onAction?: () => void }>(), { action: 'Ver oferta' })
 
 const { left, expired } = usePromoCountdown(() => props.promo)
 const now = useNow()
@@ -33,5 +33,5 @@ const support = computed(() => {
 </script>
 
 <template>
-  <PostAttachment :title="promo.text" :support="support" :to="to" action="Ver oferta" />
+  <PostAttachment :title="promo.text" :support="support" :action="action" :on-action="onAction" />
 </template>

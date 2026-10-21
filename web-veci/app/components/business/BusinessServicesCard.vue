@@ -8,18 +8,9 @@ import type { Business, Service } from '~/api/types'
 const props = defineProps<{ business: Business, canBook?: boolean }>()
 defineEmits<{ book: [service: string] }>()
 
-/**
- * El servicio de la oferta vigente lleva su chip: el de nombre más largo que aparece en el texto
- * de la oferta ("Corte + barba $150" marca "Corte + barba", no también "Corte").
- */
-const promoService = computed(() => {
-  const text = props.business.promo?.text.toLowerCase()
-  if (!text) return undefined
-  return (props.business.services ?? [])
-    .filter((service) => text.includes(service.name.toLowerCase()))
-    .sort((a, b) => b.name.length - a.name.length)[0]?.name
-})
-const inPromo = (name: string) => name === promoService.value
+/** Los servicios con una oferta del negocio llevan su chip (ver `promoService`). */
+const offerServices = computed(() => businessPromos(props.business).map((promo) => promoService(props.business, promo)))
+const inPromo = (name: string) => offerServices.value.includes(name)
 
 /** Apoyo de la fila: nota · duración ("Incluye lavado · 45 min"). */
 const detail = (service: Service) =>

@@ -4,7 +4,7 @@ import { businessPath } from '~/features/navigation/nav'
 
 /**
  * `look="social"` (card base): solo identidad (avatar, nombre) y una línea de metadatos
- * con la antigüedad y el tipo ("4 h · Oferta"), y "Guardar" a la derecha (lo de "···" en Facebook).
+ * con la antigüedad y el tipo ("4 h · Oferta"), y el menú "···" a la derecha (Me interesa · No me interesa · Guardar).
  */
 const props = withDefaults(defineProps<{ item: FeedItem, look?: 'default' | 'social' }>(), { look: 'default' })
 
@@ -21,7 +21,8 @@ const status = computed(() => scheduleStatus(business.value, now.value))
 const kinds = {
   oferta: { label: 'Oferta', icon: 'material-symbols:sell' },
   horarios: { label: 'Citas disponibles', icon: 'material-symbols:calendar-month' },
-  resena: { label: 'Reseña destacada', icon: 'material-symbols:star' }
+  resena: { label: 'Reseña destacada', icon: 'material-symbols:star' },
+  publicacion: { label: 'Novedad', icon: 'material-symbols:campaign' }
 } as const
 const kind = computed(() => kinds[props.item.type])
 </script>
@@ -29,9 +30,7 @@ const kind = computed(() => kinds[props.item.type])
 <template>
   <header class="flex items-center gap-sm px-md pt-sm" :class="{ 'pb-sm': social }">
     <template v-if="byVeci">
-      <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-elevated" aria-hidden="true">
-        <img src="/veci_logo_claro.webp" alt="" width="787" height="678" class="h-5 w-auto">
-      </span>
+      <img src="/veci_logo.webp" alt="" width="256" height="256" class="size-10 shrink-0 rounded-full" aria-hidden="true">
       <div class="min-w-0 flex-1">
         <p class="truncate text-body-sm font-medium text-ink">VECI · Col. Centro</p>
         <p class="text-body-xs text-muted">
@@ -41,7 +40,7 @@ const kind = computed(() => kinds[props.item.type])
     </template>
 
     <!-- Social, como Facebook: identidad, metadatos en gris ("4 h · 🏷 Oferta", el ícono como el
-         globo de Facebook) y Guardar a la derecha; el estado (abierto, horario) va en la tarjeta flotante -->
+         globo de Facebook) y el menú "···" a la derecha; el estado (abierto, horario) va en la tarjeta flotante -->
     <template v-else-if="social">
       <NuxtLink :to="businessPath(business.slug)" class="shrink-0" tabindex="-1">
         <BusinessAvatar :icon="business.icon" />
@@ -62,7 +61,8 @@ const kind = computed(() => kinds[props.item.type])
           <span>{{ kind.label }}</span>
         </p>
       </div>
-      <BusinessSaveButton :business-id="business.id" :business-name="business.name" neutral :size="20" class="-mr-xs" />
+      <!-- "···" como Facebook: Me interesa · No me interesa · Guardar -->
+      <PostMenu :item="item" class="-mr-xs" />
     </template>
 
     <template v-else>

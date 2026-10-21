@@ -38,6 +38,7 @@ export default defineNuxtConfig({
     families: [
       { name: 'Plus Jakarta Sans', weights: [500, 600, 700], styles: ['normal'], global: true },
       { name: 'Lora', weights: [500], styles: ['italic'], global: true },
+      { name: 'Inter', weights: [400, 600], styles: ['normal'], global: true },
       { name: 'Roboto Mono', weights: [400], styles: ['normal'], global: true }
     ]
   },
@@ -70,8 +71,11 @@ export default defineNuxtConfig({
       title: 'VECI',
       meta: [{ name: 'theme-color', content: '#121212' }],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', sizes: '16x16 32x32 48x48 64x64' },
-        { rel: 'preload', as: 'image', href: '/veci_logo_claro.webp', type: 'image/webp' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', sizes: '16x16 32x32 48x48' },
+        { rel: 'icon', type: 'image/png', href: '/icon-192.png', sizes: '192x192' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' },
+        { rel: 'manifest', href: '/site.webmanifest' },
+        { rel: 'preload', as: 'image', href: '/veci_logo.webp', type: 'image/webp' }
       ]
     }
   }

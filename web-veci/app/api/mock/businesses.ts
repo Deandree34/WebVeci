@@ -52,6 +52,10 @@ export const businesses: Business[] = [
       until: 'today',
       endsAtHour: 21
     },
+    extraPromos: [
+      { text: 'Arreglo de barba $60', note: 'Antes $80', remaining: 'Quedan 6 lugares', until: 'week' },
+      { text: 'Corte $100 entre semana', note: 'Antes $120', remaining: 'Apartando cita', until: 'week' }
+    ],
     reviews: [
       {
         text: 'Llevo tres años cortándome aquí. Puntual, buen precio y te ofrecen café mientras esperas.',
@@ -123,6 +127,9 @@ export const businesses: Business[] = [
       remaining: 'Apartando cita',
       until: 'week'
     },
+    extraPromos: [
+      { text: 'Pedicure $180', note: 'Antes $220', remaining: 'Quedan 3 lugares', until: 'week' }
+    ],
     reviews: [
       {
         text: 'Mariana me hizo las uñas para la boda de mi hermana y duraron perfectas toda la semana.',

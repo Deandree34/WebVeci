@@ -5,19 +5,15 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  /* Colores del logo VECI — acentos sobre la base negra/blanca (regla 60-30-10:
-     neutros Bugatti 60 %, azul 30 %, rosa/violeta/degradado 10 %).
-     Contrastes medidos sobre #000000. */
-  --color-veci-blue: #6b57ff;        /* fondo de botones; texto blanco encima 4.7:1 */
-  --color-veci-blue-hover: #5843e8;  /* hover de botones; texto blanco encima 6.2:1 */
-  --color-veci-blue-text: #8a7bff;   /* azul como texto/enlace sobre negro 6.4:1 */
-  --color-veci-purple: #b345f1;      /* íconos, bordes, insignias */
-  --color-veci-purple-text: #c77dff; /* violeta como texto sobre tarjetas */
-  --color-veci-pink: #ff318c;        /* acento: "nuevo", contadores; sobre negro 6.1:1 */
-  --color-on-accent: #000000;        /* texto sobre rosa o violeta (blanco no alcanza 4.5:1) */
+  /* Paleta del logo VECI: carbón, blanco y ocre. El ocre es el único color de marca
+     (avatares, historias, la pestaña activa y el botón principal; nunca superficies grandes ni avisos).
+     Sobre el ocre va texto carbón: el blanco no alcanza (3.0:1). */
+  --color-brand: #c8862a;        /* ocre del logo; como texto sobre #1a1a1a 5.7:1 */
+  --color-brand-hover: #d89029;  /* hover de los rellenos ocre */
+  --color-on-brand: #121212;     /* texto e íconos sobre ocre 6.1:1 */
 
-  --color-primary: var(--color-veci-blue);
-  --color-primary-hover: var(--color-veci-blue-hover);
+  --color-primary: var(--color-brand);
+  --color-primary-hover: var(--color-brand-hover);
   --color-ink: #ffffff;
   --color-body: #cccccc;
   --color-body-strong: #e6e6e6;
@@ -31,11 +27,10 @@
   --color-surface-soft: #161616;
   --color-surface-card: #1a1a1a;     /* tarjetas sobre canvas (capa 2) */
   --color-surface-elevated: #2a2a2a; /* controles dentro de tarjetas (capa 3) */
-  --color-on-primary: #ffffff;
+  --color-on-primary: var(--color-on-brand);
   --color-on-dark: #ffffff;
   --color-on-photo: #ffffff;
-  --color-link: var(--color-veci-blue-text);
-  --color-warning: #d4a017;
+  --color-link: var(--color-brand);
   --color-success: #5fa657;
 
   /* Tipografía: fuente del sistema, como Facebook (Segoe UI en Windows, San Francisco en
@@ -44,6 +39,10 @@
   --font-text: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-headline: "Plus Jakarta Sans", system-ui, sans-serif; /* mensaje principal de los posts */
   --font-quote: Lora, Georgia, serif; /* cita de los vecinos en los posts de reseña */
+  /* Lectura de corrido (texto de las publicaciones): Inter, abierta y con minúsculas altas, se ve
+     igual en todos los sistemas. Reparto: Inter = párrafos · sistema = menús y etiquetas ·
+     Plus Jakarta = lo que destaca · Lora = la voz de la app y de los vecinos. */
+  --font-reading: Inter, system-ui, sans-serif;
   --font-mono:"Roboto Mono", ui-monospace, monospace;
   --font-sans: var(--font-text);
   --font-primary: var(--font-display);
@@ -97,6 +96,7 @@
   --text-lead: 1rem;         /* 16px: rótulos de columna ("Abierto ahora"), cifras del recuadro */
   --text-emphasis: 1.0625rem; /* 17px: nombre en la ventana flotante, reseñas del perfil */
   --text-section: 1.125rem;  /* 18px: rótulos en cursiva ("Servicio", "Horario"), "Estás al día" */
+  --text-reading: clamp(0.9375rem, 0.904rem + 0.151vw, 1rem);    /* 15 → 16px: texto de las publicaciones */
   --text-heading: clamp(1.125rem, 1.057rem + 0.301vw, 1.25rem);   /* 18 → 20px: títulos de tarjeta, titular del adjunto, cita */
   --text-figure: clamp(1.25rem, 1.182rem + 0.301vw, 1.375rem);    /* 20 → 22px: día de los avisos */
   --text-page-title: clamp(1.5rem, 1.364rem + 0.602vw, 1.75rem);  /* 24 → 28px: Explorar, Mis cosas, Guardados */

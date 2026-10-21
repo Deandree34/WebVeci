@@ -105,7 +105,7 @@ export interface BusinessSummary {
 
 export interface Business extends BusinessSummary {
   capabilities: Capability[]
-  /** Foto de portada del perfil; sin ella se usa el degradado de VECI. */
+  /** Foto de portada del perfil; sin ella se usa el fondo carbón de VECI. */
   coverUrl?: string
   /** Calificación de 0 a 5. */
   rating: number
@@ -125,7 +125,10 @@ export interface Business extends BusinessSummary {
   contact?: BusinessContact
   services?: Service[]
   availability?: Availability
+  /** Oferta destacada: la que el negocio publica en el feed. */
   promo?: Promo
+  /** Otras ofertas vigentes del negocio (se ven en "Ver oferta" y en su página, no en el feed). */
+  extraPromos?: Promo[]
   /** Reseñas de vecinos tras un servicio real; la primera es la destacada. */
   reviews?: Review[]
 }
@@ -136,6 +139,9 @@ export interface Business extends BusinessSummary {
 
 /** Pestaña del feed donde aparece el item (todos aparecen además en "Para ti"). */
 export type FeedTab = 'ofertas' | 'citas'
+
+/** Vistas del inicio: las del feed y Notificaciones (sin `tab` = "Para ti"). */
+export type HomeTab = FeedTab | 'notificaciones'
 
 interface FeedItemBase {
   id: string
@@ -159,7 +165,20 @@ export interface ReviewItem extends FeedItemBase {
   type: 'resena'
 }
 
-export type FeedItem = OfferItem | SlotsItem | ReviewItem
+/** Foto de una publicación del negocio. */
+export interface PostPhoto {
+  src: string
+  alt: string
+}
+
+/** Publicación normal del negocio (novedades, estrenos): texto y fotos, sin acción principal. */
+export interface PostItem extends FeedItemBase {
+  type: 'publicacion'
+  text: string
+  photos: PostPhoto[]
+}
+
+export type FeedItem = OfferItem | SlotsItem | ReviewItem | PostItem
 export type FeedItemType = FeedItem['type']
 
 /* ------------------------------------------------------------------------- */
@@ -203,6 +222,23 @@ export interface Person {
   handle: string
   name: string
   avatarUrl?: string
+}
+
+/** Qué avisa una notificación (define el ícono pequeño sobre el avatar). */
+export type NotificationKind = 'publicacion' | 'oferta' | 'cita' | 'recomendacion' | 'aviso'
+
+/** Notificación del vecino: algo nuevo de sus negocios o de la colonia. */
+export interface AppNotification {
+  id: string
+  kind: NotificationKind
+  /** Negocio del que habla; sin él la publica VECI (avisos de la colonia). */
+  businessId?: string
+  /** Quién (en negrita) y qué pasó, p. ej. "Barbería El Güero" + "publicó una novedad: …". */
+  actor: string
+  text: string
+  /** A dónde lleva al tocarla. */
+  to: string
+  createdAt: string
 }
 
 /** Aviso de la colonia (corte de agua, tianguis, feria…). */

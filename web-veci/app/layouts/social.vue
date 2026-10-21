@@ -24,5 +24,8 @@ await useShellPrefetch()
     </div>
 
     <SocialBottomNav />
+
+    <!-- "Ver oferta" y "Apartar" de las publicaciones: se abren aquí, sin salir del feed -->
+    <FeedSheets />
   </div>
 </template>

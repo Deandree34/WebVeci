@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { useCurrentUser } from '~/features/people/queries'
-
 const search = ref('')
-const { data: me } = useCurrentUser()
 
 /* En celular se esconde al bajar y reaparece al subir (umbral para no temblar con scrolls cortos) */
 const hidden = useTopBarHidden()
@@ -59,9 +56,8 @@ onBeforeUnmount(() => {
         </SocialTopBarAction>
 
         <!-- En celular lo del vecino vive en el menú ⋮ -->
-        <button type="button" aria-label="Tu perfil" class="hidden shrink-0 rounded-full transition-opacity hover:opacity-80 sm:block">
-          <SocialAvatar :name="me?.name ?? '?'" size="md" />
-        </button>
+        <!-- Tu cuenta: avatar con flecha que despliega editar perfil, configuración, ayuda y cerrar sesión -->
+        <span class="hidden sm:inline-flex"><SocialAccountMenu /></span>
       </div>
     </div>
   </header>

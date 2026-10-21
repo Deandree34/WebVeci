@@ -97,7 +97,7 @@ const actionTo = computed(() => {
         class="relative flex h-full w-full flex-col overflow-hidden bg-surface-card sm:aspect-[9/16] sm:h-[min(90dvh,760px)] sm:w-auto sm:rounded-3xl"
         :aria-label="`${story.business.name}: ${story.kind}`"
       >
-        <span class="pointer-events-none absolute inset-0 bg-veci-gradient opacity-40" aria-hidden="true" />
+        <span class="pointer-events-none absolute inset-0 bg-brand opacity-40" aria-hidden="true" />
         <span class="pointer-events-none absolute inset-0 bg-story-veil" aria-hidden="true" />
 
         <!-- Barras de progreso -->

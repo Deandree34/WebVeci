@@ -5,9 +5,20 @@ import type { RouteLocationRaw } from 'vue-router'
  * Adjunto de un post: caja con borde fino y dos niveles de texto, para entenderse a la primera:
  * el mensaje principal y una línea de apoyo corta que lo completa (partes unidas por "·"). Ambos
  * en Plus Jakarta Sans (titular en negrita, apoyo en medium), botón de contorno a la derecha.
- * `rating`: estrellas junto al mensaje. Sin `to` no hay botón (p. ej. en el perfil del propio negocio).
+ * `rating`: estrellas junto al mensaje. El botón es un enlace (`to`) o abre una ventana sin salir
+ * del feed (`@action`); sin ninguno de los dos no hay botón (p. ej. en el perfil del propio negocio).
  */
-defineProps<{ title: string, support?: string[], rating?: number, to?: RouteLocationRaw, action?: string }>()
+defineProps<{
+  title: string
+  support?: string[]
+  rating?: number
+  to?: RouteLocationRaw
+  action?: string
+  /** `@action`: el botón abre algo en la misma página en vez de navegar. */
+  onAction?: () => void
+}>()
+
+const button = 'inline-flex h-9 shrink-0 items-center rounded-pill border border-hairline-strong px-md text-body-sm font-medium text-body-strong transition-colors hover:bg-surface-elevated'
 </script>
 
 <template>
@@ -24,12 +35,7 @@ defineProps<{ title: string, support?: string[], rating?: number, to?: RouteLoca
       </p>
     </div>
 
-    <NuxtLink
-      v-if="to && action"
-      :to="to"
-      class="inline-flex h-9 shrink-0 items-center rounded-pill border border-hairline-strong px-md text-body-sm font-medium text-body-strong transition-colors hover:bg-surface-elevated"
-    >
-      {{ action }}
-    </NuxtLink>
+    <NuxtLink v-if="to && action" :to="to" :class="button">{{ action }}</NuxtLink>
+    <button v-else-if="onAction && action" type="button" :class="button" @click="onAction">{{ action }}</button>
   </div>
 </template>

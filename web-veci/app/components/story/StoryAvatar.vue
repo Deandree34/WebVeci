@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Avatar circular de una historia: el icono del giro sobre el degradado VECI.
+ * Avatar circular de una historia: el icono del giro sobre el ocre de VECI.
  *
  * Comparte la forma circular de `BusinessAvatar` y `SocialAvatar`; existe aparte
  * porque el carrusel y el visor lo pintan sobre el anillo del prototipo (`veci-feed`).
@@ -17,7 +17,7 @@ const sizes = {
 
 <template>
   <span
-    class="inline-flex shrink-0 items-center justify-center rounded-full bg-veci-gradient text-on-primary"
+    class="inline-flex shrink-0 items-center justify-center rounded-full bg-brand text-on-brand"
     :class="sizes[size].box"
     aria-hidden="true"
   >

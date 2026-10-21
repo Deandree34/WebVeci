@@ -19,7 +19,7 @@ const sizes = {
 <template>
   <!-- Los negocios usan el icono de su giro (no iniciales) para distinguirse de las personas -->
   <span
-    class="relative inline-flex shrink-0 items-center justify-center rounded-full bg-veci-gradient text-on-primary"
+    class="relative inline-flex shrink-0 items-center justify-center rounded-full bg-brand text-on-brand"
     :class="sizes[size].box"
     aria-hidden="true"
   >

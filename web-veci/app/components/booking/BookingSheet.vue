@@ -187,7 +187,11 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink text
           </template>
         </p>
 
-        <p v-if="isError" class="text-support font-medium text-veci-pink">No se pudo apartar la cita. Intenta de nuevo.</p>
+        <!-- Error en blanco con ícono: el ocre es solo de la marca, no de los avisos -->
+        <p v-if="isError" class="flex items-center gap-xs text-support font-medium text-ink" role="alert">
+          <Icon name="material-symbols:error-outline" size="18" class="shrink-0" aria-hidden="true" />
+          No se pudo apartar la cita. Intenta de nuevo.
+        </p>
 
         <button
           type="submit"

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from 'vue-router'
 import type { Business, Review } from '~/api/types'
 
 /**
  * Reseña como post: la mejor calificada es el protagonista, como cita en Lora cursiva (con
  * "Ver más" si es larga) y la firma de quien la escribió; el adjunto resume la calificación
- * (las estrellas solo van ahí) y lleva a todas las reseñas.
+ * (las estrellas solo van ahí) y `@action` ("Ver reseñas") abre todas en una ventana sin salir del feed.
  */
-const props = defineProps<{ business: Business, reviews: Review[], to?: RouteLocationRaw }>()
+const props = defineProps<{ business: Business, reviews: Review[], onAction?: () => void }>()
 
 const review = computed(() => props.reviews.reduce((best, r) => (r.rating > best.rating ? r : best)))
 /** Aproximado a 5 líneas de 20px en el ancho del feed: más largo se corta con "Ver más". */
@@ -42,7 +41,7 @@ const support = computed(() => {
     :title="business.rating.toFixed(1)"
     :rating="business.rating"
     :support="support"
-    :to="to"
     action="Ver reseñas"
+    :on-action="onAction"
   />
 </template>

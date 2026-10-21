@@ -10,12 +10,14 @@ export interface SocialNavLink {
   activeIcon: string
   label: string
   to: string
-  counter?: 'mine' | 'saved'
+  counter?: 'mine' | 'saved' | 'notifications'
 }
 
-/** Navegación principal: la misma en la columna izquierda (tablet y escritorio) y en la barra inferior (móvil). */
+/**
+ * Navegación principal de la columna izquierda (tablet y escritorio) y del menú ⋮ (celular).
+ * Sin "Inicio": al inicio se llega con el logo de VECI y la pestaña "Para ti".
+ */
 export const mainNav: SocialNavLink[] = [
-  { icon: 'material-symbols:home-outline', activeIcon: 'material-symbols:home', label: 'Inicio', to: '/' },
   { icon: 'material-symbols:explore-outline', activeIcon: 'material-symbols:explore', label: 'Explorar', to: '/explorar' },
   { icon: 'material-symbols:assignment-outline', activeIcon: 'material-symbols:assignment', label: 'Mis cosas', to: '/mis-cosas', counter: 'mine' },
   { icon: 'material-symbols:bookmark-outline', activeIcon: 'material-symbols:bookmark', label: 'Guardados', to: '/guardados', counter: 'saved' }
@@ -28,7 +30,8 @@ export const mainNav: SocialNavLink[] = [
 export const bottomNav: SocialNavLink[] = [
   { icon: 'material-symbols:home-outline', activeIcon: 'material-symbols:home', label: 'Inicio', to: '/' },
   { icon: 'material-symbols:sell-outline', activeIcon: 'material-symbols:sell', label: 'Ofertas', to: '/?tab=ofertas' },
-  { icon: 'material-symbols:calendar-month-outline', activeIcon: 'material-symbols:calendar-month', label: 'Citas', to: '/?tab=citas' }
+  { icon: 'material-symbols:calendar-month-outline', activeIcon: 'material-symbols:calendar-month', label: 'Citas', to: '/?tab=citas' },
+  { icon: 'material-symbols:notifications-outline', activeIcon: 'material-symbols:notifications', label: 'Notificaciones', to: '/?tab=notificaciones', counter: 'notifications' }
 ]
 
 const youHints: Record<string, string> = {

@@ -3,8 +3,8 @@ withDefaults(defineProps<{ tone?: 'muted' | 'brand' | 'accent' }>(), { tone: 'mu
 
 const tones = {
   muted: 'bg-transparent text-muted',
-  brand: 'rounded-pill border border-veci-purple bg-transparent px-xs py-xxs text-veci-purple-text',
-  accent: 'rounded-pill bg-veci-pink px-xs py-xxs text-on-accent'
+  brand: 'rounded-pill border border-brand bg-transparent px-xs py-xxs text-brand',
+  accent: 'rounded-pill bg-brand px-xs py-xxs text-on-brand'
 }
 </script>
 

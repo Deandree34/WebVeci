@@ -3,18 +3,14 @@ import type { Business } from '~/api/types'
 
 /**
  * Cabecera del perfil: una idea por fila, de lo más importante a lo menos.
- *  1. Quién es: logo, nombre, giro y descripción.
- *  2. ¿Está abierto?: chip de estado.
- *  3. ¿Es confiable y está cerca?: tres cifras (valor grande, etiqueta abajo).
- *  4. Qué puedo hacer: Apartar cita · Mensaje · Cómo llegar, y lo social (recomendar, compartir, guardar).
- * La dirección y el horario completo viven en sus tarjetas, no aquí.
+ *  1. Quién es: logo, nombre, descripción y giro.
+ *  2. ¿Es confiable y está cerca?: tres cifras (valor grande, etiqueta abajo).
+ *  3. Qué puedo hacer: Apartar cita · Mensaje (o Llamar) · Cómo llegar, y lo social (recomendar, compartir, guardar).
+ *  4. Información: horario (¿está abierto?), dirección y pago, en una franja con títulos (`BusinessInfo`).
  * Interfaz en la fuente del sistema, cifras en Plus Jakarta Sans y solo neutros: lo activo va en blanco.
  */
 const props = defineProps<{ business: Business, canBook?: boolean }>()
 defineEmits<{ book: [] }>()
-
-const now = useNow()
-const status = computed(() => scheduleStatus(props.business, now.value))
 
 const { isRecommended, total, toggleRecommend, copied, share } = useBusinessSocial(() => props.business)
 const recommendersOpen = ref(false)
@@ -50,32 +46,25 @@ const statLabel = 'text-meta font-medium text-muted'
         </h1>
         <p class="mt-xxs text-copy leading-[1.45] text-body">{{ business.description }}</p>
 
-        <!-- 2 · Giro y estado como chips neutros: abierto en blanco, cerrado en gris -->
+        <!-- Giro como chip neutro (el estado de ahora va en la fila de horario) -->
         <div class="mt-sm flex flex-wrap items-center justify-center gap-xs md:justify-start">
           <span class="inline-flex items-center gap-xxs rounded-pill border border-hairline-strong px-sm py-xxs text-support font-medium text-body">
             <Icon :name="business.icon" size="14" aria-hidden="true" />
             {{ business.subcategory }}
           </span>
-          <span
-            class="inline-flex items-center gap-xs rounded-pill border border-hairline-strong px-sm py-xxs text-support font-semibold"
-            :class="status.open ? 'text-ink' : 'text-body'"
-          >
-            <span class="size-2 rounded-full" :class="status.open ? 'bg-ink' : 'bg-muted-soft'" aria-hidden="true" />
-            {{ status.label }}
-          </span>
         </div>
       </div>
     </div>
 
-    <!-- 3 · Cifras de un vistazo: valor arriba, qué significa abajo -->
+    <!-- 2 · Cifras de un vistazo: valor arriba, qué significa abajo -->
     <div class="mt-md grid grid-cols-3 divide-x divide-hairline rounded-control border border-hairline py-sm text-center md:max-w-[520px]">
-      <a href="#resenas" :class="[stat, 'transition-opacity hover:opacity-80']">
+      <NuxtLink :to="{ query: { tab: 'resenas' } }" replace :class="[stat, 'transition-opacity hover:opacity-80']">
         <span :class="statLabel">{{ reviewsCount ? `${reviewsCount} reseñas` : 'Calificación' }}</span>
         <span :class="statValue">
           <Icon name="material-symbols:star-rounded" size="20" aria-hidden="true" />
           {{ business.rating.toFixed(1) }}
         </span>
-      </a>
+      </NuxtLink>
       <button type="button" :class="[stat, 'transition-opacity hover:opacity-80']" @click="recommendersOpen = true">
         <span :class="statLabel">vecinos lo recomiendan</span>
         <span :class="statValue">
@@ -92,7 +81,7 @@ const statLabel = 'text-meta font-medium text-muted'
       </div>
     </div>
 
-    <!-- 4 · Acciones: la principal en blanco; lo social, a la derecha y discreto -->
+    <!-- 3 · Acciones: la principal en blanco; lo social, a la derecha y discreto -->
     <div class="mt-md flex flex-wrap items-center gap-xs">
       <button
         v-if="canBook"
@@ -114,12 +103,17 @@ const statLabel = 'text-meta font-medium text-muted'
         <Icon name="material-symbols:chat-outline" size="20" aria-hidden="true" />
         Mensaje
       </a>
+      <!-- Sin WhatsApp pero con teléfono: llamar -->
+      <a v-else-if="business.contact?.phone" :href="`tel:${business.contact.phone}`" :class="secondary" class="flex-1 sm:flex-none">
+        <Icon name="material-symbols:call-outline" size="20" aria-hidden="true" />
+        Llamar
+      </a>
       <a :href="mapsUrl(business.address)" target="_blank" rel="noopener" :class="secondary" class="flex-1 sm:flex-none">
         <Icon name="material-symbols:directions-outline" size="20" aria-hidden="true" />
         Cómo llegar
       </a>
 
-      <div class="flex w-full items-center justify-between gap-xs sm:ml-auto sm:w-auto">
+        <div class="flex w-full items-center justify-between gap-xs sm:ml-auto sm:w-auto">
         <button
           type="button"
           :aria-pressed="isRecommended"
@@ -155,6 +149,9 @@ const statLabel = 'text-meta font-medium text-muted'
       </span>
       <Icon name="material-symbols:chevron-right" size="18" aria-hidden="true" />
     </button>
+
+    <!-- 4 · Información: horario, dirección y pago, cada uno con su título -->
+    <BusinessInfo :business="business" />
 
     <BusinessRecommendersSheet v-model:open="recommendersOpen" :business="business" />
   </div>

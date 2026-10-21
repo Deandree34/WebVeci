@@ -20,7 +20,7 @@ const isSaved = computed(() => saved.isSaved(props.businessId))
     <Icon
       :name="isSaved ? 'material-symbols:bookmark' : 'material-symbols:bookmark-outline'"
       :size="size"
-      :class="isSaved ? (neutral ? 'text-ink' : 'text-veci-purple-text') : 'text-muted'"
+      :class="isSaved ? (neutral ? 'text-ink' : 'text-brand') : 'text-muted'"
     />
   </BIconButton>
 </template>

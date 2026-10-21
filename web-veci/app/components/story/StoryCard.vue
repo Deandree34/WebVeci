@@ -16,10 +16,10 @@ const seen = computed(() => props.story.seen || store.isSeen(props.story.id))
     :aria-label="`Ver historia de ${props.story.business.name}: ${props.story.kind}${seen ? ' (vista)' : ''}`"
     @click="$emit('open')"
   >
-    <!-- Anillo: degradado si no se ha visto, gris si ya se vio -->
+    <!-- Anillo: ocre si no se ha visto, gris si ya se vio -->
     <span
       class="inline-flex rounded-full p-[3px] transition-transform group-hover:scale-105"
-      :class="seen ? 'bg-hairline-strong' : 'bg-veci-gradient'"
+      :class="seen ? 'bg-hairline-strong' : 'bg-brand'"
       aria-hidden="true"
     >
       <span class="rounded-full border-[3px] border-canvas">

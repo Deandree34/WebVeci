@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from 'vue-router'
 import type { Business } from '~/api/types'
 
 /**
  * Citas como adjunto del post: cuándo hay lugar es el mensaje principal; el apoyo, la fecha y
  * cuántos lugares quedan ("Mar 20 oct · 4 lugares"). Ni horas ni precios (cambian): se ven al apartar.
+ * `@action` ("Apartar") abre la ventana de apartar cita sin salir del feed.
  */
-const props = defineProps<{ business: Business, to?: RouteLocationRaw }>()
+const props = defineProps<{ business: Business, onAction?: () => void }>()
 
 const { summary, full, title, day, count } = useAvailability(() => props.business)
 
@@ -22,5 +22,5 @@ const support = computed(() => {
 </script>
 
 <template>
-  <PostAttachment v-if="summary" :title="title" :support="support" :to="to" action="Apartar" />
+  <PostAttachment v-if="summary" :title="title" :support="support" action="Apartar" :on-action="onAction" />
 </template>
