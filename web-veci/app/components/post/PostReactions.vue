@@ -5,7 +5,7 @@ import type { Business } from '~/api/types'
  * Pie del post en una sola fila, como el de Facebook: a la izquierda Recomendar (con el total)
  * y Compartir, ícono gris + número; a la derecha la pila de quienes lo recomiendan (abre la lista).
  * Recomendar no es un "me gusta" ni la calificación: suma al "N vecinos lo recomiendan".
- * Solo neutros: lo activo se marca con ícono relleno y blanco.
+ * Neutros salvo lo tuyo: si ya lo recomendaste, el ícono relleno y el número van en ocre.
  */
 const props = defineProps<{ business: Business }>()
 
@@ -22,7 +22,7 @@ const action = '-mx-xs inline-flex h-9 items-center gap-xs rounded-control px-xs
       type="button"
       :aria-pressed="isRecommended"
       :aria-label="isRecommended ? `Ya no recomendar a ${business.name}` : `Recomendar a ${business.name}`"
-      :class="[action, isRecommended ? 'text-ink' : 'text-muted']"
+      :class="[action, isRecommended ? 'text-brand' : 'text-muted']"
       @click="toggleRecommend"
     >
       <Icon :name="isRecommended ? 'material-symbols:handshake' : 'material-symbols:handshake-outline'" size="20" aria-hidden="true" />

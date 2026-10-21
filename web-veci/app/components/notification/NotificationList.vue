@@ -92,7 +92,7 @@ const groups = computed(() => {
                 >{{ formatAge(item.createdAt, now) }}</time>
               </span>
     
-              <span v-if="item.unread" class="size-2.5 shrink-0 rounded-full bg-ink" aria-label="Sin leer" />
+              <span v-if="item.unread" class="size-2.5 shrink-0 rounded-full bg-brand" aria-label="Sin leer" />
             </NuxtLink>
           </li>
         </ul>

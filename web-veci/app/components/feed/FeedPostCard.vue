@@ -69,7 +69,7 @@ const visible = computed(() => {
     <!-- Publicación normal: texto y fotos, sin adjunto (no tiene acción principal) -->
     <template v-else-if="item.type === 'publicacion'">
       <PostText v-if="item.text" :text="item.text" />
-      <PostPhotos v-if="item.photos.length" :photos="item.photos" />
+      <PostPhotos v-if="item.photos.length" :post="item" />
     </template>
 
     <PostReactions :business="item.business" />

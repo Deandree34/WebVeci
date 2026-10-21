@@ -6,7 +6,9 @@
   --color-current: currentColor;
 
   /* Paleta del logo VECI: carbón, blanco y ocre. El ocre es el único color de marca
-     (avatares, historias, la pestaña activa y el botón principal; nunca superficies grandes ni avisos).
+     Regla: el ocre es "tú": lo que hiciste (recomendar, guardar), lo que te toca (el botón principal,
+     uno por pantalla) y lo que es para ti (sin leer); además avatares, historias, la pestaña activa y
+     las estrellas. Nunca texto de lectura, superficies grandes ni avisos.
      Sobre el ocre va texto carbón: el blanco no alcanza (3.0:1). */
   --color-brand: #c8862a;        /* ocre del logo; como texto sobre #1a1a1a 5.7:1 */
   --color-brand-hover: #d89029;  /* hover de los rellenos ocre */

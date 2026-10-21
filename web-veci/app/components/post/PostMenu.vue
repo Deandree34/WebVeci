@@ -26,6 +26,7 @@ const isSaved = computed(() => saved.isSaved(business.value.id))
 
     <BMenuItem
       :icon="interested ? 'material-symbols:check-circle' : 'material-symbols:add-circle-outline'"
+      :active="interested"
       :label="interested ? 'Te interesa' : 'Me interesa'"
       :support="interested ? 'Toca para deshacer' : 'Verás más publicaciones como esta'"
       @select="prefs.toggleInterested(item.id)"
@@ -38,6 +39,7 @@ const isSaved = computed(() => saved.isSaved(business.value.id))
     />
     <BMenuItem
       :icon="isSaved ? 'material-symbols:bookmark' : 'material-symbols:bookmark-outline'"
+      :active="isSaved"
       :label="isSaved ? 'Quitar de guardados' : 'Guardar negocio'"
       :support="isSaved ? `${business.name} ya está en Guardados` : `${business.name} aparecerá en Guardados`"
       @select="saved.toggle(business.id)"

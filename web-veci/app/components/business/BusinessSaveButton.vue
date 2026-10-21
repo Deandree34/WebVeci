@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useSavedStore } from '~/stores/saved'
 
-/** `neutral`: guardado en blanco en lugar de violeta (posts del feed, que van solo en neutros). */
+/** Guardar un negocio: el marcador relleno va en ocre (lo que tú hiciste). */
 const props = withDefaults(
-  defineProps<{ businessId: string, businessName: string, neutral?: boolean, size?: number | string }>(),
-  { neutral: false, size: 22 }
+  defineProps<{ businessId: string, businessName: string, size?: number | string }>(),
+  { size: 22 }
 )
 
 const saved = useSavedStore()
@@ -20,7 +20,7 @@ const isSaved = computed(() => saved.isSaved(props.businessId))
     <Icon
       :name="isSaved ? 'material-symbols:bookmark' : 'material-symbols:bookmark-outline'"
       :size="size"
-      :class="isSaved ? (neutral ? 'text-ink' : 'text-brand') : 'text-muted'"
+      :class="isSaved ? 'text-brand' : 'text-muted'"
     />
   </BIconButton>
 </template>

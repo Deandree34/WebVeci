@@ -19,9 +19,10 @@ const tag = computed(() => (props.to ? resolveComponent('NuxtLink') : 'button'))
     >
       <slot />
     </component>
-    <!-- Etiqueta: solo en dispositivos con cursor (hover) o con foco de teclado -->
+    <!-- Etiqueta: solo en dispositivos con cursor (hover) o con foco de teclado. Alineada al borde derecho
+         del botón (no centrada): en el borde de la pantalla, centrada se saldría y daría scroll horizontal. -->
     <span
-      class="pointer-events-none absolute top-full left-1/2 z-40 mt-xs -translate-x-1/2 rounded-control bg-surface-elevated px-xs py-xxs text-meta font-semibold whitespace-nowrap text-ink opacity-0 shadow-[0_2px_8px_rgb(0_0_0/0.5)] transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100"
+      class="pointer-events-none absolute top-full right-0 z-40 mt-xs rounded-control bg-surface-elevated px-xs py-xxs text-meta font-semibold whitespace-nowrap text-ink opacity-0 shadow-[0_2px_8px_rgb(0_0_0/0.5)] transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100"
       aria-hidden="true"
     >
       {{ label }}

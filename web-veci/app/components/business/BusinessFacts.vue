@@ -25,7 +25,7 @@ const status = computed(() => scheduleStatus(props.business, now.value))
       <div class="flex flex-col-reverse gap-0.5 px-xxs">
         <dt class="text-meta font-medium text-muted">Calificación</dt>
         <dd class="inline-flex items-center justify-center gap-xxs font-headline text-lead font-bold text-ink tabular-nums">
-          <Icon name="material-symbols:star-rounded" size="16" aria-hidden="true" />
+          <Icon name="material-symbols:star-rounded" size="16" class="text-brand" aria-hidden="true" />
           {{ business.rating.toFixed(1) }}
         </dd>
       </div>

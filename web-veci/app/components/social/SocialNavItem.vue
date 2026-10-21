@@ -30,7 +30,7 @@ const isActive = computed(() =>
     <!-- Contador en blanco (solo neutros) -->
     <span
       v-if="badge"
-      class="ml-auto hidden min-w-5 rounded-pill bg-ink px-xxs text-center font-headline text-meta leading-5 font-bold text-canvas lg:inline"
+      class="ml-auto hidden min-w-5 rounded-pill bg-brand px-xxs text-center font-headline text-meta leading-5 font-bold text-on-brand lg:inline"
     >
       {{ badge }}
     </span>

@@ -7,7 +7,11 @@ import { useStoriesStore } from '~/stores/stories'
  * Visor de historias a pantalla completa.
  *
  * - Avanza solo cuando termina la barra (animación CSS `animate-story-progress`, 6 s).
- * - Toque/clic en la mitad izquierda o derecha, flechas ← → y Escape para cerrar.
+ * - Toque/clic en la mitad izquierda o derecha, deslizar a los lados, flechas ← → y Escape.
+ * - Deslizar hacia abajo cierra: la historia sigue al dedo y, si no llega al umbral, regresa a su lugar.
+ * - El botón "atrás" del teléfono también cierra (no sale de la página).
+ * - En celular ocupa toda la pantalla, sin márgenes ni flechas (se cambia tocando o deslizando);
+ *   desde sm va en un marco 9:16 con flechas a los lados.
  * - Mantener presionado pausa; también se pausa si la pestaña queda oculta.
  * - Con "reducir movimiento" no hay avance automático: se navega a mano.
  *
@@ -36,6 +40,7 @@ watch(story, (value) => value && store.markSeen(value.id), { immediate: true })
 function close() {
   index.value = null
 }
+useBackToClose(() => index.value !== null, close)
 function next() {
   if (index.value === null) return
   if (index.value < props.stories.length - 1) index.value += 1
@@ -55,13 +60,42 @@ onMounted(() => document.addEventListener('visibilitychange', onVisibility))
 onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibility))
 
 let pressedAt = 0
-function onPress() {
+let startX = 0
+let startY = 0
+/** Cuánto se ha arrastrado hacia abajo (px); mueve y encoge la historia mientras se arrastra. */
+const dragY = ref(0)
+const CLOSE_AT = 120
+const dragStyle = computed(() => dragY.value
+  ? { transform: `translateY(${dragY.value}px) scale(${1 - Math.min(dragY.value / 2000, 0.1)})`, opacity: 1 - Math.min(dragY.value / 600, 0.5) }
+  : undefined)
+
+function onPress(event: PointerEvent) {
   pressedAt = Date.now()
+  startX = event.clientX
+  startY = event.clientY
   holding.value = true
+  // Los movimientos siguen llegando a esta zona aunque el dedo salga de ella
+  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
 }
-/** Un toque corto navega; uno largo solo reanuda. */
-function onRelease(direction: 'prev' | 'next') {
+function onMove(event: PointerEvent) {
+  if (!holding.value) return
+  const dx = event.clientX - startX
+  const dy = event.clientY - startY
+  dragY.value = dy > 0 && dy > Math.abs(dx) ? dy : 0
+}
+/** Abajo cierra; a los lados navega (a la izquierda = siguiente); un toque corto navega por zona; uno largo solo reanuda. */
+function onRelease(direction: 'prev' | 'next', event: PointerEvent) {
   holding.value = false
+  const dragged = dragY.value
+  dragY.value = 0
+  if (dragged > CLOSE_AT) return close()
+  if (dragged > 10) return
+  const dx = event.clientX - startX
+  if (Math.abs(dx) > 40) {
+    if (dx < 0) next()
+    else prev()
+    return
+  }
   if (Date.now() - pressedAt > 250) return
   if (direction === 'next') next()
   else prev()
@@ -88,13 +122,18 @@ const actionTo = computed(() => {
     @close="close"
     @keydown="onKeydown"
   >
-    <div v-if="story" class="flex h-full items-center justify-center gap-md" @click.self="close">
-      <BIconButton class="hidden sm:inline-flex" label="Historia anterior" :disabled="index === 0" @click="prev">
-        <Icon name="material-symbols:chevron-left" size="28" />
-      </BIconButton>
+    <div v-if="story" class="flex h-full items-center justify-center sm:gap-md" @click.self="close">
+      <!-- Flechas solo desde sm (en un span: el `inline-flex` de BIconButton anularía el `hidden`) -->
+      <span class="hidden sm:inline-flex">
+        <BIconButton label="Historia anterior" :disabled="index === 0" @click="prev">
+          <Icon name="material-symbols:chevron-left" size="28" />
+        </BIconButton>
+      </span>
 
       <article
         class="relative flex h-full w-full flex-col overflow-hidden bg-surface-card sm:aspect-[9/16] sm:h-[min(90dvh,760px)] sm:w-auto sm:rounded-3xl"
+        :class="[dragY ? 'rounded-3xl' : 'transition-[transform,opacity] duration-200']"
+        :style="dragStyle"
         :aria-label="`${story.business.name}: ${story.kind}`"
       >
         <span class="pointer-events-none absolute inset-0 bg-brand opacity-40" aria-hidden="true" />
@@ -125,24 +164,27 @@ const actionTo = computed(() => {
           </BIconButton>
         </header>
 
-        <!-- Zonas de toque: izquierda = anterior, derecha = siguiente; mantener = pausa -->
+        <!-- Zonas de toque: izquierda = anterior, derecha = siguiente; mantener = pausa; deslizar = cambiar.
+             `touch-none` para que el navegador no se quede el gesto de deslizar. -->
         <button
           type="button"
-          class="absolute inset-y-0 left-0 w-1/3"
+          class="absolute inset-y-0 left-0 w-1/3 touch-none"
           aria-label="Historia anterior"
           tabindex="-1"
           @pointerdown="onPress"
-          @pointerup="onRelease('prev')"
-          @pointerleave="holding = false"
+          @pointermove="onMove"
+          @pointerup="onRelease('prev', $event)"
+          @pointercancel="holding = false; dragY = 0"
         />
         <button
           type="button"
-          class="absolute inset-y-0 right-0 w-2/3"
+          class="absolute inset-y-0 right-0 w-2/3 touch-none"
           aria-label="Historia siguiente"
           tabindex="-1"
           @pointerdown="onPress"
-          @pointerup="onRelease('next')"
-          @pointerleave="holding = false"
+          @pointermove="onMove"
+          @pointerup="onRelease('next', $event)"
+          @pointercancel="holding = false; dragY = 0"
         />
 
         <!-- Contenido -->
@@ -166,7 +208,7 @@ const actionTo = computed(() => {
         <footer class="relative z-10 p-md">
           <NuxtLink
             :to="actionTo"
-            class="flex h-12 w-full items-center justify-center rounded-pill bg-on-dark text-copy font-semibold text-canvas transition-opacity hover:opacity-90"
+            class="flex h-12 w-full items-center justify-center rounded-pill bg-brand text-copy font-semibold text-on-brand transition-colors hover:bg-brand-hover"
             @click="close"
           >
             {{ story.action.label }}
@@ -174,9 +216,11 @@ const actionTo = computed(() => {
         </footer>
       </article>
 
-      <BIconButton class="hidden sm:inline-flex" label="Historia siguiente" @click="next">
-        <Icon name="material-symbols:chevron-right" size="28" />
-      </BIconButton>
+      <span class="hidden sm:inline-flex">
+        <BIconButton label="Historia siguiente" @click="next">
+          <Icon name="material-symbols:chevron-right" size="28" />
+        </BIconButton>
+      </span>
     </div>
   </dialog>
 </template>

@@ -4,7 +4,7 @@ import { useCurrentUser } from '~/features/people/queries'
 
 /**
  * Menú de opciones del celular (tres puntos, a la izquierda del buscador): abre un panel con
- * tu colonia, Explorar, Mis cosas y Guardados. Desde md están en el buscador y en la columna izquierda.
+ * tu colonia, Explorar, Mis cosas y Guardados. Solo en celular: desde tablet están en la columna izquierda y la colonia en el buscador.
  */
 const route = useRoute()
 const counters = useNavCounters()
@@ -30,7 +30,7 @@ watch(() => route.fullPath, () => (open.value = false))
     <Icon name="material-symbols:more-vert" size="24" aria-hidden="true" />
     <span
       v-if="counters.mine"
-      class="absolute top-0.5 right-0.5 min-w-4 rounded-pill bg-ink px-xxs text-center font-headline text-tiny font-bold leading-4 text-canvas"
+      class="absolute top-0.5 right-0.5 min-w-4 rounded-pill bg-brand px-xxs text-center font-headline text-tiny font-bold leading-4 text-on-brand"
     >
       {{ counters.mine }}
     </span>
@@ -71,7 +71,7 @@ watch(() => route.fullPath, () => (open.value = false))
           </span>
           <span
             v-if="item.counter && counters[item.counter]"
-            class="min-w-5 rounded-pill bg-ink px-xs text-center font-headline text-meta font-bold leading-5 text-canvas tabular-nums"
+            class="min-w-5 rounded-pill bg-brand px-xs text-center font-headline text-meta font-bold leading-5 text-on-brand tabular-nums"
           >
             {{ counters[item.counter] }}
           </span>

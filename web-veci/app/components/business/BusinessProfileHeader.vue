@@ -7,7 +7,8 @@ import type { Business } from '~/api/types'
  *  2. ¿Es confiable y está cerca?: tres cifras (valor grande, etiqueta abajo).
  *  3. Qué puedo hacer: Apartar cita · Mensaje (o Llamar) · Cómo llegar, y lo social (recomendar, compartir, guardar).
  *  4. Información: horario (¿está abierto?), dirección y pago, en una franja con títulos (`BusinessInfo`).
- * Interfaz en la fuente del sistema, cifras en Plus Jakarta Sans y solo neutros: lo activo va en blanco.
+ * Interfaz en la fuente del sistema, cifras en Plus Jakarta Sans y neutros; en ocre solo lo tuyo
+ * (Apartar cita, recomendado, guardado) y la estrella de la calificación.
  */
 const props = defineProps<{ business: Business, canBook?: boolean }>()
 defineEmits<{ book: [] }>()
@@ -61,7 +62,7 @@ const statLabel = 'text-meta font-medium text-muted'
       <NuxtLink :to="{ query: { tab: 'resenas' } }" replace :class="[stat, 'transition-opacity hover:opacity-80']">
         <span :class="statLabel">{{ reviewsCount ? `${reviewsCount} reseñas` : 'Calificación' }}</span>
         <span :class="statValue">
-          <Icon name="material-symbols:star-rounded" size="20" aria-hidden="true" />
+          <Icon name="material-symbols:star-rounded" size="20" class="text-brand" aria-hidden="true" />
           {{ business.rating.toFixed(1) }}
         </span>
       </NuxtLink>
@@ -81,12 +82,12 @@ const statLabel = 'text-meta font-medium text-muted'
       </div>
     </div>
 
-    <!-- 3 · Acciones: la principal en blanco; lo social, a la derecha y discreto -->
+    <!-- 3 · Acciones: la principal en ocre; lo social, a la derecha y discreto -->
     <div class="mt-md flex flex-wrap items-center gap-xs">
       <button
         v-if="canBook"
         type="button"
-        class="inline-flex h-10 flex-1 items-center justify-center gap-xs rounded-pill bg-ink px-md text-label font-bold text-canvas transition-colors hover:bg-body-strong sm:flex-none"
+        class="inline-flex h-10 flex-1 items-center justify-center gap-xs rounded-pill bg-brand px-md text-label font-bold text-on-brand transition-colors hover:bg-brand-hover sm:flex-none"
         @click="$emit('book')"
       >
         <Icon name="material-symbols:event-available" size="20" aria-hidden="true" />
@@ -118,7 +119,7 @@ const statLabel = 'text-meta font-medium text-muted'
           type="button"
           :aria-pressed="isRecommended"
           class="inline-flex h-10 items-center gap-xs rounded-pill px-sm text-label font-semibold transition-colors hover:bg-surface-elevated"
-          :class="isRecommended ? 'text-ink' : 'text-body'"
+          :class="isRecommended ? 'text-brand' : 'text-body'"
           @click="toggleRecommend"
         >
           <Icon :name="isRecommended ? 'material-symbols:handshake' : 'material-symbols:handshake-outline'" size="20" aria-hidden="true" />
@@ -128,7 +129,7 @@ const statLabel = 'text-meta font-medium text-muted'
           <BIconButton :label="copied ? 'Enlace copiado' : `Compartir ${business.name}`" @click="share">
             <Icon :name="copied ? 'material-symbols:check' : 'material-symbols:forward-outline'" size="22" :class="copied ? 'text-ink' : 'text-muted'" />
           </BIconButton>
-          <BusinessSaveButton :business-id="business.id" :business-name="business.name" neutral />
+          <BusinessSaveButton :business-id="business.id" :business-name="business.name" />
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { bottomNav } from '~/features/navigation/nav'
 
 /**
  * Barra inferior (solo celular): Inicio · Ofertas · Citas · Notificaciones (las vistas del inicio),
- * con el contador neutro de las notificaciones sin leer.
+ * con el contador ocre de las notificaciones sin leer.
  * Explorar, Mis cosas y Guardados están en el menú de tres puntos del encabezado.
  */
 const route = useRoute()
@@ -35,7 +35,7 @@ function isActive(to: string) {
           <span class="text-caption font-medium">{{ item.label }}</span>
           <span
             v-if="item.counter && counters[item.counter]"
-            class="absolute top-xxs left-1/2 ml-xxs min-w-[18px] rounded-pill bg-ink px-xxs text-center font-headline text-tiny leading-[18px] font-bold text-canvas"
+            class="absolute top-xxs left-1/2 ml-xxs min-w-[18px] rounded-pill bg-brand px-xxs text-center font-headline text-tiny leading-[18px] font-bold text-on-brand"
             :aria-label="`${counters[item.counter]} sin leer`"
           >{{ counters[item.counter] }}</span>
         </NuxtLink>

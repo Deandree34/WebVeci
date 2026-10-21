@@ -88,7 +88,8 @@ const option = (selected: boolean, solid = false) => [
     : 'border-hairline-strong text-ink hover:bg-surface-soft'
 ]
 const label = 'mb-sm block font-quote text-section leading-[1.3] font-medium text-ink italic'
-const primaryButton = 'flex items-center justify-center rounded-pill bg-ink text-copy font-semibold text-canvas transition-colors hover:bg-body-strong'
+// Acción principal en ocre (lo que te toca hacer); las selecciones de día y hora siguen en blanco
+const primaryButton = 'flex items-center justify-center rounded-pill bg-brand text-copy font-semibold text-on-brand transition-colors hover:bg-brand-hover'
 </script>
 
 <template>
@@ -195,7 +196,7 @@ const primaryButton = 'flex items-center justify-center rounded-pill bg-ink text
 
         <button
           type="submit"
-          :class="[primaryButton, 'h-12 w-full disabled:opacity-40 disabled:hover:bg-ink']"
+          :class="[primaryButton, 'h-12 w-full disabled:opacity-40 disabled:hover:bg-brand']"
           :disabled="!canSubmit"
         >
           {{ isPending ? 'Apartando…' : 'Apartar cita' }}

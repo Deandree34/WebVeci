@@ -7,6 +7,8 @@ import type { RouteLocationRaw } from 'vue-router'
  * en Plus Jakarta Sans (titular en negrita, apoyo en medium), botón de contorno a la derecha.
  * `rating`: estrellas junto al mensaje. El botón es un enlace (`to`) o abre una ventana sin salir
  * del feed (`@action`); sin ninguno de los dos no hay botón (p. ej. en el perfil del propio negocio).
+ * El apoyo no se corta con "…": si no cabe (celular), baja de renglón entre partes, nunca a mitad de una
+ * ("Martes y miércoles ·" / "hasta el domingo"); el "·" se queda al final del renglón de arriba.
  */
 defineProps<{
   title: string
@@ -28,9 +30,9 @@ const button = 'inline-flex h-9 shrink-0 items-center rounded-pill border border
         <span class="line-clamp-2 font-headline text-heading leading-[1.2] font-bold tracking-[-0.01em] text-ink">{{ title }}</span>
         <PostStars v-if="rating !== undefined" :value="rating" :size="18" />
       </p>
-      <p v-if="support?.length" class="mt-xxs truncate font-headline text-label leading-[1.4] font-medium text-body [word-spacing:0.08em]">
+      <p v-if="support?.length" class="mt-xxs font-headline text-label leading-[1.4] font-medium text-body [word-spacing:0.08em]">
         <template v-for="(part, i) in support" :key="part">
-          <span v-if="i" class="mx-1 text-muted" aria-hidden="true">·</span>{{ part }}
+          <span class="inline-block max-w-full">{{ part }}<span v-if="i < support.length - 1" class="ml-1 text-muted" aria-hidden="true">·</span></span>{{ ' ' }}
         </template>
       </p>
     </div>
