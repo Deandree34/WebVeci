@@ -5,8 +5,8 @@
  * Se arman con los negocios de prueba para que el texto y el enlace coincidan con su página.
  */
 
-import type { AppNotification } from '../types'
-import { findBusiness } from './businesses'
+import type { AppNotification } from '~/api/types'
+import { findBusiness } from '~/features/businesses/mock'
 
 const MINUTE = 60_000
 

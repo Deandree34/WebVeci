@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Story } from '~/api/types'
-import { useStoriesStore } from '~/stores/stories'
+import { useStoriesStore } from '~/features/stories/stores'
 
 const props = defineProps<{ story: Story }>()
 defineEmits<{ open: [] }>()

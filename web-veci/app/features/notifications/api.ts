@@ -7,8 +7,8 @@
  *   list: () => api('/me/notifications')
  */
 
-import { makeMockNotifications } from './mock/notifications'
-import type { AppNotification } from './types'
+import { makeMockNotifications } from './mock'
+import type { AppNotification } from '~/api/types'
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 

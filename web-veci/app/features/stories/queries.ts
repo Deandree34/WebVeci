@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 
-import { storiesApi } from '~/api/stories'
+import { storiesApi } from './api'
 
 /** Claves de caché del dominio stories (para invalidación selectiva). */
 export const storyKeys = {

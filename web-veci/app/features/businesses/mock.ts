@@ -5,7 +5,7 @@
  * Etapa 1: solo la categoría `belleza` (ver `docs/business-model.md` §6).
  */
 
-import type { Business, BusinessSummary } from '../types'
+import type { Business, BusinessSummary } from '~/api/types'
 
 export const businesses: Business[] = [
   {

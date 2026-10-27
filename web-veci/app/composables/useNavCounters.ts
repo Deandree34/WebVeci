@@ -1,7 +1,7 @@
 import { useNotifications } from '~/features/notifications/queries'
-import { useMineStore } from '~/stores/mine'
-import { useNotificationsStore } from '~/stores/notifications'
-import { useSavedStore } from '~/stores/saved'
+import { useMineStore } from '~/features/bookings/stores'
+import { useNotificationsStore } from '~/features/notifications/stores'
+import { useSavedStore } from '~/features/businesses/stores'
 
 /** Contadores del vecino que muestra la navegación (Mis cosas, Guardados, Notificaciones sin leer). */
 export function useNavCounters() {

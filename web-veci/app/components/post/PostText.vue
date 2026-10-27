@@ -2,7 +2,8 @@
 /**
  * Texto de una publicación del negocio, como el cuerpo de un post de Facebook: Inter (letra de
  * lectura) de 15 a 16px según la pantalla, interlineado amplio y gris claro para no cansar la vista;
- * "Ver más" solo si de verdad pasa de 4 líneas.
+ * "Ver más" solo si de verdad pasa de 4 líneas, y "Ver menos" ya desplegado; tocar el texto hace lo mismo.
+ * Se usa en el feed y en la vista del post en lista (`PostPhotoList`).
  */
 defineProps<{ text: string }>()
 
@@ -27,15 +28,16 @@ onBeforeUnmount(() => window.removeEventListener('resize', measure))
     <p
       ref="paragraph"
       class="font-reading text-reading leading-[1.5] whitespace-pre-line text-body"
-      :class="{ 'line-clamp-4': !expanded }"
+      :class="{ 'line-clamp-4': !expanded, 'cursor-pointer': clipped }"
+      @click="clipped && (expanded = !expanded)"
     >{{ text }}</p>
     <button
-      v-if="clipped && !expanded"
+      v-if="clipped"
       type="button"
       class="font-reading text-reading font-semibold text-muted hover:underline"
-      @click="expanded = true"
+      @click="expanded = !expanded"
     >
-      Ver más
+      {{ expanded ? 'Ver menos' : 'Ver más' }}
     </button>
   </div>
 </template>

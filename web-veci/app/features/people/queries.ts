@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/vue-query'
 
-import { currentUser, peopleApi } from '~/api/people'
+import { currentUser, peopleApi } from './api'
 
 /** Claves de caché del dominio people (para invalidación selectiva). */
 export const peopleKeys = {

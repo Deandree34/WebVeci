@@ -1,6 +1,6 @@
 import type { Business } from '~/api/types'
 import { businessPath } from '~/features/navigation/nav'
-import { useRecommendedStore } from '~/stores/recommended'
+import { useRecommendedStore } from '~/features/businesses/stores'
 
 /**
  * Lo social de un negocio, compartido por el pie de los posts y la cabecera del perfil:

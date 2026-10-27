@@ -165,10 +165,16 @@ export interface ReviewItem extends FeedItemBase {
   type: 'resena'
 }
 
-/** Foto de una publicación del negocio. */
+/**
+ * Foto de una publicación del negocio. Puede llevar su propio texto (`caption`) y su contador de
+ * reacciones (`likes`, el apretón de manos, sin contar el del vecino).
+ */
 export interface PostPhoto {
+  id: string
   src: string
   alt: string
+  caption?: string
+  likes: number
 }
 
 /** Publicación normal del negocio (novedades, estrenos): texto y fotos, sin acción principal. */
@@ -179,7 +185,6 @@ export interface PostItem extends FeedItemBase {
 }
 
 export type FeedItem = OfferItem | SlotsItem | ReviewItem | PostItem
-export type FeedItemType = FeedItem['type']
 
 /* ------------------------------------------------------------------------- */
 /* Historias y citas                                                         */

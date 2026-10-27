@@ -5,8 +5,8 @@
  * Cuando exista el backend, este archivo pasa a llamar a la API real.
  */
 
-import { makeMockStories } from './mock/stories'
-import type { Story } from './types'
+import { makeMockStories } from './mock'
+import type { Story } from '~/api/types'
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 

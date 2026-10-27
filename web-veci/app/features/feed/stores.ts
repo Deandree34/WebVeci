@@ -32,3 +32,25 @@ export const useFeedPrefsStore = defineStore('feedPrefs', () => {
 
   return { interestedIds, hiddenIds, isInterested, isHidden, toggleInterested, hide, unhide }
 })
+
+/**
+ * Fotos de publicaciones a las que el vecino reaccionó (en la vista del post en lista). Es el mismo
+ * apretón de manos de Recomendar, pero con un contador por foto (docs/business-model.md).
+ *
+ * ⚠️ TEMPORAL — en memoria. Con backend, pasa a estado de servidor (TanStack Query).
+ */
+export const usePhotoLikesStore = defineStore('photoLikes', () => {
+  const ids = ref<string[]>([])
+
+  function isLiked(photoId: string) {
+    return ids.value.includes(photoId)
+  }
+
+  function toggle(photoId: string) {
+    ids.value = isLiked(photoId)
+      ? ids.value.filter((id) => id !== photoId)
+      : [photoId, ...ids.value]
+  }
+
+  return { ids, isLiked, toggle }
+})

@@ -7,8 +7,8 @@
  *   list: (cursor?: string, tab?: FeedTab) => api('/feed', { query: { cursor, tab } })
  */
 
-import { makeMockFeed } from './mock/feed'
-import type { FeedItem, FeedTab, Paginated } from './types'
+import { makeMockFeed } from './mock'
+import type { FeedItem, FeedTab, Paginated } from '~/api/types'
 
 const PAGE_SIZE = 4
 

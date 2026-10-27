@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Story } from '~/api/types'
 import { businessPath } from '~/features/navigation/nav'
-import { useStoriesStore } from '~/stores/stories'
+import { useStoriesStore } from '~/features/stories/stores'
 
 /**
  * Visor de historias a pantalla completa.

@@ -4,8 +4,8 @@
  * ⚠️ TEMPORAL — este archivo desaparece cuando exista el backend.
  */
 
-import type { Story } from '../types'
-import { findBusiness, toSummary } from './businesses'
+import type { Story } from '~/api/types'
+import { findBusiness, toSummary } from '~/features/businesses/mock'
 
 export function makeMockStories(): Story[] {
   return [

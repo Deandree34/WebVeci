@@ -5,8 +5,8 @@
  * Cuando exista el backend, este archivo pasa a llamar a la API real.
  */
 
-import { categories } from './mock/categories'
-import type { Category } from './types'
+import { categories } from './mock'
+import type { Category } from '~/api/types'
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 

@@ -6,8 +6,7 @@ import { businessPath } from '~/features/navigation/nav'
  * `look="social"` (card base): solo identidad (avatar, nombre) y una línea de metadatos
  * con la antigüedad y el tipo ("4 h · Oferta"), y el menú "···" a la derecha (Me interesa · No me interesa · Guardar).
  */
-/** `menu: false` quita el "···" (p. ej. en la vista a pantalla completa, donde su ventana quedaría detrás). */
-const props = withDefaults(defineProps<{ item: FeedItem, look?: 'default' | 'social', menu?: boolean }>(), { look: 'default', menu: true })
+const props = withDefaults(defineProps<{ item: FeedItem, look?: 'default' | 'social' }>(), { look: 'default' })
 
 const now = useNow()
 const business = computed(() => props.item.business)
@@ -63,7 +62,7 @@ const kind = computed(() => kinds[props.item.type])
         </p>
       </div>
       <!-- "···" como Facebook: Me interesa · No me interesa · Guardar -->
-      <PostMenu v-if="menu" :item="item" class="-mr-xs" />
+      <PostMenu :item="item" class="-mr-xs" />
     </template>
 
     <template v-else>

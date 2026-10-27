@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 
-import { categoriesApi } from '~/api/categories'
+import { categoriesApi } from './api'
 
 /** Claves de caché del dominio categories (para invalidación selectiva). */
 export const categoryKeys = {

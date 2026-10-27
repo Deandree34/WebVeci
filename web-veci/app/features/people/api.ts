@@ -5,8 +5,8 @@
  * Cuando exista el backend, este archivo pasa a llamar a la API real.
  */
 
-import { currentUser } from './mock/people'
-import type { Person } from './types'
+import { currentUser } from './mock'
+import type { Person } from '~/api/types'
 
 export { currentUser }
 

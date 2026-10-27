@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 
-import { businessesApi } from '~/api/businesses'
+import { businessesApi } from './api'
 
 /** Claves de caché del dominio businesses (para invalidación selectiva). */
 export const businessKeys = {

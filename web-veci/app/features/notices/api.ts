@@ -5,8 +5,8 @@
  * Cuando exista el backend, este archivo pasa a llamar a la API real.
  */
 
-import { makeMockNotices } from './mock/notices'
-import type { Notice } from './types'
+import { makeMockNotices } from './mock'
+import type { Notice } from '~/api/types'
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 

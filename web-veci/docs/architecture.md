@@ -87,27 +87,28 @@ Proyecto **Nuxt único** (sin monorepo):
 ```
 web-veci/
 ├─ app/
-│  ├─ api/                     # capa de red (ÚNICO lugar con $fetch)
+│  ├─ api/                     # infraestructura de red compartida
 │  │  ├─ client.ts             # instancia base (baseURL, credenciales, cabeceras)
-│  │  ├─ types.ts              # tipos del dominio (hoy; luego generados del OpenAPI)
-│  │  └─ <recurso>.ts          # endpoints (posts.ts, stories.ts, people.ts…)
+│  │  └─ types.ts              # tipos del dominio (hoy; luego generados del OpenAPI)
 │  ├─ components/
-│  │  ├─ ui/                   # design system (BButton, BCard, BTag…) -> <BButton>
+│  │  ├─ ui/                   # design system (BButton, BSheet, BPopover…) -> <BButton>
 │  │  └─ <dominio>/            # componentes de dominio -> <FeedPostCard>, <SocialTopBar>, <StoryCard>
-│  ├─ features/<dominio>/      # LÓGICA de dominio
-│  │  ├─ composables/          # useXxx del dominio
-│  │  └─ queries.ts            # consultas/mutaciones de TanStack Query (+ queryOptions)
-│  ├─ composables/             # composables transversales (useApi, useSession…)
-│  ├─ stores/                  # Pinia (estado de cliente)
+│  ├─ features/<dominio>/      # TODO lo del dominio en una carpeta
+│  │  ├─ api.ts                # endpoints (ÚNICO lugar con $fetch)
+│  │  ├─ mock.ts               # datos dummy (temporal: se borra al llegar el backend)
+│  │  ├─ queries.ts            # consultas/mutaciones de TanStack Query (+ queryOptions)
+│  │  └─ stores.ts             # Pinia: estado de cliente del dominio
+│  ├─ composables/             # composables transversales (auto-importados)
 │  ├─ middleware/              # guardas de ruta (auth, roles)
 │  ├─ plugins/                 # registro de TanStack Query, etc. (vue-query.ts)
 │  ├─ utils/                   # helpers puros (formatDate…)
-│  ├─ layouts/                 # default.vue (landing) · social.vue (app social)
-│  ├─ pages/                   # index.vue (/) · home.vue (/home) · feed.vue
-│  ├─ assets/  public/
+│  ├─ layouts/                 # social.vue (app social) · profile.vue (perfil del negocio)
+│  ├─ pages/                   # index.vue (/) · explorar · guardados · mis-cosas · categoria/[slug] · negocio/[slug]
+│  ├─ assets/css/              # main.css + veci-theme.css (tokens de Tailwind)
+│  ├─ public/
 │  └─ app.vue
 ├─ server/                     # BFF opcional (Nitro)
-├─ docs/                       # design/ + architecture.md
+├─ docs/                       # architecture.md · business-model.md
 ├─ nuxt.config.ts
 ├─ package.json
 └─ .env.example
@@ -121,9 +122,9 @@ web-veci/
 
 ```
 1. Presentación      app/pages · app/layouts · app/components/ui · app/components/<dominio>
-2. Estado cliente    app/stores            (Pinia: sesión, UI global, preferencias)
+2. Estado cliente    app/features/<d>/stores.ts  (Pinia: sesión, UI global, preferencias)
 3. Datos servidor    app/features/<d>/queries.ts (TanStack Query: caché, infinite, optimistic)
-4. Acceso a red      app/api               (cliente HTTP + endpoints tipados)
+4. Acceso a red      app/features/<d>/api.ts     (endpoints tipados) + app/api/client.ts
 5. Contrato          OpenAPI → tipos       (hoy en app/api/types.ts; luego generados)
 6. BFF (opcional)    server/               (Nitro: proxy, cookies httpOnly)
 ```
@@ -160,11 +161,11 @@ TanStack Query aporta: caché con *stale time*, `infiniteQuery` para el scroll d
 ### 4.4 Acceso a datos
 
 Los componentes **nunca** llaman a `$fetch` directamente. Toda comunicación pasa por
-`app/api` y se consume desde `features/*/queries.ts`.
+`features/<d>/api.ts` y se consume desde `features/<d>/queries.ts`.
 
 ```ts
-// app/api/posts.ts
-import { createApiClient } from './client'
+// app/features/feed/api.ts
+import { createApiClient } from '~/api/client'
 const api = createApiClient()
 
 export const postsApi = {
@@ -185,9 +186,9 @@ export function useFeed() {
 }
 ```
 
-> **Estado actual (temporal):** `app/api/posts.ts` devuelve **datos dummy** (`app/api/mock/`)
+> **Estado actual (temporal):** cada `features/<d>/api.ts` devuelve **datos dummy** (`features/<d>/mock.ts`)
 > con latencia simulada, para desarrollar la UI antes de tener backend. Al conectar el
-> backend, solo se reemplaza el cuerpo de `postsApi` (y se borra `app/api/mock/`).
+> backend, solo se reemplaza el cuerpo de cada `api.ts` (y se borran los `mock.ts`).
 
 Cada dominio exporta además sus opciones como `queryOptions` **reutilizables**, de modo
 que el componente y la precarga en SSR compartan definición:
@@ -300,7 +301,8 @@ de ruta) está en **[business-model.md](business-model.md)**. Resumen:
 | `Notice` / `NeighborhoodFund` | Avisos y fondo vecinal (categoría *Comunidad*) |
 | `Notification` · `Report` | Avisos al vecino · moderación |
 
-> Fuera del modelo **por regla**: likes, comentarios, seguidores/amigos y publicaciones de vecinos.
+> Fuera del modelo **por regla**: comentarios, seguidores/amigos y publicaciones de vecinos. Una sola
+> reacción (apretón de manos): recomienda al negocio y, en las fotos de una publicación, cuenta por foto (`PostPhoto.likes`).
 >
 > **Feed:** consulta por cursor + índices; el orden por relevancia (franja horaria, abierto ahora, vigencia de ofertas) lo calcula el backend.
 
@@ -383,7 +385,7 @@ Hoy: implementación *no-op*. Mañana: se sustituye por Centrifugo / Soketi / Ab
 
 | Fase | Alcance |
 |---|---|
-| **1. Shell** (hecho) | Proyecto Nuxt único en `web-veci/` con la estructura (`api/`, `components/ui`, `features/`, `composables/`, `stores/`, `plugins/`, `utils/`) + `docs/architecture.md` |
+| **1. Shell** (hecho) | Proyecto Nuxt único en `web-veci/` con la estructura (`api/`, `components/ui`, `features/`, `composables/`, `plugins/`, `utils/`) + `docs/architecture.md` |
 | **2. Datos** (dummy hecho) | `app/api/client.ts` + capa de datos con TanStack Query (hoy con datos dummy); al llegar el backend, tipos generados del OpenAPI |
 | **2b. Shell social** (hecho) | Layout `social.vue` + `/home`: barra superior con búsqueda, historias, composer, feed, navegación inferior/lateral y columna derecha (datos dummy; historias/búsqueda/navegación como *placeholder* visual) |
 | **3. Auth** | Registro/login, JWT + BFF con cookies, guards de ruta |
@@ -405,6 +407,7 @@ Hoy: implementación *no-op*. Mañana: se sustituye por Centrifugo / Soketi / Ab
 | Estado servidor | TanStack Query | Solo Pinia | Caché, paginación y optimistic out-of-the-box |
 | SSR de datos | Plugin universal (`dehydrate`/`hydrate`) + `queryOptions` precargadas | Delegar todo a `<ClientOnly>` | El HTML inicial llega con contenido y sin desajustes de hidratación |
 | Estado cliente | Pinia | refs globales manuales | Estándar, devtools, tipado |
+| Organización | Una carpeta por dominio (`features/<d>/`: api, mock, queries, stores) | Capas técnicas sueltas (`api/`, `stores/`…) · Feature-Sliced Design | Un dominio se agrega o quita en un solo lugar, sin la ceremonia de FSD |
 | Componentes | `components/ui` + `components/<dominio>` | Todo en `features/` | Nombres auto-importados limpios en Nuxt |
 | Tiempo real | Diferido + interfaz | Implementar ya | Evita sobrediseño sin caso de uso definido |
 | Tipografía | **Roboto** + **Roboto Mono** | Michroma / Inter / JetBrains Mono | Alineado con el ecosistema Google / Material Design |

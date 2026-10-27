@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Business } from '~/api/types'
 import { useBusinesses } from '~/features/businesses/queries'
-import { useSavedStore } from '~/stores/saved'
+import { useSavedStore } from '~/features/businesses/stores'
 
 definePageMeta({ layout: 'social' })
 useHead({ title: 'Guardados — VECI' })

@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   // Auto-import de componentes:
-  //   components/ui  -> <BButton>, <BCard>…  (design system, sin prefijo de carpeta)
+  //   components/ui  -> <BButton>, <BSheet>…  (design system, sin prefijo de carpeta)
   //   components/<x> -> <XPepito>            (componentes de dominio/compartidos)
   components: [
     { path: '~/components/ui', pathPrefix: false },
@@ -29,7 +29,7 @@ export default defineNuxtConfig({
   },
 
   // Tipografía:
-  //   Display + Texto -> fuente del sistema, como Facebook (ver --font-text en bugatti-theme.css)
+  //   Display + Texto -> fuente del sistema, como Facebook (ver --font-text en veci-theme.css)
   //   Titulares y líneas de apoyo (posts, avisos) -> Plus Jakarta Sans 700 / 600 / 500 (--font-headline)
   //   Cita de las reseñas -> Lora cursiva (--font-quote)
   //   Mono -> Roboto Mono

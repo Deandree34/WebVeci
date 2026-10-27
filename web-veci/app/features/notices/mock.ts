@@ -5,8 +5,8 @@
  * Las fechas se calculan desde hoy en la colonia para que siempre sean próximas.
  */
 
-import type { Notice } from '../types'
-import { addDays, colonyToday, weekdayOf } from '../../utils/hours'
+import type { Notice } from '~/api/types'
+import { addDays, colonyToday, weekdayOf } from '~/utils/hours'
 
 /** Próximo `weekday` (0 = domingo) desde `today`, más `extraWeeks` semanas. */
 function next(today: string, weekday: number, extraWeeks = 0): string {

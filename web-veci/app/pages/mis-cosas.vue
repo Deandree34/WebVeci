@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBusinesses } from '~/features/businesses/queries'
-import { useMineStore } from '~/stores/mine'
+import { useMineStore } from '~/features/bookings/stores'
 
 definePageMeta({ layout: 'social' })
 useHead({ title: 'Mis cosas — VECI' })

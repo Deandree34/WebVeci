@@ -2,7 +2,7 @@
 import type { NotificationKind } from '~/api/types'
 import { useBusinesses } from '~/features/businesses/queries'
 import { useNotifications } from '~/features/notifications/queries'
-import { useNotificationsStore } from '~/stores/notifications'
+import { useNotificationsStore } from '~/features/notifications/stores'
 
 /**
  * Notificaciones del vecino, como las de Facebook pero en neutros: avatar del negocio con un

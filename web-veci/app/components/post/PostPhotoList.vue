@@ -3,7 +3,8 @@ import type { PostItem } from '~/api/types'
 
 /**
  * Vista propia de una publicación con varias fotos (celular), como la de Facebook: cabecera del
- * negocio, el texto completo y todas las fotos una debajo de otra, a todo lo ancho y sin recortar.
+ * negocio, el texto (cortado a 4 líneas, como en el feed), el pie del post y todas las fotos una
+ * debajo de otra, a todo lo ancho y sin recortar; cada foto con su texto (si tiene) y su propio pie.
  * Tocar una foto abre el visor en esa foto, encima de esta vista; al cerrarlo vuelves aquí.
  * Se cierra con la flecha, con Escape, con el botón "atrás" del teléfono o al cambiar de página.
  */
@@ -49,26 +50,30 @@ useBackToClose(() => open.value, () => (open.value = false))
         <p class="truncate text-copy font-semibold text-ink">Publicación de {{ post.business.name }}</p>
       </header>
 
-      <PostHeader :item="post" look="social" :menu="false" />
+      <PostHeader :item="post" look="social" />
 
-      <!-- Texto completo (sin cortar a 4 líneas), con la misma letra de lectura que en el feed -->
-      <p v-if="post.text" class="px-md pb-sm font-reading text-reading leading-[1.5] whitespace-pre-line text-body">{{ post.text }}</p>
+      <!-- El texto como en el feed: cortado a 4 líneas, "Ver más" o tocarlo lo despliega -->
+      <PostText v-if="post.text" :text="post.text" />
 
-      <!-- Todas las fotos, una debajo de otra y en su proporción -->
-      <div class="flex flex-col gap-1">
-        <button
-          v-for="(photo, index) in post.photos"
-          :key="photo.src"
-          type="button"
-          class="block w-full bg-surface-elevated focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink"
-          :aria-label="`Ver foto ${index + 1} de ${post.photos.length}: ${photo.alt}`"
-          @click="viewing = index"
-        >
-          <img :src="photo.src" :alt="photo.alt" loading="lazy" decoding="async" class="block h-auto w-full">
-        </button>
+      <!-- El pie del post (recomendar al negocio) va arriba, antes de las fotos, como en Facebook -->
+      <PostReactions :business="post.business" class="border-b border-hairline" />
+
+      <!-- Todas las fotos, una debajo de otra y en su proporción; cada una con su texto (si tiene)
+           y su propio pie: su reacción (apretón de manos, contador propio) y compartirla -->
+      <div class="flex flex-col gap-xs bg-hairline">
+        <section v-for="(photo, index) in post.photos" :key="photo.id" class="bg-canvas">
+          <button
+            type="button"
+            class="block w-full bg-surface-elevated focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink"
+            :aria-label="`Ver foto ${index + 1} de ${post.photos.length}: ${photo.alt}`"
+            @click="viewing = index"
+          >
+            <img :src="photo.src" :alt="photo.alt" loading="lazy" decoding="async" class="block h-auto w-full">
+          </button>
+          <PostText v-if="photo.caption" :text="photo.caption" class="pt-sm" />
+          <PostPhotoReactions :photo="photo" :business="post.business" />
+        </section>
       </div>
-
-      <PostReactions :business="post.business" />
     </template>
 
     <PostPhotoViewer v-model:index="viewing" :post="post" />

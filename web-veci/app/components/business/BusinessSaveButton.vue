@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSavedStore } from '~/stores/saved'
+import { useSavedStore } from '~/features/businesses/stores'
 
 /** Guardar un negocio: el marcador relleno va en ocre (lo que tú hiciste). */
 const props = withDefaults(

@@ -15,7 +15,8 @@ const tab = computed<HomeTab | undefined>(() => HOME_TABS.find((value) => value 
 
 <template>
   <div>
-    <StoryRail />
+    <!-- Las historias solo acompañan a Inicio; en Promociones, Agenda y Notificaciones estorban -->
+    <StoryRail v-if="!tab" />
     <NotificationList v-if="tab === 'notificaciones'" />
     <FeedList v-else :tab="tab" />
   </div>

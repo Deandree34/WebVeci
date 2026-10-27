@@ -79,27 +79,8 @@ export function formatHour(hour: number): string {
   return `${display} ${h < 12 ? 'am' : 'pm'}`
 }
 
-/** Rango que contiene la hora (considera rangos que cruzan la medianoche). */
-function rangeAt(hours: HourRange[], hour: number): HourRange | undefined {
-  return hours.find(([open, close]) => (hour >= open && hour < close) || (hour + 24 >= open && hour + 24 < close))
-}
-
-export function isOpenAt(hours: HourRange[], hour: number): boolean {
-  return rangeAt(hours, hour) !== undefined
-}
-
 export function isOpen24h(hours: HourRange[]): boolean {
   return hours.length === 1 && hours[0]![0] === 0 && hours[0]![1] === 24
-}
-
-/** Estado legible, p. ej. "Abierto · hasta 9 pm" o "Cerrado · abre 10 am". */
-export function openStatus(hours: HourRange[], hour: number): { open: boolean, label: string } {
-  const range = rangeAt(hours, hour)
-  if (range) {
-    return { open: true, label: isOpen24h(hours) ? 'Abierto 24 h' : `Abierto · hasta ${formatHour(range[1])}` }
-  }
-  const next = hours.map(([open]) => open).find((open) => open > hour) ?? hours[0]![0]
-  return { open: false, label: `Cerrado · abre ${formatHour(next)}` }
 }
 
 /** Horario completo, p. ej. "9 am – 2 pm y 4 pm – 8 pm". */

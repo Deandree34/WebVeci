@@ -14,8 +14,10 @@ apartan una cita, hacen un pedido, piden una cotización o piden ayuda.
 
 **Reglas del producto**
 
-- El negocio publica, el vecino **actúa**. No hay comentarios, "me gusta", composer de vecinos,
-  amigos ni seguidores.
+- El negocio publica, el vecino **actúa**. No hay comentarios, composer de vecinos, amigos ni
+  seguidores. La única reacción es el **apretón de manos**: en el post y el
+  perfil **recomienda al negocio**; en las fotos de una publicación (vista del post) cada foto lleva
+  su propio contador, como un "me gusta" de esa foto.
 - La confianza se construye con **recomendaciones de vecinos** ("41 vecinos lo recomiendan"),
   calificación tras un servicio real y negocios **verificados**.
 - Todo es **de hoy y de cerca**: estado abierto/cerrado, distancia, horarios libres, ofertas con
@@ -162,4 +164,4 @@ capacidad si es nueva, reutilizando la base común.
 | 7 | Comunidad | `aviso`, `colonia`; fondo vecinal; widgets de la columna derecha |
 | 8 | Deportes, Educación, Mascotas, Tiendas, Profesionales | datos nuevos sobre capacidades existentes |
 
-Estado actual: **etapa 1 (Belleza) completa en la UI** con datos dummy (`app/api/mock/`): feed, historias con visor, detalle de negocio, apartar cita, Mis cosas y Guardados. Siguiente: etapa 2 (Salud).
+Estado actual: **etapa 1 (Belleza) completa en la UI** con datos dummy (`app/features/*/mock.ts`): feed, historias con visor, detalle de negocio, apartar cita, Mis cosas y Guardados. Siguiente: etapa 2 (Salud).

@@ -4,7 +4,7 @@
  * ⚠️ TEMPORAL — este archivo desaparece cuando exista auth real.
  */
 
-import type { Person } from '../types'
+import type { Person } from '~/api/types'
 
 export const currentUser: Person = {
   id: 'me',

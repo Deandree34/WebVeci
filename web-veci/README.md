@@ -22,31 +22,32 @@ Otros scripts: `npm run build`, `npm run generate`, `npm run preview`.
 ```
 web-veci/
 ├─ app/
-│  ├─ api/                # capa de red (client.ts + endpoints tipados)
+│  ├─ api/                # infraestructura compartida (client.ts + types.ts)
 │  ├─ components/
-│  │  ├─ ui/              # design system (BButton, BCard, BTag…) -> <BButton>
+│  │  ├─ ui/              # design system (BButton, BSheet, BPopover…) -> <BButton>
 │  │  └─ <dominio>/       # componentes de dominio -> <FeedPostCard>
-│  ├─ features/<dominio>/ # lógica de dominio (composables/, queries.ts, types.ts)
-│  ├─ composables/  stores/  middleware/  plugins/
+│  ├─ features/<dominio>/ # todo el dominio: api.ts · mock.ts · queries.ts · stores.ts
+│  ├─ composables/  middleware/  plugins/
 │  ├─ layouts/  pages/  utils/
 │  ├─ assets/  public/
 │  └─ app.vue
 ├─ server/                # BFF opcional (Nitro)
-├─ docs/                  # design/ + architecture.md
+├─ docs/                  # architecture.md · business-model.md
 └─ nuxt.config.ts
 ```
 
 ## Convenciones
 
 - Design system en `app/components/ui` (prefijo `B*`), sin lógica de negocio.
-- Tipografía **Roboto** / **Roboto Mono**; iconos **Material Symbols** (`<Icon name="material-symbols:*" />`).
+  Tokens y reglas de diseño en `app/assets/css/veci-theme.css` (fuente única de verdad).
+- Tipografía: sistema · **Inter** · **Plus Jakarta Sans** · **Lora** · **Roboto Mono**; iconos **Material Symbols** (`<Icon name="material-symbols:*" />`).
 - Estado de **servidor** → TanStack Query; estado de **cliente** → Pinia.
-- Los componentes **no** llaman a `$fetch`: todo pasa por `app/api` + `features/*/queries.ts`.
+- Los componentes **no** llaman a `$fetch`: todo pasa por `features/*/api.ts` + `features/*/queries.ts`.
 - Cada dominio expone sus `queryOptions` reutilizables (componentes + `prefetchQuery` en SSR).
 
 ## Estado actual
 
-La capa de datos usa **datos dummy** (`app/api/mock/`) con latencia simulada, para
+La capa de datos usa **datos dummy** (`app/features/*/mock.ts`) con latencia simulada, para
 desarrollar la UI antes de que exista el backend. Se avanza **una categoría a la vez**
 (ver [docs/business-model.md](docs/business-model.md)); hoy solo está activa
 **Belleza y cuidado personal** (Barbería El Güero y Estética Bella Luz).

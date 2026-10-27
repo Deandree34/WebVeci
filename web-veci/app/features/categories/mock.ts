@@ -5,7 +5,7 @@
  * Solo `belleza` está disponible en la etapa 1; el resto se muestra como "Próximamente".
  */
 
-import type { Category } from '../types'
+import type { Category } from '~/api/types'
 
 export const categories: Category[] = [
   {

@@ -8,8 +8,8 @@
  *   get:  (slug: string) => api(`/businesses/${slug}`)
  */
 
-import { businesses, findBusiness } from './mock/businesses'
-import type { Business } from './types'
+import { businesses, findBusiness } from './mock'
+import type { Business } from '~/api/types'
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 

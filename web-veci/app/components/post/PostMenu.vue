@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FeedItem } from '~/api/types'
-import { useFeedPrefsStore } from '~/stores/feedPrefs'
-import { useSavedStore } from '~/stores/saved'
+import { useFeedPrefsStore } from '~/features/feed/stores'
+import { useSavedStore } from '~/features/businesses/stores'
 
 /**
  * Menú "···" de una publicación, como el de Facebook: Me interesa · No me interesa · Guardar.

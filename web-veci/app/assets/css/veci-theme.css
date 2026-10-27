@@ -1,4 +1,17 @@
-/* Bugatti Tailwind CSS v4 theme — fuente: docs/design/bugatti-DESIGN.md */
+/* Tema VECI (Tailwind CSS v4) — fuente única de verdad del diseño.
+
+   Tema oscuro con la paleta del logo: carbón, blanco y ocre. Cada token de aquí genera sus
+   utilidades de Tailwind (--color-brand -> bg-brand / text-brand, --text-copy -> text-copy,
+   --radius-card -> rounded-card…). Si un valor no está aquí, no existe: no usar colores ni
+   tamaños sueltos en los componentes.
+
+   Componentes:
+   - Design system en app/components/ui, prefijo B* (BButton, BSheet, BPopover, BIconButton,
+     BMenuItem, BEmptyState, BWordmark…), sin lógica de negocio.
+   - Componentes de dominio en app/components/<dominio> (FeedPostCard, StoryRail…).
+   - Iconos: Material Symbols (<Icon name="material-symbols:*" />) en modo CSS: heredan color
+     y tamaño del texto (ver app.config.ts).
+   - Fuentes: se descargan al compilar con @nuxt/fonts (ver nuxt.config.ts). */
 @theme {
   /* Paleta restringida: solo los tokens documentados */
   --color-*: initial;

@@ -7,8 +7,8 @@
  *   create: (body: BookingRequest) => api('/bookings', { method: 'POST', body })
  */
 
-import { findBusiness } from './mock/businesses'
-import type { Booking, BookingRequest } from './types'
+import { findBusiness } from '~/features/businesses/mock'
+import type { Booking, BookingRequest } from '~/api/types'
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 

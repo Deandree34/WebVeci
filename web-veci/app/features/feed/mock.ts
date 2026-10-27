@@ -5,9 +5,9 @@
  * El orden por relevancia (`score`) simula lo que calculará el backend.
  */
 
-import type { Business, FeedItem, PostPhoto } from '../types'
-import { availabilitySummary, colonyHour, promoWindow, scheduleStatus } from '../../utils/hours'
-import { findBusiness } from './businesses'
+import type { Business, FeedItem, PostPhoto } from '~/api/types'
+import { availabilitySummary, colonyHour, promoWindow, scheduleStatus } from '~/utils/hours'
+import { findBusiness } from '~/features/businesses/mock'
 
 const MINUTE = 60_000
 
@@ -38,11 +38,11 @@ const seeds: Seed[] = [
     post: {
       text: 'Estrenamos local en Calle Hidalgo 56: más sillones, más luz y menos espera.\n\nEste sábado los esperamos con café de olla para todos los que vengan a cortarse. Gracias, vecinos, por estos años con nosotros.',
       photos: [
-        { src: '/posts/barberia4.jpg', alt: 'Barbero afeitando a un cliente en el nuevo local, con espejo y repisas de madera' },
-        { src: '/posts/barberia3.jpg', alt: 'Barbero perfilando la ceja de un cliente junto a la fila de sillones' },
-        { src: '/posts/barberia2.jpg', alt: 'Corte con máquina en la nuca de un cliente de cabello rizado' },
+        { id: 'p1-1', src: '/posts/barberia4.jpg', alt: 'Barbero afeitando a un cliente en el nuevo local, con espejo y repisas de madera', caption: 'Afeitado clásico con toalla caliente, como siempre.', likes: 18 },
+        { id: 'p1-2', src: '/posts/barberia3.jpg', alt: 'Barbero perfilando la ceja de un cliente junto a la fila de sillones', likes: 9 },
+        { id: 'p1-3', src: '/posts/barberia2.jpg', alt: 'Corte con máquina en la nuca de un cliente de cabello rizado', caption: 'Ahora con seis sillones: menos espera los sábados.', likes: 12 },
         // Foto de prueba con una marca ajena visible: va 4.ª para quedar tras el "+1"; reemplazar por una propia
-        { src: '/posts/barberia1.jpg', alt: 'Barbero aplicando mascarilla negra en el rostro de un cliente' }
+        { id: 'p1-4', src: '/posts/barberia1.jpg', alt: 'Barbero aplicando mascarilla negra en el rostro de un cliente', likes: 4 }
       ]
     }
   },
@@ -53,7 +53,7 @@ const seeds: Seed[] = [
     ago: 300,
     post: {
       text: 'Ya está listo nuestro nuevo espacio de pedicure, con sillones reclinables y tinas de piedra. ¡Pasen a conocerlo!',
-      photos: [{ src: '/posts/estetica2.jpg', alt: 'Área de pedicure con muro de flores y letrero de neón' }]
+      photos: [{ id: 'p2-1', src: '/posts/estetica2.jpg', alt: 'Área de pedicure con muro de flores y letrero de neón', likes: 23 }]
     }
   }
 ]

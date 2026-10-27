@@ -1,7 +1,7 @@
 import { infiniteQueryOptions, queryOptions, useInfiniteQuery, useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 
-import { feedApi } from '~/api/feed'
+import { feedApi } from './api'
 import type { FeedTab } from '~/api/types'
 
 /** Claves de caché del dominio feed (para invalidación selectiva). */

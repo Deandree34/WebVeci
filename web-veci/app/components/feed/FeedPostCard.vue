@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FeedItem } from '~/api/types'
-import { useFeedPrefsStore } from '~/stores/feedPrefs'
+import { useFeedPrefsStore } from '~/features/feed/stores'
 
 /**
  * Publicación del feed con la anatomía de un post de Facebook, solo en neutros:

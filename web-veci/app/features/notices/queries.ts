@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 
-import { noticesApi } from '~/api/notices'
+import { noticesApi } from './api'
 
 /** Claves de caché del dominio notices (para invalidación selectiva). */
 export const noticeKeys = {

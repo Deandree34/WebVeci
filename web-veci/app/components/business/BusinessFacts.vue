@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Business } from '~/api/types'
-import { useRecommendedStore } from '~/stores/recommended'
+import { useRecommendedStore } from '~/features/businesses/stores'
 
 /**
  * Datos del negocio para la tarjeta flotante del feed, con el sistema tipográfico de los posts:
