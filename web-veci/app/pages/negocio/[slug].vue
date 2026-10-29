@@ -1,57 +1,101 @@
 <script setup lang="ts">
 import type { BookingRequest } from '~/api/types'
-import { useBusiness } from '~/features/businesses/queries'
-import { useBusinessPosts } from '~/features/feed/queries'
+import { useBusiness } from '#layers/business/queries'
+import { useBusinessPosts } from '#layers/feed/queries'
+
+/**
+ * Perfil de un negocio (`/negocio/:slug`): cabecera, pestañas (Todo · Reseñas) y, en Todo, dos
+ * columnas: horarios libres, ofertas y servicios fijos a la izquierda; sus publicaciones a la derecha.
+ * "Apartar cita" se abre desde un horario, un servicio, `?dia=&hora=` (feed) o `?cita=1` (historias).
+ *
+ * Todas las llamadas a composables son síncronas; la espera de SSR va en `ssrPrefetch()`,
+ * que la página llama con `await` (así Nuxt conserva su contexto).
+ */
+
+type Day = BookingRequest['day']
+
+interface BookingPreset {
+  day?: Day
+  time?: string
+  service?: string
+}
 
 definePageMeta({ layout: 'profile' })
 
 const route = useRoute()
 const router = useRouter()
 const slug = computed(() => String(route.params.slug))
+const event = import.meta.server ? useRequestEvent() : undefined
 
 const { data: business, isError, suspense } = useBusiness(slug)
-
-// En SSR se espera el dato para que el HTML llegue completo y, si no existe, responder 404
-if (import.meta.server) {
-  await suspense().catch(() => {})
-  if (isError.value) setResponseStatus(useRequestEvent()!, 404, 'Negocio no encontrado')
-}
-
 useHead({ title: () => `${business.value?.name ?? 'Negocio'} — VECI` })
 
 const now = useNow()
-const free = computed(() =>
-  business.value?.availability ? freeSlots(business.value.availability, colonyHour(now.value)) : undefined
-)
+const free = computed(() => {
+  const availability = business.value?.availability
+  if (!availability) return undefined
+  return freeSlots(availability, colonyHour(now.value))
+})
 const offers = computed(() => (business.value ? activePromos(business.value, now.value) : []))
+const offersTitle = computed(() => (offers.value.length === 1 ? 'Oferta' : 'Ofertas'))
+const canBook = computed(() => {
+  const b = business.value
+  return !!b && b.capabilities.includes('citas') && !!b.availability
+})
+
+// Las pestañas se pegan bajo la barra superior; si la barra se esconde (celular), suben a `top-0`
 const topBarHidden = useTopBarHidden()
-const canBook = computed(() => !!business.value?.capabilities.includes('citas') && !!business.value.availability)
+const tabsBarClass = computed(() => (topBarHidden.value ? 'top-0 md:top-14' : 'top-14'))
 
 /** Pestañas: Todo siempre (horarios, oferta, servicios y publicaciones); Reseñas solo si las hay. */
 const tabs = computed(() => {
   const b = business.value
   if (!b) return []
-  return [
-    { id: 'todo', label: 'Todo', show: true },
-    { id: 'resenas', label: 'Reseñas', show: !!b.reviews?.length }
-  ].filter((tab) => tab.show)
+  const list = [{ id: 'todo', label: 'Todo' }]
+  if (b.reviews?.length) list.push({ id: 'resenas', label: 'Reseñas' })
+  return list
 })
 /** Vista actual (`?tab=`); una pestaña desconocida o sin contenido cae en Todo. */
-const view = computed(() => tabs.value.find((tab) => tab.id === route.query.tab)?.id ?? 'todo')
+const view = computed(() => {
+  const found = tabs.value.find((tab) => tab.id === route.query.tab)
+  return found ? found.id : 'todo'
+})
 
 const { data: allPosts, isPending: postsPending, suspense: postsSuspense } = useBusinessPosts(() => business.value?.id)
 /** La oferta vive fija en la columna izquierda: aquí no se repite como post. */
 const posts = computed(() => allPosts.value?.filter((item) => item.type !== 'oferta'))
-// En SSR también se esperan las publicaciones: si no, el navegador recibe la consulta a medias
-if (import.meta.server && business.value) await postsSuspense().catch(() => {})
 
-/* ---------- Apartar cita: desde un horario, con `?dia=&hora=` (feed) o `?cita=1` (historias) ---------- */
+/** En SSR se esperan el negocio (404 si no existe) y sus publicaciones, para que el HTML llegue completo. */
+async function ssrPrefetch() {
+  if (!import.meta.server) return
+  await suspense().catch(() => {})
+  if (isError.value && event) setResponseStatus(event, 404, 'Negocio no encontrado')
+  // Si no, el navegador recibe la consulta de publicaciones a medias
+  if (business.value) await postsSuspense().catch(() => {})
+}
+
+/* ---------- Apartar cita ---------- */
 const sheetOpen = ref(false)
-const preset = ref<{ day?: BookingRequest['day'], time?: string, service?: string }>({})
+const preset = ref<BookingPreset>({})
 
-function openBooking(day?: BookingRequest['day'], time?: string, service?: string) {
+function openBooking(day?: Day, time?: string, service?: string) {
   preset.value = { day, time, service }
   sheetOpen.value = true
+}
+
+/** "Apartar cita" de la cabecera: el primer día con lugar. */
+function bookFirstFree() {
+  openBooking(free.value?.day)
+}
+
+/** Desde un horario de "Horarios libres". */
+function bookSlot(day: Day, time: string) {
+  openBooking(day, time)
+}
+
+/** Desde "Apartar" de un servicio. */
+function bookService(service: string) {
+  openBooking(free.value?.day, undefined, service)
 }
 
 // Espera a tener el negocio (al navegar en el cliente aún puede estar cargando) y aplica una sola vez
@@ -62,8 +106,15 @@ onMounted(() => {
     presetApplied = true
     const { dia, hora, cita } = route.query
     if ((dia === 'today' || dia === 'tomorrow') && typeof hora === 'string') openBooking(dia, hora)
-    else if (cita !== undefined) openBooking(free.value?.day)
+    else if (cita !== undefined) bookFirstFree()
   }, { immediate: true })
+})
+
+// Al cerrar, se limpia la preselección de la URL para que "atrás" no reabra el panel
+watch(sheetOpen, (isOpen) => {
+  const { dia, hora, cita } = route.query
+  if (isOpen || (!dia && !hora && cita === undefined)) return
+  router.replace({ query: { ...route.query, dia: undefined, hora: undefined, cita: undefined } })
 })
 
 /** Regresar: a la página anterior dentro de la app; si se entró directo al perfil (enlace compartido), al feed. */
@@ -72,12 +123,7 @@ function goBack() {
   else navigateTo('/')
 }
 
-// Al cerrar, se limpia la preselección de la URL para que "atrás" no reabra el panel
-watch(sheetOpen, (isOpen) => {
-  if (!isOpen && (route.query.dia || route.query.hora || route.query.cita !== undefined)) {
-    router.replace({ query: { ...route.query, dia: undefined, hora: undefined, cita: undefined } })
-  }
-})
+await ssrPrefetch()
 </script>
 
 <template>
@@ -96,13 +142,13 @@ watch(sheetOpen, (isOpen) => {
           <Icon name="material-symbols:arrow-back-rounded" size="28" aria-hidden="true" />
         </button>
         <BusinessCover :src="business.coverUrl" :icon="business.icon" />
-        <BusinessProfileHeader :business="business" :can-book="canBook" @book="openBooking(free?.day)" />
+        <BusinessProfileHeader :business="business" :can-book="canBook" @book="bookFirstFree" />
       </section>
 
       <!-- Pestañas fijas bajo la barra superior: cada una muestra solo su vista -->
       <div
         class="sticky z-20 mt-xxs transition-[top] duration-200 bg-surface-card px-xs md:rounded-card md:px-md"
-        :class="topBarHidden ? 'top-0 md:top-14' : 'top-14'"
+        :class="tabsBarClass"
       >
         <BusinessProfileTabs :tabs="tabs" />
       </div>
@@ -121,11 +167,11 @@ watch(sheetOpen, (isOpen) => {
             v-if="canBook"
             :availability="business.availability!"
             :schedule="business"
-            @pick="(day, time) => openBooking(day, time)"
+            @pick="bookSlot"
           />
 
           <!-- Ofertas vigentes: el mismo adjunto que en el feed, sin botón (ya estás en el negocio) -->
-          <BusinessProfileCard v-if="offers.length" id="oferta" :title="offers.length === 1 ? 'Oferta' : 'Ofertas'">
+          <BusinessProfileCard v-if="offers.length" id="oferta" :title="offersTitle">
             <div class="-mx-md -mb-sm">
               <PostOffer v-for="promo in offers" :key="promo.text" :promo="promo" />
             </div>
@@ -135,7 +181,7 @@ watch(sheetOpen, (isOpen) => {
             v-if="business.services?.length"
             :business="business"
             :can-book="canBook"
-            @book="(service) => openBooking(free?.day, undefined, service)"
+            @book="bookService"
           />
         </aside>
 

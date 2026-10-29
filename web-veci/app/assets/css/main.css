@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./veci-theme.css";
+@import "~~/layers/tailwind.css";
 
 @layer base {
   html {
@@ -62,5 +63,17 @@
   @keyframes story-progress {
     from { width: 0%; }
     to { width: 100%; }
+  }
+}
+
+/* Gotas líquidas del fondo de acceso (AuthStage): flotan despacio de un lado a otro */
+@theme {
+  --animate-auth-float: auth-float 20s ease-in-out infinite alternate;
+
+  @keyframes auth-float {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(10vw, 20vh) scale(1.2); }
+    66% { transform: translate(-5vw, 10vh) scale(0.8); }
+    100% { transform: translate(5vw, -10vh) scale(1.1); }
   }
 }

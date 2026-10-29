@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { useCategories } from '~/features/categories/queries'
-import { categoryPath } from '~/features/navigation/nav'
+import { useCategories } from '#layers/category/queries'
+import { categoryPath } from '#layers/social/nav'
+
+/** Explorar: los giros de la colonia; los disponibles llevan a su categoría, los demás dicen "Próximamente". */
 
 definePageMeta({ layout: 'social' })
+
 useHead({ title: 'Explorar — VECI' })
 
 const { data: categories } = useCategories()

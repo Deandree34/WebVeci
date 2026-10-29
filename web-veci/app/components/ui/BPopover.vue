@@ -8,32 +8,50 @@
  * que está en `body` queda detrás; y si abajo no cabe (p. ej. el pie del visor de fotos), se abre hacia arriba.
  *
  * Slot `trigger`: el botón, que recibe `toggle` y `open`. Slot por defecto: las opciones.
+ * `width`: clase de ancho del menú.
  */
-withDefaults(defineProps<{ width?: string }>(), { width: 'w-[min(300px,calc(100vw-32px))]' })
+interface BPopoverProps {
+  width?: string
+}
+
+/** Alto aproximado del menú para decidir si cabe abajo. */
+const ROOM_BELOW = 260
+
+const props = defineProps<BPopoverProps>()
 
 const open = ref(false)
 const trigger = ref<HTMLElement>()
 const panel = ref<HTMLElement>()
 const target = ref<string | HTMLElement>('body')
 const position = ref<{ top?: string, bottom?: string, right: string }>({ right: '0px' })
-/** Alto aproximado del menú para decidir si cabe abajo. */
-const ROOM_BELOW = 260
+const widthClass = computed(() => props.width ?? 'w-[min(300px,calc(100vw-32px))]')
+
+/** Abajo del botón; arriba si abajo no cabe y arriba sí. */
+function place(el: HTMLElement) {
+  const rect = el.getBoundingClientRect()
+  const right = `${window.innerWidth - rect.right}px`
+  const fitsBelow = window.innerHeight - rect.bottom >= ROOM_BELOW
+  const fitsAbove = rect.top > ROOM_BELOW
+  if (!fitsBelow && fitsAbove) position.value = { bottom: `${window.innerHeight - rect.top + 4}px`, right }
+  else position.value = { top: `${rect.bottom + 4}px`, right }
+}
 
 function toggle() {
-  if (open.value) return close()
+  if (open.value) {
+    close()
+    return
+  }
   const el = trigger.value!
-  const rect = el.getBoundingClientRect()
   target.value = el.closest<HTMLElement>('dialog[open]') ?? 'body'
-  const right = `${window.innerWidth - rect.right}px`
-  position.value = window.innerHeight - rect.bottom < ROOM_BELOW && rect.top > ROOM_BELOW
-    ? { bottom: `${window.innerHeight - rect.top + 4}px`, right }
-    : { top: `${rect.bottom + 4}px`, right }
+  place(el)
   open.value = true
   nextTick(() => panel.value?.querySelector<HTMLElement>('[role="menuitem"]')?.focus())
 }
+
 function close() {
   open.value = false
 }
+
 /** Tras elegir una opción: se cierra y el foco vuelve al botón que lo abrió. */
 function closeAfterSelect() {
   close()
@@ -42,24 +60,34 @@ function closeAfterSelect() {
 provide('closeMenu', closeAfterSelect)
 
 function onPointerDown(event: PointerEvent) {
-  const target = event.target as Node
-  if (!panel.value?.contains(target) && !trigger.value?.contains(target)) close()
+  const clicked = event.target as Node
+  if (!panel.value?.contains(clicked) && !trigger.value?.contains(clicked)) close()
 }
+
 function onKeydown(event: KeyboardEvent) {
   if (event.key !== 'Escape') return
   // Que Escape cierre solo el menú, no también la vista a pantalla completa que lo contiene
   event.preventDefault()
   closeAfterSelect()
 }
+
 watch(open, (isOpen) => {
-  const method = isOpen ? 'addEventListener' : 'removeEventListener'
-  document[method]('pointerdown', onPointerDown)
-  document[method]('keydown', onKeydown)
   // En captura: también el scroll dentro de una vista a pantalla completa, no solo el de la página
-  document[method]('scroll', close, { passive: true, capture: true } as AddEventListenerOptions)
-  window[method]('resize', close)
+  const scrollOptions: AddEventListenerOptions = { passive: true, capture: true }
+  if (isOpen) {
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeydown)
+    document.addEventListener('scroll', close, scrollOptions)
+    window.addEventListener('resize', close)
+  }
+  else {
+    document.removeEventListener('pointerdown', onPointerDown)
+    document.removeEventListener('keydown', onKeydown)
+    document.removeEventListener('scroll', close, scrollOptions)
+    window.removeEventListener('resize', close)
+  }
 })
-onBeforeUnmount(() => (open.value = false))
+onBeforeUnmount(close)
 </script>
 
 <template>
@@ -72,7 +100,7 @@ onBeforeUnmount(() => (open.value = false))
         ref="panel"
         role="menu"
         class="fixed z-50 rounded-card border border-hairline-strong bg-surface-card p-xs shadow-lg"
-        :class="width"
+        :class="widthClass"
         :style="position"
       >
         <slot />

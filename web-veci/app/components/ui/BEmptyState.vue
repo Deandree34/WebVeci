@@ -1,6 +1,14 @@
 <script setup lang="ts">
-/** Estado vacío: ícono gris, título en Lora cursiva (la app le habla al vecino) y explicación en la fuente del sistema. */
-defineProps<{ icon: string, title: string }>()
+/**
+ * Estado vacío: ícono gris, título en Lora cursiva (la app le habla al vecino) y explicación en la
+ * fuente del sistema (slot por defecto). Slot `actions`: botones debajo.
+ */
+interface BEmptyStateProps {
+  icon: string
+  title: string
+}
+
+defineProps<BEmptyStateProps>()
 </script>
 
 <template>

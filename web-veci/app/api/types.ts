@@ -8,9 +8,51 @@
  * Modelo de negocio: `docs/business-model.md`.
  */
 
+/* ------------------------------------------------------------------------- */
+/* Contrato de respuesta (lo cumplen el mock de `server/` y el backend real)  */
+/* ------------------------------------------------------------------------- */
+
+/*
+ * Éxito (2xx): el recurso tal cual, sin envoltorio (como `response_model` en FastAPI).
+ * Las listas paginadas usan `Paginated<T>`.
+ *
+ * Error (4xx/5xx): siempre `ApiErrorBody`, con el status HTTP real. Ver `docs/architecture.md` §6.
+ */
+
 export interface Paginated<T> {
   items: T[]
   nextCursor: string | null
+}
+
+/**
+ * Códigos de error estables: la UI decide por `code`, nunca por `message`.
+ * `network_error` no lo manda el servidor: lo pone el cliente cuando no hubo respuesta.
+ */
+export type ApiErrorCode =
+  | 'validation_error'
+  | 'unauthorized'
+  | 'forbidden'
+  | 'not_found'
+  | 'conflict'
+  | 'rate_limited'
+  | 'internal_error'
+  | 'network_error'
+  | 'otp_invalid'
+  | 'otp_expired'
+  | 'otp_locked'
+
+export interface ApiErrorBody {
+  error: {
+    code: ApiErrorCode
+    /** Texto legible (para logs o como respaldo); la UI muestra sus propios textos según `code`. */
+    message: string
+    /**
+     * Datos extra según el código, p. ej.:
+     *  - `validation_error` → `{ fields: { name: 'Falta el nombre' } }`
+     *  - `otp_invalid`      → `{ attemptsLeft: 3 }`
+     */
+    details?: Record<string, unknown>
+  }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -255,4 +297,34 @@ export interface Notice {
   /** Fecha en la zona de la colonia, "YYYY-MM-DD". */
   date: string
   icon: string
+}
+
+/* ---------- Acceso (auth) ---------- */
+
+/** Por dónde llega el código de acceso: WhatsApp primero; SMS como respaldo. */
+export type OtpChannel = 'whatsapp' | 'sms'
+
+/** Código enviado: a qué canal y cuándo se puede pedir otro (segundos). */
+export interface OtpSent {
+  channel: OtpChannel
+  resendIn: number
+}
+
+/**
+ * Código correcto. Entrar y crear cuenta son el mismo flujo: con un número nuevo, `isNew` pide
+ * completar el perfil (nombre y colonia). La sesión la guarda el BFF en una cookie httpOnly; el
+ * navegador nunca ve el token.
+ *
+ * Un código mal responde con error: `otp_invalid` (400, `details.attemptsLeft`), `otp_expired` (400)
+ * u `otp_locked` (429).
+ */
+export interface OtpVerification {
+  isNew: boolean
+  user?: Person
+}
+
+/** Perfil mínimo de una cuenta nueva. */
+export interface NewProfile {
+  name: string
+  colony: string
 }

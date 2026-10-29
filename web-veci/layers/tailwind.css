@@ -1,0 +1,3 @@
+/* Tailwind solo escanea la raíz de Vite (`app/`): esto le suma los componentes de todos los layers.
+   Se importa desde app/assets/css/main.css; la ruta de @source es relativa a este archivo. */
+@source ".";

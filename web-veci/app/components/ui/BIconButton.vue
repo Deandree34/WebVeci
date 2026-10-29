@@ -1,5 +1,10 @@
 <script setup lang="ts">
-defineProps<{ label: string }>()
+/** Botón circular de 40px con solo un ícono (slot); `label` es lo que se lee en voz alta. */
+interface BIconButtonProps {
+  label: string
+}
+
+defineProps<BIconButtonProps>()
 </script>
 
 <template>

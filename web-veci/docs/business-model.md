@@ -164,4 +164,4 @@ capacidad si es nueva, reutilizando la base común.
 | 7 | Comunidad | `aviso`, `colonia`; fondo vecinal; widgets de la columna derecha |
 | 8 | Deportes, Educación, Mascotas, Tiendas, Profesionales | datos nuevos sobre capacidades existentes |
 
-Estado actual: **etapa 1 (Belleza) completa en la UI** con datos dummy (`app/features/*/mock.ts`): feed, historias con visor, detalle de negocio, apartar cita, Mis cosas y Guardados. Siguiente: etapa 2 (Salud).
+Estado actual: **etapa 1 (Belleza) completa en la UI** con datos dummy (`layers/*/mock.ts`): feed, historias con visor, detalle de negocio, apartar cita, Mis cosas y Guardados. Siguiente: etapa 2 (Salud).

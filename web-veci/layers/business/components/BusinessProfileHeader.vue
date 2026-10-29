@@ -1,0 +1,175 @@
+<script setup lang="ts">
+import type { Business } from '~/api/types'
+
+/**
+ * Cabecera del perfil: una idea por fila, de lo más importante a lo menos.
+ *  1. Quién es: logo, nombre, descripción y giro.
+ *  2. ¿Es confiable y está cerca?: tres cifras (valor grande, etiqueta abajo).
+ *  3. Qué puedo hacer: Apartar cita · Mensaje (o Llamar) · Cómo llegar, y lo social (recomendar, compartir, guardar).
+ *  4. Información: horario (¿está abierto?), dirección y pago, en una franja con títulos (`BusinessInfo`).
+ * Interfaz en la fuente del sistema, cifras en Plus Jakarta Sans y neutros; en ocre solo lo tuyo
+ * (Apartar cita, recomendado, guardado) y la estrella de la calificación.
+ */
+interface BusinessProfileHeaderProps {
+  business: Business
+  canBook?: boolean
+}
+
+interface BusinessProfileHeaderEmits {
+  book: []
+}
+
+/** Clases de las tres cifras de un vistazo. */
+const CLASSES = {
+  stat: 'flex flex-col-reverse gap-0.5 px-xs',
+  statValue: 'inline-flex items-center justify-center gap-xxs font-headline text-heading leading-tight font-bold text-ink tabular-nums',
+  statLabel: 'text-meta font-medium text-muted'
+}
+
+const props = defineProps<BusinessProfileHeaderProps>()
+defineEmits<BusinessProfileHeaderEmits>()
+
+const { isRecommended, total, toggleRecommend, copied, share } = useBusinessSocial(() => props.business)
+const recommendersOpen = ref(false)
+
+/** "Lo recomiendan Ana, Carlos y 50 vecinos más" (con "Tú" primero si ya lo recomendaste). */
+const names = computed(() => {
+  const people = (props.business.recommendedBy ?? []).map((person) => person.name)
+  if (isRecommended.value) people.unshift('Tú')
+  return people.slice(0, 2)
+})
+const othersCount = computed(() => total.value - names.value.length)
+
+const reviewsCount = computed(() => props.business.reviews?.length ?? 0)
+const ratingLabel = computed(() => (reviewsCount.value ? `${reviewsCount.value} reseñas` : 'Calificación'))
+
+/** Caras de los primeros vecinos que lo recomiendan. */
+const faces = computed(() => (props.business.recommendedBy ?? []).slice(0, 3))
+
+const { stat, statValue, statLabel } = CLASSES
+</script>
+
+<template>
+  <div class="px-md pb-md md:px-lg">
+    <!-- 1 · Identidad -->
+    <div class="flex flex-col items-center gap-sm text-center md:flex-row md:items-end md:gap-md md:text-left">
+      <div class="-mt-16 shrink-0 rounded-full bg-surface-card p-1 md:-mt-20">
+        <BusinessAvatar :icon="business.icon" :src="business.logoUrl" size="xl" />
+      </div>
+
+      <div class="min-w-0 flex-1 md:pb-xs">
+        <!-- Nombre en Lora cursiva, como los títulos de sección del perfil -->
+        <h1 id="business-name" class="inline-flex max-w-full items-center gap-xs font-quote text-hero leading-tight font-medium tracking-normal text-ink normal-case italic">
+          <span class="truncate">{{ business.name }}</span>
+          <BusinessVerified v-if="business.verified" size="24" />
+        </h1>
+        <p class="mt-xxs text-copy leading-[1.45] text-body">{{ business.description }}</p>
+
+        <!-- Giro como chip neutro (el estado de ahora va en la fila de horario) -->
+        <div class="mt-sm flex flex-wrap items-center justify-center gap-xs md:justify-start">
+          <BChip :icon="business.icon">{{ business.subcategory }}</BChip>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 · Cifras de un vistazo: valor arriba, qué significa abajo -->
+    <div class="mt-md grid grid-cols-3 divide-x divide-hairline rounded-control border border-hairline py-sm text-center md:max-w-[520px]">
+      <NuxtLink :to="{ query: { tab: 'resenas' } }" replace :class="[stat, 'transition-opacity hover:opacity-80']">
+        <span :class="statLabel">{{ ratingLabel }}</span>
+        <span :class="statValue">
+          <Icon name="material-symbols:star-rounded" size="20" class="text-brand" aria-hidden="true" />
+          {{ business.rating.toFixed(1) }}
+        </span>
+      </NuxtLink>
+      <button type="button" :class="[stat, 'transition-opacity hover:opacity-80']" @click="recommendersOpen = true">
+        <span :class="statLabel">vecinos lo recomiendan</span>
+        <span :class="statValue">
+          <Icon name="material-symbols:handshake-outline" size="20" aria-hidden="true" />
+          {{ total }}
+        </span>
+      </button>
+      <div :class="stat">
+        <span :class="statLabel">{{ business.walkMinutes }} min a pie</span>
+        <span :class="statValue">
+          <Icon name="material-symbols:directions-walk" size="20" aria-hidden="true" />
+          {{ formatDistance(business.distanceMeters) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- 3 · Acciones: la principal en ocre; lo social, a la derecha y discreto -->
+    <div class="mt-md flex flex-wrap items-center gap-xs">
+      <BButton
+        v-if="canBook"
+        variant="primary"
+        icon="material-symbols:event-available"
+        class="flex-1 sm:flex-none"
+        @click="$emit('book')"
+      >
+        Apartar cita
+      </BButton>
+      <BButton
+        v-if="business.contact?.whatsapp"
+        :to="whatsappUrl(business.contact.whatsapp, `Hola, los vi en VECI`)"
+        external
+        icon="material-symbols:chat-outline"
+        class="flex-1 sm:flex-none"
+      >
+        Mensaje
+      </BButton>
+      <!-- Sin WhatsApp pero con teléfono: llamar -->
+      <BButton
+        v-else-if="business.contact?.phone"
+        :to="`tel:${business.contact.phone}`"
+        icon="material-symbols:call-outline"
+        class="flex-1 sm:flex-none"
+      >
+        Llamar
+      </BButton>
+      <BButton :to="mapsUrl(business.address)" external icon="material-symbols:directions-outline" class="flex-1 sm:flex-none">
+        Cómo llegar
+      </BButton>
+
+        <div class="flex w-full items-center justify-between gap-xs sm:ml-auto sm:w-auto">
+        <button
+          type="button"
+          :aria-pressed="isRecommended"
+          class="inline-flex h-10 items-center gap-xs rounded-pill px-sm text-label font-semibold transition-colors hover:bg-surface-elevated"
+          :class="isRecommended ? 'text-brand' : 'text-body'"
+          @click="toggleRecommend"
+        >
+          <Icon :name="isRecommended ? 'material-symbols:handshake' : 'material-symbols:handshake-outline'" size="20" aria-hidden="true" />
+          {{ isRecommended ? 'Recomendado' : 'Recomendar' }}
+        </button>
+        <div class="flex items-center">
+          <BIconButton :label="copied ? 'Enlace copiado' : `Compartir ${business.name}`" @click="share">
+            <Icon :name="copied ? 'material-symbols:check' : 'material-symbols:forward-outline'" size="22" :class="copied ? 'text-ink' : 'text-muted'" />
+          </BIconButton>
+          <BusinessSaveButton :business-id="business.id" :business-name="business.name" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Prueba social: caras y nombres de vecinos, no solo un número -->
+    <button
+      v-if="names.length"
+      type="button"
+      class="mt-sm flex items-center gap-sm rounded-control py-xxs text-left text-support text-body transition-colors hover:text-ink"
+      @click="recommendersOpen = true"
+    >
+      <span class="flex shrink-0 -space-x-1.5">
+        <SocialAvatar v-for="person in faces" :key="person.name" :name="person.name" size="xs" class="ring-2 ring-surface-card" />
+      </span>
+      <span>
+        Lo recomiendan <b class="font-semibold text-ink">{{ names.join(', ') }}</b>
+        <template v-if="othersCount > 0"> y {{ othersCount }} vecinos más</template>
+      </span>
+      <Icon name="material-symbols:chevron-right" size="18" aria-hidden="true" />
+    </button>
+
+    <!-- 4 · Información: horario, dirección y pago, cada uno con su título -->
+    <BusinessInfo :business="business" />
+
+    <BusinessRecommendersSheet v-model:open="recommendersOpen" :business="business" />
+  </div>
+</template>

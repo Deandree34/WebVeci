@@ -13,12 +13,10 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  // Auto-import de componentes:
-  //   components/ui  -> <BButton>, <BSheet>…  (design system, sin prefijo de carpeta)
-  //   components/<x> -> <XPepito>            (componentes de dominio/compartidos)
+  // Auto-import de componentes: aquí solo el design system (components/ui -> <BButton>, <BSheet>…).
+  // Los componentes de dominio los registra cada layer de `layers/<dominio>/` (ver docs/architecture.md §3.1).
   components: [
-    { path: '~/components/ui', pathPrefix: false },
-    { path: '~/components', pathPrefix: true, ignore: ['ui/**'] }
+    { path: '~/components/ui', pathPrefix: false, extensions: ['vue'] }
   ],
 
   vite: {
@@ -60,8 +58,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // URL base del backend FastAPI (API v1). El backend vive en un proyecto aparte.
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/v1'
+      // URL base de la API v1. Por defecto, el mock de Nitro (`server/api/v1/`), que cumple el mismo
+      // contrato que el backend FastAPI (proyecto aparte); para usar el real basta con cambiar la URL.
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || '/api/v1'
     }
   },
 

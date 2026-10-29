@@ -1,6 +1,8 @@
 import { QueryClient, VueQueryPlugin, dehydrate, hydrate } from '@tanstack/vue-query'
 import type { DehydratedState } from '@tanstack/vue-query'
 
+import { ApiError } from '~/api/errors'
+
 /**
  * Registra TanStack Query (estado de servidor) de forma **universal** (SSR + cliente).
  *
@@ -19,7 +21,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       queries: {
         staleTime: 30_000,
         refetchOnWindowFocus: false,
-        retry: 1
+        // Un 4xx (404, 422…) respondería igual: solo se reintentan la red y los 5xx
+        retry: (failureCount, error) => failureCount < 1 && !(error instanceof ApiError && error.isClientError)
       }
     }
   })
@@ -32,7 +35,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     })
   }
 
-  if (import.meta.client) {
+  // Sin estado (p. ej. una página sin SSR) no hay nada que rehidratar
+  if (import.meta.client && vueQueryState.value) {
     hydrate(queryClient, vueQueryState.value)
   }
 })
