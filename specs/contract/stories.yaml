@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: VECI — historias
+  version: 0.1.0
+  description: Historias de 24 h de un negocio, visibles en el raíl superior del feed.
+
+components:
+  schemas:
+    Story:
+      type: object
+      required:
+        - id
+        - business
+        - kind
+        - headline
+        - text
+        - action
+        - seen
+      properties:
+        id:
+          type: string
+        business:
+          $ref: './businesses.yaml#/components/schemas/BusinessSummary'
+        kind:
+          type: string
+          description: 'Etiqueta corta, p. ej. "Oferta de hoy", "Horarios libres".'
+        headline:
+          type: string
+        text:
+          type: string
+        action:
+          type: object
+          required:
+            - label
+            - target
+          properties:
+            label:
+              type: string
+            target:
+              type: string
+              enum:
+                - business
+                - booking
+        promo:
+          description: 'Promoción del negocio: si viene, el visor muestra su cuenta regresiva.'
+          $ref: './businesses.yaml#/components/schemas/Promo'
+        seen:
+          type: boolean

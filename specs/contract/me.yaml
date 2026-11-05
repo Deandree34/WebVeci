@@ -1,0 +1,95 @@
+openapi: 3.1.0
+info:
+  title: VECI — cuenta
+  version: 0.1.0
+  description: Cuenta del vecino y sus notificaciones.
+
+components:
+  schemas:
+    Person:
+      type: object
+      description: Cuenta del vecino.
+      required:
+        - id
+        - handle
+        - name
+      properties:
+        id:
+          type: string
+        handle:
+          type: string
+          description: 'Usuario tal como se muestra, con la arroba (`@alejandro`).'
+        name:
+          type: string
+        avatarUrl:
+          type: string
+
+    NewProfile:
+      type: object
+      description: Perfil mínimo de una cuenta nueva.
+      required:
+        - name
+        - colony
+      properties:
+        name:
+          type: string
+        colony:
+          type: string
+
+    NotificationKind:
+      type: string
+      description: Qué avisa una notificación (define el ícono pequeño sobre el avatar).
+      enum:
+        - publicacion
+        - oferta
+        - cita
+        - recomendacion
+        - aviso
+
+    AppNotification:
+      type: object
+      description: 'Notificación del vecino: algo nuevo de sus negocios o de la colonia.'
+      required:
+        - id
+        - kind
+        - actor
+        - text
+        - to
+        - createdAt
+      properties:
+        id:
+          type: string
+        kind:
+          $ref: '#/components/schemas/NotificationKind'
+        businessId:
+          type: string
+          description: Negocio del que habla; sin él la publica VECI (avisos de la colonia).
+        actor:
+          type: string
+          description: 'Quién (en negrita), p. ej. "Barbería El Güero".'
+        text:
+          type: string
+          description: 'Qué pasó, p. ej. "publicó una novedad: …".'
+        to:
+          type: string
+          description: A dónde lleva al tocarla.
+        createdAt:
+          type: string
+          format: date-time
+
+    NotificationPage:
+      type: object
+      description: Página de notificaciones, de la más reciente a la más antigua.
+      required:
+        - items
+        - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppNotification'
+        nextCursor:
+          type:
+            - string
+            - 'null'
+          description: Cursor de la página siguiente; `null` en la última.

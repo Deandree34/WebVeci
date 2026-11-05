@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: VECI — categorías
+  version: 0.1.0
+  description: Taxonomía del producto, categoría (giro) + capacidades (qué se puede hacer).
+
+components:
+  schemas:
+    Capability:
+      type: string
+      description: Qué se puede hacer en un negocio de la categoría.
+      enum:
+        - citas
+        - pedidos
+        - cotizacion
+        - solicitud
+        - informativo
+
+    Category:
+      type: object
+      description: Giro del negocio (belleza, salud, comida…).
+      required:
+        - id
+        - slug
+        - label
+        - icon
+        - subcategories
+        - capabilities
+        - available
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        label:
+          type: string
+        icon:
+          type: string
+          description: 'Icono Material Symbols, p. ej. `material-symbols:content-cut`.'
+        subcategories:
+          type: array
+          items:
+            type: string
+        capabilities:
+          type: array
+          description: Capacidades por defecto de los negocios de la categoría.
+          items:
+            $ref: '#/components/schemas/Capability'
+        available:
+          type: boolean
+          description: Ya habilitada en el producto (el resto se muestra como "Próximamente").

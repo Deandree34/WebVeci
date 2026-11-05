@@ -1,0 +1,120 @@
+openapi: 3.1.0
+info:
+  title: VECI — común
+  version: 0.1.0
+  description: Piezas compartidas por todos los recursos (errores).
+
+components:
+  schemas:
+    ApiErrorCode:
+      type: string
+      description: |
+        Código estable de error: la UI decide por `code`, nunca por `message`.
+        Renombrar uno es un cambio incompatible (ver `specs/constitution.md` §2.4).
+
+        `network_error` **no** lo manda el servidor: lo pone el cliente cuando no hubo respuesta
+        (`status: 0`), por eso no está en el enum.
+      enum:
+        - validation_error
+        - unauthorized
+        - forbidden
+        - not_found
+        - conflict
+        - rate_limited
+        - internal_error
+        - otp_invalid
+        - otp_expired
+        - otp_locked
+
+    ApiErrorBody:
+      type: object
+      description: |
+        Cuerpo de todo error (4xx/5xx), siempre con el status HTTP real.
+        Éxito nunca usa este envoltorio: el recurso va tal cual.
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              $ref: '#/components/schemas/ApiErrorCode'
+            message:
+              type: string
+              description: Texto legible para logs o como respaldo; la UI muestra sus propios textos.
+            details:
+              type: object
+              additionalProperties: true
+              description: |
+                Datos extra según el código, p. ej.:
+                  - `validation_error` → `{ fields: { name: 'Falta el nombre' } }`
+                  - `otp_invalid`      → `{ attemptsLeft: 3 }`
+
+  responses:
+    BadRequest:
+      description: Petición inválida (código específico del recurso).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'
+
+    Unauthorized:
+      description: '`unauthorized`: falta la sesión o venció.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'
+
+    Forbidden:
+      description: '`forbidden`: hay sesión, pero no alcanza el permiso.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'
+
+    NotFound:
+      description: '`not_found`: el recurso no existe.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'
+
+    Conflict:
+      description: '`conflict`: el recurso ya existe o el estado no permite la operación.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'
+
+    ValidationError:
+      description: |
+        `validation_error`: la entrada no cumple el contrato.
+        `details.fields` trae el mensaje por campo.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'
+          example:
+            error:
+              code: validation_error
+              message: Revisa los campos marcados
+              details:
+                fields:
+                  name: Falta el nombre
+
+    RateLimited:
+      description: '`rate_limited` u `otp_locked`: demasiados intentos.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'
+
+    InternalError:
+      description: '`internal_error`: falla del servidor; el detalle va en logs, no en el cuerpo.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorBody'

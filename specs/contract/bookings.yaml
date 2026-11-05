@@ -1,0 +1,47 @@
+openapi: 3.1.0
+info:
+  title: VECI — citas
+  version: 0.1.0
+  description: Citas apartadas por un vecino en un horario libre (capacidad `citas`).
+
+components:
+  schemas:
+    BookingRequest:
+      type: object
+      description: Lo que manda el vecino para apartar una cita.
+      required:
+        - businessId
+        - service
+        - day
+        - time
+        - customerName
+      properties:
+        businessId:
+          type: string
+        service:
+          type: string
+        day:
+          type: string
+          enum:
+            - today
+            - tomorrow
+        time:
+          type: string
+          description: 'Hora libre del negocio, `"HH:MM"`.'
+        customerName:
+          type: string
+
+    Booking:
+      description: Cita apartada.
+      allOf:
+        - $ref: '#/components/schemas/BookingRequest'
+        - type: object
+          required:
+            - id
+            - createdAt
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time

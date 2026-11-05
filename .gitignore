@@ -12,6 +12,9 @@ coverage
 .nitro
 .cache
 
+# --- Contrato (artefactos generados) ---
+specs/contract/dist/
+
 # --- Python ---
 __pycache__/
 *.py[cod]

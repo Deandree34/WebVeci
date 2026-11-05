@@ -1,0 +1,30 @@
+openapi: 3.1.0
+info:
+  title: VECI — avisos
+  version: 0.1.0
+  description: Avisos de la colonia (corte de agua, tianguis, feria…).
+
+components:
+  schemas:
+    Notice:
+      type: object
+      required:
+        - id
+        - title
+        - detail
+        - date
+        - icon
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+          description: 'Hora · lugar (o lugar · nota), p. ej. "9 am – 2 pm · De Hidalgo a Juárez".'
+        date:
+          type: string
+          format: date
+          description: 'Fecha en la zona de la colonia, "YYYY-MM-DD".'
+        icon:
+          type: string

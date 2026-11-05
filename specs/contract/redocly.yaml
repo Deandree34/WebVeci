@@ -1,0 +1,10 @@
+# Reglas de lint del contrato (Redocly).
+# Se corre desde `web/`: npm run contract:lint
+extends:
+  - recommended
+
+rules:
+  # El contrato es privado: no lleva URL de licencia.
+  info-license-strict: off
+  # Hay operaciones que solo pueden fallar en 5xx (catálogos completos): el 4xx no aplica.
+  operation-4xx-response: off

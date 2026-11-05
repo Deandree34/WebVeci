@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: VECI — feed
+  version: 0.1.0
+  description: |
+    Publicaciones tipadas con acción (sin likes ni comentarios). Una sola reacción: el apretón de
+    manos de "Recomendar", que en las fotos cuenta por foto (`PostPhoto.likes`).
+
+components:
+  schemas:
+    FeedTab:
+      type: string
+      description: Pestaña del feed donde aparece el item (todos aparecen además en "Para ti").
+      enum:
+        - ofertas
+        - citas
+
+    FeedItemBase:
+      type: object
+      description: Campos comunes a todo item del feed.
+      required:
+        - id
+        - publishedAt
+        - business
+      properties:
+        id:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        tab:
+          $ref: '#/components/schemas/FeedTab'
+        business:
+          $ref: './businesses.yaml#/components/schemas/Business'
+
+    OfferItem:
+      description: Oferta del negocio (`business.promo`) con cuenta regresiva.
+      allOf:
+        - $ref: '#/components/schemas/FeedItemBase'
+        - type: object
+          required:
+            - type
+          properties:
+            type:
+              const: oferta
+
+    SlotsItem:
+      description: |
+        Aviso de citas disponibles (franja y nivel calculados al momento desde
+        `business.availability`).
+      allOf:
+        - $ref: '#/components/schemas/FeedItemBase'
+        - type: object
+          required:
+            - type
+          properties:
+            type:
+              const: horarios
+
+    ReviewItem:
+      description: Reseñas destacadas del negocio (`business.reviews`), las publica VECI.
+      allOf:
+        - $ref: '#/components/schemas/FeedItemBase'
+        - type: object
+          required:
+            - type
+          properties:
+            type:
+              const: resena
+
+    PostPhoto:
+      type: object
+      description: |
+        Foto de una publicación del negocio. Puede llevar su propio texto (`caption`) y su contador
+        de reacciones (`likes`, el apretón de manos, sin contar el del vecino).
+      required:
+        - id
+        - src
+        - alt
+        - likes
+      properties:
+        id:
+          type: string
+        src:
+          type: string
+        alt:
+          type: string
+        caption:
+          type: string
+        likes:
+          type: integer
+          minimum: 0
+
+    PostItem:
+      description: 'Publicación normal del negocio (novedades, estrenos): texto y fotos, sin acción principal.'
+      allOf:
+        - $ref: '#/components/schemas/FeedItemBase'
+        - type: object
+          required:
+            - type
+            - text
+            - photos
+          properties:
+            type:
+              const: publicacion
+            text:
+              type: string
+            photos:
+              type: array
+              items:
+                $ref: '#/components/schemas/PostPhoto'
+
+    FeedItem:
+      description: Item del feed; el tipo lo dice `type`.
+      oneOf:
+        - $ref: '#/components/schemas/OfferItem'
+        - $ref: '#/components/schemas/SlotsItem'
+        - $ref: '#/components/schemas/ReviewItem'
+        - $ref: '#/components/schemas/PostItem'
+      discriminator:
+        propertyName: type
+        mapping:
+          oferta: '#/components/schemas/OfferItem'
+          horarios: '#/components/schemas/SlotsItem'
+          resena: '#/components/schemas/ReviewItem'
+          publicacion: '#/components/schemas/PostItem'
+
+    FeedPage:
+      type: object
+      description: Página del feed, ya ordenada por relevancia en el backend.
+      required:
+        - items
+        - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedItem'
+        nextCursor:
+          type:
+            - string
+            - 'null'
+          description: Cursor de la página siguiente; `null` en la última.

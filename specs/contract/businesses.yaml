@@ -1,0 +1,242 @@
+openapi: 3.1.0
+info:
+  title: VECI — negocios
+  version: 0.1.0
+  description: Negocios de la colonia, sus servicios, horarios, ofertas y reseñas.
+
+components:
+  schemas:
+    HourRange:
+      type: array
+      description: |
+        Rango de horario `[abre, cierra]` en horas (0–24). `> 24` = madrugada del día siguiente,
+        p. ej. `[18, 26]` es de 6 pm a 2 am.
+      prefixItems:
+        - type: integer
+          minimum: 0
+        - type: integer
+          minimum: 0
+      minItems: 2
+      maxItems: 2
+
+    Service:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+          description: Precio en MXN.
+        fromPrice:
+          type: boolean
+          description: El precio es el mínimo ("Desde $450") porque varía según el trabajo.
+        durationMinutes:
+          type: integer
+          description: Duración aproximada en minutos.
+        note:
+          type: string
+          description: 'Aclaración corta, p. ej. "Incluye lavado".'
+
+    PaymentMethod:
+      type: string
+      enum:
+        - efectivo
+        - tarjeta
+        - transferencia
+
+    BusinessContact:
+      type: object
+      description: Contacto del negocio (el del vecino nunca se expone).
+      properties:
+        whatsapp:
+          type: string
+          description: Número a 10 dígitos para WhatsApp.
+        phone:
+          type: string
+
+    Availability:
+      type: object
+      description: Horarios libres (`"HH:MM"`) para hoy y mañana (capacidad `citas`).
+      required:
+        - today
+        - tomorrow
+      properties:
+        today:
+          type: array
+          items:
+            type: string
+        tomorrow:
+          type: array
+          items:
+            type: string
+
+    Promo:
+      type: object
+      description: Oferta del negocio con vigencia y cuenta regresiva.
+      required:
+        - text
+        - note
+        - remaining
+        - until
+      properties:
+        text:
+          type: string
+        note:
+          type: string
+        remaining:
+          type: string
+          description: 'Texto de disponibilidad, p. ej. "Quedan 4 lugares".'
+        until:
+          type: string
+          description: Vigencia hasta hoy (a `endsAtHour`) o hasta el fin de semana.
+          enum:
+            - today
+            - week
+        endsAtHour:
+          type: integer
+
+    Review:
+      type: object
+      description: Reseña de un vecino tras un servicio real.
+      required:
+        - text
+        - author
+        - street
+        - rating
+      properties:
+        text:
+          type: string
+        author:
+          type: string
+        street:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+
+    Recommender:
+      type: object
+      description: Vecino que recomienda un negocio; solo nombre de pila y calle (privacidad).
+      required:
+        - name
+        - street
+      properties:
+        name:
+          type: string
+        street:
+          type: string
+
+    BusinessSummary:
+      type: object
+      description: Lo mínimo para mostrar un negocio (cabeceras, historias, listas).
+      required:
+        - id
+        - slug
+        - name
+        - categoryId
+        - subcategory
+        - icon
+        - verified
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        name:
+          type: string
+        categoryId:
+          type: string
+        subcategory:
+          type: string
+        icon:
+          type: string
+        logoUrl:
+          type: string
+          description: Logo del negocio; sin él se usa el ícono del giro.
+        verified:
+          type: boolean
+
+    Business:
+      description: Negocio de la colonia.
+      allOf:
+        - $ref: '#/components/schemas/BusinessSummary'
+        - type: object
+          required:
+            - capabilities
+            - rating
+            - recommendations
+            - distanceMeters
+            - walkMinutes
+            - address
+            - description
+            - hours
+          properties:
+            capabilities:
+              type: array
+              items:
+                $ref: './categories.yaml#/components/schemas/Capability'
+            coverUrl:
+              type: string
+              description: Foto de portada del perfil; sin ella se usa el fondo carbón de VECI.
+            rating:
+              type: number
+              minimum: 0
+              maximum: 5
+            recommendations:
+              type: integer
+              description: Vecinos que lo recomiendan.
+            recommendedBy:
+              type: array
+              description: Algunos vecinos que lo recomiendan (prueba social en el feed).
+              items:
+                $ref: '#/components/schemas/Recommender'
+            distanceMeters:
+              type: integer
+            walkMinutes:
+              type: integer
+            address:
+              type: string
+            description:
+              type: string
+            hours:
+              type: array
+              description: Horario general (el que usan el feed y las listas).
+              items:
+                $ref: '#/components/schemas/HourRange'
+            weekHours:
+              type: array
+              description: |
+                Horario por día de la semana (0 = domingo); `[]` = cerrado.
+                Sin él, `hours` aplica todos los días.
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HourRange'
+            payments:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentMethod'
+            contact:
+              $ref: '#/components/schemas/BusinessContact'
+            services:
+              type: array
+              items:
+                $ref: '#/components/schemas/Service'
+            availability:
+              $ref: '#/components/schemas/Availability'
+            promo:
+              $ref: '#/components/schemas/Promo'
+            extraPromos:
+              type: array
+              description: Otras ofertas vigentes (se ven en "Ver oferta" y en su página, no en el feed).
+              items:
+                $ref: '#/components/schemas/Promo'
+            reviews:
+              type: array
+              description: Reseñas de vecinos tras un servicio real; la primera es la destacada.
+              items:
+                $ref: '#/components/schemas/Review'

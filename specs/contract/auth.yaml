@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: VECI — acceso
+  version: 0.1.0
+  description: |
+    Acceso con celular + código. **Provisional**: el spec `001-acceso` lo reemplaza por la
+    verificación inversa de WhatsApp y passkeys (ver `specs/constitution.md` §4).
+
+components:
+  schemas:
+    OtpChannel:
+      type: string
+      description: 'Por dónde llega el código: WhatsApp primero; SMS como respaldo.'
+      enum:
+        - whatsapp
+        - sms
+
+    OtpSent:
+      type: object
+      description: Código enviado, a qué canal y cuándo se puede pedir otro.
+      required:
+        - channel
+        - resendIn
+      properties:
+        channel:
+          $ref: '#/components/schemas/OtpChannel'
+        resendIn:
+          type: integer
+          minimum: 0
+          description: Segundos que faltan para poder pedir otro código.
+
+    OtpVerification:
+      type: object
+      description: |
+        Código correcto. Entrar y crear cuenta son el mismo flujo: con un número nuevo, `isNew`
+        pide completar el perfil (nombre y colonia).
+
+        La sesión la guarda **FastAPI** en una cookie `httpOnly`; el navegador nunca ve el token.
+
+        Código incorrecto → `otp_invalid` (400, `details.attemptsLeft`), `otp_expired` (400) u
+        `otp_locked` (429).
+      required:
+        - isNew
+      properties:
+        isNew:
+          type: boolean
+        user:
+          $ref: './me.yaml#/components/schemas/Person'

@@ -1,0 +1,36 @@
+{
+  "name": "web-veci",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxi typecheck",
+    "contract:lint": "redocly lint --config ../specs/contract/redocly.yaml ../specs/contract/openapi.yaml",
+    "contract:bundle": "redocly bundle --config ../specs/contract/redocly.yaml ../specs/contract/openapi.yaml -o ../specs/contract/dist/openapi.bundled.yaml",
+    "contract:types": "npm run contract:bundle && openapi-typescript ../specs/contract/dist/openapi.bundled.yaml -o app/api/generated/schema.d.ts"
+  },
+  "dependencies": {
+    "@nuxt/fonts": "^1.0.1",
+    "@nuxt/icon": "^2.5.1",
+    "@pinia/nuxt": "^1.0.3",
+    "@tanstack/vue-query": "^5.104.4",
+    "nuxt": "^4.6.1",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.43",
+    "vue-router": "^5.4.0"
+  },
+  "devDependencies": {
+    "@iconify-json/material-symbols": "^1.2.95",
+    "@redocly/cli": "^2.72.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.19.2",
+    "openapi-typescript": "^7.13.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^2.2.12"
+  }
+}

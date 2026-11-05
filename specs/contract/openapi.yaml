@@ -1,0 +1,433 @@
+openapi: 3.1.0
+
+info:
+  title: VECI API
+  version: 0.1.0
+  summary: Red social de barrio — negocios, feed, historias, citas y avisos.
+  description: |
+    Contrato único de VECI. Lo consumen el Nuxt (`web/`) y el FastAPI (`api/`); el mock de Nitro
+    (`web/server/api/v1/`) solo **imita** estas respuestas con datos dummy.
+
+    Reglas (ver `specs/constitution.md`):
+
+    - Éxito: el recurso tal cual, **sin envoltorio**. Listas paginadas: `{ items, nextCursor }`.
+    - Error: `{ error: { code, message, details? } }` con el **status HTTP real**.
+    - **camelCase**; fechas ISO-8601 en UTC.
+    - Versión **pre-1.0**: mientras no haya backend desplegado, el contrato puede cambiar de forma
+      incompatible. La regla de "en `/v1` solo se agrega" entra en vigor con la `1.0.0`.
+
+    El flujo `/auth/otp` es **provisional**: el spec `001-acceso` lo reemplaza por la verificación
+    inversa de WhatsApp y passkeys.
+  license:
+    name: Propietario — VECI
+
+servers:
+  - url: /api/v1
+    description: Mock de Nitro en desarrollo (`web/server/api/v1/`)
+  - url: https://api.veci.mx/v1
+    description: Backend FastAPI (producción)
+
+tags:
+  - name: auth
+    description: Acceso con celular + código (provisional).
+  - name: me
+    description: Cuenta del vecino y sus notificaciones.
+  - name: businesses
+    description: Negocios de la colonia.
+  - name: categories
+    description: Catálogo de giros.
+  - name: feed
+    description: Publicaciones tipadas con acción.
+  - name: stories
+    description: Historias de 24 h.
+  - name: bookings
+    description: Citas apartadas por el vecino.
+  - name: notices
+    description: Avisos de la colonia.
+
+security: []
+
+paths:
+  # ---------------------------------------------------------------------------
+  # Acceso (provisional)
+  # ---------------------------------------------------------------------------
+  /auth/otp:
+    post:
+      operationId: sendOtp
+      tags: [auth]
+      summary: Manda el código de acceso al celular
+      description: |
+        Responde igual exista o no la cuenta: nadie puede averiguar qué números están registrados.
+        El celular son 10 dígitos, sin lada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - phone
+                - channel
+              properties:
+                phone:
+                  type: string
+                  pattern: '^\d{10}$'
+                channel:
+                  $ref: './auth.yaml#/components/schemas/OtpChannel'
+      responses:
+        '200':
+          description: Código enviado.
+          content:
+            application/json:
+              schema:
+                $ref: './auth.yaml#/components/schemas/OtpSent'
+        '422':
+          $ref: './common.yaml#/components/responses/ValidationError'
+        '429':
+          $ref: './common.yaml#/components/responses/RateLimited'
+
+  /auth/otp/verify:
+    post:
+      operationId: verifyOtp
+      tags: [auth]
+      summary: Verifica el código y abre la sesión
+      description: |
+        Entrar y crear cuenta son el mismo flujo: con un número nuevo, `isNew: true` pide completar
+        el perfil (nombre y colonia) con `PATCH /me`.
+
+        La sesión la guarda **FastAPI** en una cookie `httpOnly`; el navegador nunca ve el token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - phone
+                - code
+              properties:
+                phone:
+                  type: string
+                  pattern: '^\d{10}$'
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          description: Código correcto; la sesión viaja en `Set-Cookie`.
+          content:
+            application/json:
+              schema:
+                $ref: './auth.yaml#/components/schemas/OtpVerification'
+        '400':
+          description: '`otp_invalid` (con `details.attemptsLeft`) u `otp_expired`.'
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ApiErrorBody'
+              example:
+                error:
+                  code: otp_invalid
+                  message: El código no es correcto
+                  details:
+                    attemptsLeft: 3
+        '422':
+          $ref: './common.yaml#/components/responses/ValidationError'
+        '429':
+          description: '`otp_locked`: demasiados intentos con este número.'
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ApiErrorBody'
+
+  # ---------------------------------------------------------------------------
+  # Cuenta
+  # ---------------------------------------------------------------------------
+  /me:
+    get:
+      operationId: getMe
+      tags: [me]
+      summary: Cuenta autenticada
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cuenta del vecino.
+          content:
+            application/json:
+              schema:
+                $ref: './me.yaml#/components/schemas/Person'
+        '401':
+          $ref: './common.yaml#/components/responses/Unauthorized'
+    patch:
+      operationId: updateMe
+      tags: [me]
+      summary: Completa el perfil de una cuenta nueva
+      description: Nombre y colonia son obligatorios.
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './me.yaml#/components/schemas/NewProfile'
+      responses:
+        '200':
+          description: Perfil actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: './me.yaml#/components/schemas/Person'
+        '401':
+          $ref: './common.yaml#/components/responses/Unauthorized'
+        '422':
+          $ref: './common.yaml#/components/responses/ValidationError'
+
+  /me/notifications:
+    get:
+      operationId: listMyNotifications
+      tags: [me]
+      summary: Notificaciones del vecino
+      description: De la más reciente a la más antigua, paginadas por cursor.
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Página de notificaciones.
+          content:
+            application/json:
+              schema:
+                $ref: './me.yaml#/components/schemas/NotificationPage'
+        '401':
+          $ref: './common.yaml#/components/responses/Unauthorized'
+        '422':
+          $ref: './common.yaml#/components/responses/ValidationError'
+
+  # ---------------------------------------------------------------------------
+  # Negocios
+  # ---------------------------------------------------------------------------
+  /businesses:
+    get:
+      operationId: listBusinesses
+      tags: [businesses]
+      summary: Negocios de la colonia
+      description: Catálogo completo; la colección está acotada, por eso no se pagina.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: Filtra por `categoryId`.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Negocios (todos o de la categoría pedida).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './businesses.yaml#/components/schemas/Business'
+        '422':
+          $ref: './common.yaml#/components/responses/ValidationError'
+
+  /businesses/{slug}:
+    get:
+      operationId: getBusiness
+      tags: [businesses]
+      summary: Detalle de un negocio
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Acepta el `slug` o el `id`.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Negocio.
+          content:
+            application/json:
+              schema:
+                $ref: './businesses.yaml#/components/schemas/Business'
+        '404':
+          $ref: './common.yaml#/components/responses/NotFound'
+
+  /businesses/{slug}/posts:
+    get:
+      operationId: listBusinessPosts
+      tags: [businesses]
+      summary: Publicaciones de un negocio
+      description: |
+        De la más reciente a la más antigua. Solo lo que escribe el negocio: sin las reseñas
+        destacadas (las publica VECI) y sin el aviso de horarios.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Acepta el `slug` o el `id`.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Publicaciones del negocio.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './feed.yaml#/components/schemas/FeedItem'
+        '404':
+          $ref: './common.yaml#/components/responses/NotFound'
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: Catálogo de giros
+      description: Completo, incluidas las categorías que aún se muestran como "Próximamente".
+      responses:
+        '200':
+          description: Categorías.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './categories.yaml#/components/schemas/Category'
+
+  # ---------------------------------------------------------------------------
+  # Feed
+  # ---------------------------------------------------------------------------
+  /feed:
+    get:
+      operationId: getFeed
+      tags: [feed]
+      summary: Página del feed
+      description: |
+        Ya ordenada por relevancia (franja horaria, abierto ahora, vigencia de ofertas): ese orden
+        lo calcula el backend, el cliente no reordena.
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - name: tab
+          in: query
+          required: false
+          description: Filtra por pestaña; sin `tab` son todos ("Para ti").
+          schema:
+            $ref: './feed.yaml#/components/schemas/FeedTab'
+      responses:
+        '200':
+          description: Página del feed.
+          content:
+            application/json:
+              schema:
+                $ref: './feed.yaml#/components/schemas/FeedPage'
+        '422':
+          $ref: './common.yaml#/components/responses/ValidationError'
+
+  /stories:
+    get:
+      operationId: listStories
+      tags: [stories]
+      summary: Historias visibles
+      responses:
+        '200':
+          description: Historias de las últimas 24 h.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './stories.yaml#/components/schemas/Story'
+
+  # ---------------------------------------------------------------------------
+  # Citas
+  # ---------------------------------------------------------------------------
+  /bookings:
+    post:
+      operationId: createBooking
+      tags: [bookings]
+      summary: Aparta una cita
+      description: Solo en un horario libre del negocio (capacidad `citas`).
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './bookings.yaml#/components/schemas/BookingRequest'
+      responses:
+        '201':
+          description: Cita apartada.
+          content:
+            application/json:
+              schema:
+                $ref: './bookings.yaml#/components/schemas/Booking'
+        '401':
+          $ref: './common.yaml#/components/responses/Unauthorized'
+        '404':
+          $ref: './common.yaml#/components/responses/NotFound'
+        '422':
+          $ref: './common.yaml#/components/responses/ValidationError'
+
+  # ---------------------------------------------------------------------------
+  # Avisos
+  # ---------------------------------------------------------------------------
+  /notices:
+    get:
+      operationId: listNotices
+      tags: [notices]
+      summary: Avisos de la colonia
+      description: Próximos avisos, ordenados por fecha.
+      responses:
+        '200':
+          description: Avisos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './notices.yaml#/components/schemas/Notice'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: veci_session
+      description: |
+        Sesión de la web: cookie `httpOnly` + `Secure` + `SameSite=Lax` que emite FastAPI
+        (`Domain=.veci.mx`). El navegador nunca ve el token. **No hay BFF.**
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: 'App móvil futura: el mismo backend con `Authorization: Bearer`.'
+
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      description: Cursor opaco que devolvió la página anterior (`nextCursor`).
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Tamaño de página; el backend decide el máximo.
+      schema:
+        type: integer
+        minimum: 1
